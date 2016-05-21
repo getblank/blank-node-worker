@@ -5,6 +5,8 @@ import WampClient from "wamp";
 import taskRunner from "./taskRunner";
 import configStore from "./configStore";
 import db from "./db";
+import consoleHandler from "./consoleHandler";
+consoleHandler.setup("debug");
 
 global.WebSocket = require("ws");
 let wampClient = new WampClient(true, true),
@@ -47,6 +49,7 @@ function subscribeToSR() {
 
 function subscribeToConfig() {
     var updateConfig = function (data) {
+        console.log("Config received");
         _config = data;
         setupModules();
     };
@@ -58,11 +61,17 @@ function subscribeToConfig() {
 }
 
 function setupModules() {
+    console.log("Modules setup started");
     configStore.setup(_config);
     db.setup("mongodb://localhost:27017/blank");
-    let taskQueueList = _serviceRegistry.taskQueue || [],
-        firstTQ = taskQueueList[0] || {};
-    if (firstTQ) {
-        taskRunner.setup(firstTQ.address + ":" + firstTQ.port);
+    if (configStore.isReady()) {
+        let taskQueueList = _serviceRegistry.taskQueue || [],
+            firstTQ = taskQueueList[0] || {};
+        if (firstTQ) {
+            taskRunner.setup(firstTQ.address + ":" + firstTQ.port);
+        }
+    } else {
+        taskRunner.setup(null);
     }
+    console.log("Modules setup finished");
 }

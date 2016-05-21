@@ -7,6 +7,7 @@
     "minimist": "latest",
     "mongodb": "^2.1.18",
     "scrypt": "^6.0.3",
+    "winston": "^2.2.0",
     "ws": "latest"
   },
   "devDependencies": {

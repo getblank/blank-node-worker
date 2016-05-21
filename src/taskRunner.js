@@ -4,12 +4,9 @@ import WampClient from "wamp";
 import EventEmitter from "events";
 import configStore from "./configStore";
 import authUtils from "./auth";
-import db from "./db";
 import {taskTypes, taskUris} from "./const";
 
 let wampClient = new WampClient(true, true),
-    _connected = false,
-    // _busy = false,
     _uri = null;
 
 let emitter = new EventEmitter();
@@ -17,30 +14,27 @@ module.exports.on = emitter.on.bind(emitter);
 module.exports.removeListener = emitter.removeListener.bind(emitter);
 
 wampClient.onopen = function () {
-    _connected = true;
+    console.log("Connection to TaskQueue established");
     getTask();
-};
-wampClient.onclose = function () {
-    _connected = false;
 };
 
 module.exports.setup = function (uri) {
     if (uri != _uri) {
         _uri = uri;
+        wampClient.close();
         if (uri) {
-            wampClient.close();
             setTimeout(() => {
+                console.log(`Connecting to TaskQueue: ${uri}`);
                 wampClient.open(uri);
             });
         }
     }
-    getTask();
 };
 
 module.exports.test = {
     "setWamp": function (client) {
         wampClient = client;
-        _connected = true;
+        wampClient.state = 1;
     },
     "validateTask": validateTask,
     "runTask": runTask,
@@ -48,20 +42,24 @@ module.exports.test = {
 };
 
 function getTask() {
-    if (!_connected || !configStore.isReady()) { // || _busy) {
+    if (wampClient.state !== 1) {
+        console.warn("getTask called while no connection to TaskQueue");
         return;
     }
-    // _busy = true;
+    console.debug("Wating for task...");
     wampClient.call(taskUris.get, (data, err) => {
         if (err == null) {
+            console.debug("Task received");
             runTask(data);
+        } else {
+            console.warn(`Error while getting task: ${err}`);
         }
-        // _busy = false;
         getTask();
     });
 }
 
 function runTask(task) {
+    task._started = Date.now();
     try {
         validateTask(task);
     } catch (e) {
@@ -98,7 +96,8 @@ function runTask(task) {
 }
 
 function sendTaskError(task, e) {
-    if (_connected) {
+    console.debug(`${task.id || "UNKNOWN_TASK_ID"} | Task error: ${e} | ${Date.now() - task._started}ms`);
+    if (wampClient.state === 1) {
         wampClient.call(taskUris.error, null, task.id || "UNKNOWN_TASK_ID", e);
     } else {
         //TODO - create send queue
@@ -106,7 +105,8 @@ function sendTaskError(task, e) {
 }
 
 function sendTaskResult(task, d) {
-    if (_connected) {
+    console.debug(`${task.id} | Task completed | ${Date.now() - task._started}ms`);
+    if (wampClient.state === 1) {
         wampClient.call(taskUris.done, null, task.id, d);
     } else {
         //TODO - create send queue
