@@ -15,10 +15,11 @@
     "mocha": "latest"
   },
   "scripts": {
-    "build": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js src -d lib",
     "startHelper": "SR=\"ws://localhost:1234\" npm start",
-    "start": "babel src -d lib && NODE_PATH='../../common' node ./lib/worker.js $SR",
-    "test": "babel src -d lib && NODE_PATH='../../common' mocha ./tests"
+    "prestart": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js src -d lib",
+    "start": "NODE_PATH='./blank-js-core' node ./lib/worker.js $SR",
+    "pretest": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js src -d lib",
+    "test": "NODE_PATH='./blank-js-core' mocha ./tests"
   },
   "babel": {
     "plugins": [
