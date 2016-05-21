@@ -29,6 +29,9 @@
   "keywords": [
     "Blank"
   ],
-  "author": "Blank",
-  "license": "MIT"
+  "author": {
+    "email": "info@getblank.net",
+    "name": "Evgeniy Kuvshinov & Evgeniy Ivakha"
+  },
+  "license": "GPL-3.0"
 }
