@@ -19,9 +19,9 @@ let dbMock = {
             cb(null, { "_id": id });
         });
     },
-    "set": function (id, store, item, cb) {
+    "set": function (item, store, cb) {
         setTimeout(function () {
-            cb(null, Object.assign({ "_id": id }, item));
+            cb(null, Object.assign({ "_id": item.id }, item.item));
         });
     },
     "delete": function (id, store, cb) {
@@ -152,13 +152,13 @@ describe("taskHandler/action", function () {
 
 describe("taskHandler/scheduledScript", function () {
     it("should callback error when invalid taskIndex", function (done) {
-        scheduledScript.run("storeWithTask", {"_id": "root"}, { "taskIndex": "ll" }, (e, d) => {
+        scheduledScript.run("storeWithTask", { "_id": "root" }, { "taskIndex": "ll" }, (e, d) => {
             assert.equal(e.message, "Invalid args.");
             done();
         });
     });
     it("should callback error when no scheduledScript description found", function (done) {
-        scheduledScript.run("storeWithTask", {"_id": "root"}, { "taskIndex": 23 }, (e, d) => {
+        scheduledScript.run("storeWithTask", { "_id": "root" }, { "taskIndex": 23 }, (e, d) => {
             assert.equal(e.message, "Task not found");
             done();
         });
@@ -170,7 +170,7 @@ describe("taskHandler/scheduledScript", function () {
             console.warn = consoleWarn;
             done();
         };
-        scheduledScript.run("storeWithTask", {"_id": "root"}, { "taskIndex": 0 }, (e, d) => {
+        scheduledScript.run("storeWithTask", { "_id": "root" }, { "taskIndex": 0 }, (e, d) => {
         });
     });
 });
@@ -203,7 +203,7 @@ describe("taskHandlers/db", function () {
             }, /Invalid args/);
         });
         it("should return object when valid args", function (done) {
-            dbSet.run(storeName, user, { "_id": "00000000-0000-0000-0000-000000000000", "item": { "test": true } }, (e, d) => {
+            dbSet.run(storeName, user, { "item": { "_id": "00000000-0000-0000-0000-000000000000", "item": { "test": true } } }, (e, d) => {
                 assert.ok(d.test);
                 done();
             });
