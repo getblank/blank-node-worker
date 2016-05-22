@@ -2,6 +2,7 @@
 
 import TaskHandlerBase from "./TaskHandlerBase";
 import configStore from "../configStore";
+import userScriptRequire from "../userScriptRequire";
 
 class PerformAction extends TaskHandlerBase {
     __run(cb, actionDesc, user, data, item) {
@@ -13,7 +14,7 @@ class PerformAction extends TaskHandlerBase {
             cb(new Error("Action is disabled"), null);
             return;
         }
-        cb(null, actionDesc.script(this.db, user, item, data));
+        cb(null, actionDesc.script(this.db, userScriptRequire, user, item, data));
     }
 
     run(storeName, user, args, cb) {

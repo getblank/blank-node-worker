@@ -39,8 +39,8 @@ module.exports = {
                 "disabled": "return $item.disabled;",
             },
             {
-                "_id": "db_available_test",
-                "script": "if ($db != null && typeof $db.get === 'function') {return 'ok';} else {return 'fail';}",
+                "_id": "availability_test",
+                "script": "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {return 'ok';} else {return 'fail';}",
             },
         ],
         "storeActions": [
@@ -183,13 +183,13 @@ module.exports = {
         "tasks": [
             {
                 "schedule": "*/5  *   *   *   *  *",
-                "script": "if ($db != null && typeof $db.get === 'function') {console.warn('42');}",
+                "script": "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
             },
         ],
     },
     "storeWithLifeCycle": {
         "storeLifeCycle": {
-            "didStart": "if ($db != null && typeof $db.get === 'function') {console.warn('42');}"
+            "didStart": "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
         },
     },
     "testWorkspace": {

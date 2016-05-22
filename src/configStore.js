@@ -189,7 +189,7 @@ class ConfigStore {
         if (res == null) {
             throw new Error("Action not found");
         }
-        res.script = new Function("$db", "$user", "$item", "$data", res.script);
+        res.script = new Function("$db", "require", "$user", "$item", "$data", res.script);
         res.hidden = new Function("$user", "$item", res.hidden || "return false;");
         res.disabled = new Function("$user", "$item", res.disabled || "return false;");
         storeDesc._actionsCache[actionId] = res;
@@ -208,7 +208,7 @@ class ConfigStore {
             return storeDesc._tasksCache[taskIndex];
         }
         let res = storeDesc.tasks[taskIndex];
-        res.script = new Function("$db", res.script);
+        res.script = new Function("$db", "require", res.script);
         storeDesc._tasksCache[taskIndex] = res;
         return res;
     }
@@ -224,7 +224,7 @@ class ConfigStore {
         if (storeDesc._storeLifeCycleHandlerCache[event]) {
             return storeDesc._storeLifeCycleHandlerCache[event];
         }
-        let handler = new Function("$db", storeDesc.storeLifeCycle[event]);
+        let handler = new Function("$db", "require", storeDesc.storeLifeCycle[event]);
         storeDesc._storeLifeCycleHandlerCache[event] = handler;
         return handler;
     }

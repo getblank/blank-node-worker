@@ -2,6 +2,7 @@
 
 import TaskHandlerBase from "./TaskHandlerBase";
 import configStore from "../configStore";
+import userScriptRequire from "../userScriptRequire";
 
 class StoreLifeCycle extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -17,7 +18,7 @@ class StoreLifeCycle extends TaskHandlerBase {
         if (eventDesc == null) {
             return cb(new Error("Handler not found"), null);
         }
-        cb(null, eventDesc(this.db));
+        cb(null, eventDesc(this.db, userScriptRequire));
     }
 }
 let storeLifeCycle = new StoreLifeCycle();
