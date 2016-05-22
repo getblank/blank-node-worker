@@ -8,6 +8,7 @@ import configStore from "./configStore";
 import db from "./db";
 import consoleHandler from "./consoleHandler";
 import sessions from "./sessions";
+import "./db/events";
 consoleHandler.setup("debug");
 
 global.WebSocket = require("ws");

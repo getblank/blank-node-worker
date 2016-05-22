@@ -61,7 +61,14 @@ class Db extends EventEmitter {
 
     insert(item, store, options = {}, cb = () => { }) {
         item._id = this.newId();
-        return this.set(item, store, options, cb);
+        options.noEmitUpdate = true;
+        return this.set(item, store, options, (err, $item) => {
+            if (err) {
+                return cb(err, null);
+            }
+            this.emit("create", store, item, null);
+            cb(null, $item);
+        });
     }
 
     loadVirtualProps(item, store, cb) { }
@@ -85,7 +92,15 @@ class Db extends EventEmitter {
         if (!item._id) {
             return cb(new Error("No _id provided"), null);
         }
-        db._set(item._id, store, item, cb);
+        db._set(item._id, store, item, (err, $item) => {
+            if (err) {
+                return cb(err, null);
+            }
+            if (!options.noEmitUpdate) {
+                this.emit("update", store, item, null);
+            }
+            cb(null, $item);
+        });
     }
 
     setDangerously(item, store, cb) { }
