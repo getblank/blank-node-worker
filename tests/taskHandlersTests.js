@@ -65,6 +65,8 @@ describe("taskHandler/authentication", function () {
                         "name": "Test user",
                         "hashedPassword": "MxRqmuKK+KK96rhbezMbqx87Dnn7RwNRJcU6outfanA=",
                         "salt": "1",
+                        "activationToken": "ololo",
+                        "passwordResetToken": "ololo",
                     });
                 });
             },
@@ -88,6 +90,15 @@ describe("taskHandler/authentication", function () {
     it("should callback user if password valid", function (done) {
         authentication.run(storeName, user, { "login": "1", "password": "1" }, function (e, d) {
             assert.equal(d._id, "42");
+            done();
+        });
+    });
+    it("should cleanup user hashedPassword, salt, activationToken and passwordResetToken", function (done) {
+        authentication.run(storeName, user, { "login": "1", "password": "1" }, function (e, d) {
+            assert.ok(d.hashedPassword == null);
+            assert.ok(d.salt == null);
+            assert.ok(d.activationToken == null);
+            assert.ok(d.passwordResetToken == null);
             done();
         });
     });
