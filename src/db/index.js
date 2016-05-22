@@ -40,13 +40,15 @@ class Db {
     getAllKeys(store, cb) { }
 
     insert(item, store, options = {}, cb = () => { }) {
-        item._id = uuid.v4();
+        item._id = this.newId();
         return this.set(item, store, options, cb);
     }
 
     loadVirtualProps(item, store, cb) { }
 
-    newId() { }
+    newId() {
+        return uuid.v4();
+    }
 
     nextSequence(store, cb) { }
 
