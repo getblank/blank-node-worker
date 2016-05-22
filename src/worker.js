@@ -3,6 +3,7 @@
 import minimist from "minimist";
 import WampClient from "wamp";
 import taskRunner from "./taskRunner";
+import taskqClient from "./taskqClient";
 import configStore from "./configStore";
 import db from "./db";
 import consoleHandler from "./consoleHandler";
@@ -68,10 +69,10 @@ function setupModules() {
         let taskQueueList = _serviceRegistry.taskQueue || [],
             firstTQ = taskQueueList[0];
         if (firstTQ && firstTQ.address) {
-            taskRunner.setup(firstTQ.address + (firstTQ.port ? ":" + firstTQ.port : ""));
+            taskqClient.setup(firstTQ.address + (firstTQ.port ? ":" + firstTQ.port : ""));
         }
     } else {
-        taskRunner.setup(null);
+        taskqClient.setup(null);
     }
     console.log("Modules setup finished");
 }

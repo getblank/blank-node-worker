@@ -1,14 +1,12 @@
 "use strict";
 
-import WampClient from "wamp";
+import taskqClient from "./taskqClient";
 import EventEmitter from "events";
 import configStore from "./configStore";
 import authUtils from "./auth";
 import {taskTypes, taskUris} from "./const";
 
-let wampClient = new WampClient(true, true),
-    _uri = null,
-    _connectTimer = null;
+let wampClient = taskqClient.wampClient;
 
 let emitter = new EventEmitter();
 module.exports.on = emitter.on.bind(emitter);
@@ -17,20 +15,6 @@ module.exports.removeListener = emitter.removeListener.bind(emitter);
 wampClient.onopen = function () {
     console.log("Connection to TaskQueue established");
     getTask();
-};
-
-module.exports.setup = function (uri) {
-    if (uri != _uri) {
-        _uri = uri;
-        wampClient.close();
-        if (uri) {
-            clearTimeout(_connectTimer);
-            _connectTimer = setTimeout(() => {
-                console.log(`Connecting to TaskQueue: ${uri}`);
-                wampClient.open(uri);
-            }, 300);
-        }
-    }
 };
 
 module.exports.test = {
