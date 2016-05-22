@@ -98,7 +98,7 @@ function runTask(task) {
 }
 
 function sendTaskError(task, e) {
-    console.debug(`${task.id || "UNKNOWN_TASK_ID"} | ${task.type || "UNKNOWN_TYPE"} | Task error: ${e} | ${Date.now() - task._started}ms`);
+    console.debug(`${task.id || "?"} | ${task.store || "?"} | ${task.type || "?"} | Task error: ${e} | ${Date.now() - task._started}ms`);
     if (wampClient.state === 1) {
         wampClient.call(taskUris.error, null, task.id || "UNKNOWN_TASK_ID", e);
     } else {
@@ -107,7 +107,7 @@ function sendTaskError(task, e) {
 }
 
 function sendTaskResult(task, d) {
-    console.debug(`${task.id} | ${task.type} | Task completed | ${Date.now() - task._started}ms`);
+    console.debug(`${task.id} | ${task.store} | ${task.type} | Task completed | ${Date.now() - task._started}ms`);
     if (wampClient.state === 1) {
         wampClient.call(taskUris.done, null, task.id, d);
     } else {
