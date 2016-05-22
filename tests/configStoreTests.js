@@ -186,6 +186,22 @@ describe("configStore", function () {
             assert.strictEqual(taskDesc.script, sameTaskDesc.script);
         });
     });
+    describe("#getStorEventHandler", function () {
+        it("should return null when store not found", function () {
+            let eventHandler = configStore.getStoreEventHandler("UNKNOWN_STORE");
+            assert.ok(eventHandler == null);
+        });
+        it("should return null when handler not found", function () {
+            let eventHandler = configStore.getStoreEventHandler("storeWithLifeCycle", "UNKNOWN_EVENT");
+            assert.ok(eventHandler == null);
+        });
+        it("should compile and cache script", function () {
+            let eventHandler = configStore.getStoreEventHandler("storeWithLifeCycle", "didStart");
+            assert.equal(typeof eventHandler, "function");
+            let sameEventHandler = configStore.getStoreEventHandler("storeWithLifeCycle", "didStart");
+            assert.strictEqual(eventHandler, sameEventHandler);
+        });
+    });
     describe("#getActionDesc", function () {
         it("should throw when store not found", function () {
             assert.throws(function () {

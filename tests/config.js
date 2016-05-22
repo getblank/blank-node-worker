@@ -187,6 +187,11 @@ module.exports = {
             },
         ],
     },
+    "storeWithLifeCycle": {
+        "storeLifeCycle": {
+            "didStart": "if ($db != null && typeof $db.get === 'function') {console.warn('42');}"
+        },
+    },
     "testWorkspace": {
         "type": "workspace",
         "config": {

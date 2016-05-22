@@ -11,6 +11,7 @@ var dbSet = require("../lib/taskHandlers/dbSet");
 var dbDelete = require("../lib/taskHandlers/dbDelete");
 var action = require("../lib/taskHandlers/action");
 var scheduledScript = require("../lib/taskHandlers/scheduledScript");
+var storeLifeCycle = require("../lib/taskHandlers/storeLifeCycle");
 var authentication = require("../lib/taskHandlers/authentication");
 var userConfig = require("../lib/taskHandlers/userConfig");
 let dbMock = {
@@ -171,6 +172,37 @@ describe("taskHandler/scheduledScript", function () {
             done();
         };
         scheduledScript.run("storeWithTask", { "_id": "root" }, { "taskIndex": 0 }, (e, d) => {
+        });
+    });
+});
+
+describe("taskHandler/storeLifeCycle", function () {
+    it("should callback error when user is not 'system'", function (done) {
+        storeLifeCycle.run("storeWithLifeCycle", { "_id": "root" }, {}, (e, d) => {
+            assert.equal(e.message, "Access denied");
+            done();
+        });
+    });
+    it("should callback error when invalid args", function (done) {
+        storeLifeCycle.run("storeWithLifeCycle", { "_id": "system" }, {}, (e, d) => {
+            assert.equal(e.message, "Invalid args");
+            done();
+        });
+    });
+    it("should callback error when no event description found", function (done) {
+        storeLifeCycle.run("storeWithLifeCycle", { "_id": "system" }, { "event": "UNKNOWN" }, (e, d) => {
+            assert.equal(e.message, "Handler not found");
+            done();
+        });
+    });
+    it("should run event handler script with available $db object", function (done) {
+        let consoleWarn = console.warn;
+        console.warn = function (d) {
+            assert.equal(d, "42");
+            console.warn = consoleWarn;
+            done();
+        };
+        storeLifeCycle.run("storeWithLifeCycle", { "_id": "system" }, { "event": "didStart" }, (e, d) => {
         });
     });
 });

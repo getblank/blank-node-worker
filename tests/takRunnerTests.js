@@ -9,6 +9,7 @@ var configStore = require("../lib/configStore");
 var WampMock = require("./wampMock");
 
 configStore.setup(testConfig);
+console.debug = console.log;
 
 let wampMock,
     sampleTask = {

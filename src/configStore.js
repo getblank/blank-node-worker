@@ -213,6 +213,22 @@ class ConfigStore {
         return res;
     }
 
+    getStoreEventHandler(storeName, event) {
+        let storeDesc = this._config[storeName];
+        if (storeDesc == null || storeDesc.storeLifeCycle == null || storeDesc.storeLifeCycle[event] == null) {
+            return null;
+        }
+        if (storeDesc._storeLifeCycleHandlerCache == null) {
+            storeDesc._storeLifeCycleHandlerCache = {};
+        }
+        if (storeDesc._storeLifeCycleHandlerCache[event]) {
+            return storeDesc._storeLifeCycleHandlerCache[event];
+        }
+        let handler = new Function("$db", storeDesc.storeLifeCycle[event]);
+        storeDesc._storeLifeCycleHandlerCache[event] = handler;
+        return handler;
+    }
+
     getBaseConfig(lang) {
         let cs = JSON.parse(JSON.stringify(this._config["_commonSettings"]));
         cs.i18n = this.__getI18N(cs.i18n, lang);

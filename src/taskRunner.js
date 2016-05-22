@@ -141,6 +141,12 @@ function auth(task, user, storeDesc) {
 function getUser(userId, cb) {
     setTimeout(() => {
         switch (userId) {
+            case "system":
+                cb(null, {
+                    "_id": userId,
+                    "roles": ["system"],
+                });
+                break;
             case "root":
                 cb(null, {
                     "_id": userId,

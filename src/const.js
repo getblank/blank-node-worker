@@ -12,7 +12,6 @@ export const taskUris = Enum(
 );
 
 export const taskTypes = Enum(
-    // "test",
     "authentication",
     "userConfig",
     "dbGet",
@@ -21,7 +20,8 @@ export const taskTypes = Enum(
     "dbFind",
     "action",
     "httpHook",
-    "scheduledScript"
+    "scheduledScript",
+    "storeLifeCycle"
 );
 
 export const clientStoreDef = {
