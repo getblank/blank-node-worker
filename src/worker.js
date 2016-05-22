@@ -66,9 +66,9 @@ function setupModules() {
     db.setup("mongodb://localhost:27017/blank");
     if (configStore.isReady()) {
         let taskQueueList = _serviceRegistry.taskQueue || [],
-            firstTQ = taskQueueList[0] || {};
-        if (firstTQ) {
-            taskRunner.setup(firstTQ.address + ":" + firstTQ.port);
+            firstTQ = taskQueueList[0];
+        if (firstTQ && firstTQ.address) {
+            taskRunner.setup(firstTQ.address + (firstTQ.port ? ":" + firstTQ.port : ""));
         }
     } else {
         taskRunner.setup(null);

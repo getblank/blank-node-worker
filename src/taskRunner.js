@@ -7,7 +7,8 @@ import authUtils from "./auth";
 import {taskTypes, taskUris} from "./const";
 
 let wampClient = new WampClient(true, true),
-    _uri = null;
+    _uri = null,
+    _connectTimer = null;
 
 let emitter = new EventEmitter();
 module.exports.on = emitter.on.bind(emitter);
@@ -23,10 +24,11 @@ module.exports.setup = function (uri) {
         _uri = uri;
         wampClient.close();
         if (uri) {
-            setTimeout(() => {
+            clearTimeout(_connectTimer);
+            _connectTimer = setTimeout(() => {
                 console.log(`Connecting to TaskQueue: ${uri}`);
                 wampClient.open(uri);
-            });
+            }, 300);
         }
     }
 };
