@@ -153,8 +153,8 @@ describe("taskHandler/action", function () {
             done();
         });
     });
-    it("should be an $db object available in script", function (done) {
-        action.run(storeName, user, { "actionId": "db_available_test", "itemId": "0" }, (e, d) => {
+    it("should provide 'require' function and $db object in script", function (done) {
+        action.run(storeName, user, { "actionId": "availability_test", "itemId": "0" }, (e, d) => {
             assert.equal(e, null);
             assert.equal(d, "ok");
             done();
@@ -175,7 +175,7 @@ describe("taskHandler/scheduledScript", function () {
             done();
         });
     });
-    it("should run task script with available $db object", function (done) {
+    it("should run task script with 'require' function and $db object", function (done) {
         let consoleWarn = console.warn;
         console.warn = function (d) {
             assert.equal(d, "42");
@@ -206,7 +206,7 @@ describe("taskHandler/storeLifeCycle", function () {
             done();
         });
     });
-    it("should run event handler script with available $db object", function (done) {
+    it("should run event handler script with 'require' function and $db object", function (done) {
         let consoleWarn = console.warn;
         console.warn = function (d) {
             assert.equal(d, "42");
