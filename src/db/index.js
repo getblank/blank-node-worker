@@ -3,9 +3,11 @@
 import db from "./rawDb";
 import configStore from "../configStore";
 import uuid from "node-uuid";
+import EventEmitter from "events";
 
-class Db {
+class Db extends EventEmitter {
     constructor() {
+        super();
         this.del = this.delete.bind(this);
         this.setup = db.setup.bind(db);
     }
@@ -20,7 +22,7 @@ class Db {
         if (!storeDesc) {
             return cb("Store not found");
         }
-        let filters = storeDesc.filters;
+        let filters = storeDesc.filters || {};
         request.query = request.query || {};
 
         for (let _queryName of Object.keys(request.query || {})) {
