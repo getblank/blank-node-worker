@@ -2,6 +2,7 @@
 
 import db from "./rawDb";
 import configStore from "../configStore";
+import uuid from "node-uuid";
 
 class Db {
     constructor() {
@@ -38,7 +39,10 @@ class Db {
 
     getAllKeys(store, cb) { }
 
-    insert(item, store, cb) { }
+    insert(item, store, options = {}, cb = () => { }) {
+        item._id = uuid.v4();
+        return this.set(item, store, options, cb);
+    }
 
     loadVirtualProps(item, store, cb) { }
 

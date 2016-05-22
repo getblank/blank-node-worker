@@ -5,6 +5,8 @@ var testConfig = require("./config");
 var configStore = require("../lib/configStore");
 configStore.setup(testConfig);
 var db = require("../lib/db/rawDb");
+var $db = require("../lib/db/index");
+
 
 describe("db", function () {
     before(function (done) {
@@ -109,12 +111,30 @@ describe("db", function () {
             });
         });
     });
+    describe("$db", function(){
+        describe("#insert", function(){
+            it("should return item with generated '_id'", function(done){
+                $db.insert({"name": "test"}, "users", function(err, item){
+                    assert.equal(err, null, "returned error");
+                    assert.ok(item._id, "no '_id' in item");
+                    done();
+                });
+            });
+            it("should return created item from db", function(done){
+                $db.insert({"name": "test"}, "users", function(err, item){
+                    assert.equal(err, null, "returned error");
+                    console.log(item);
+                    assert.ok(item._id, "no '_id' in item");
+                    $db.get(item._id, "users", (err, $item) => {
+                        assert.equal(err, null, "returned error");
+                        assert.equal($item.name, "test");
+                        done();
+                    });
+                });
+            });
+        });
+    });
     after(function () {
-        db._delete("AAAAAAAA-0000-0000-0000-000000000000", "users");
-        db._delete("AAAAAAAA-0000-0000-0000-000000000001", "users");
-        db._delete("AAAAAAAA-0000-0000-0000-000000000002", "users");
-        db._delete("AAAAAAAA-0000-0000-0000-000000000003", "users");
-        db._delete("AAAAAAAA-0000-0000-0000-000000000004", "users");
-
+        db._dropCollection("users");
     });
 });

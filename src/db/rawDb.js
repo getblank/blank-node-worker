@@ -128,8 +128,17 @@ class Db extends EventEmitter {
     }
 
     _set(id, store, data, cb = () => { }) {
-        let collection = this.db.collection(store);
-        collection.updateOne({ "_id": id }, { $set: data }, { upsert: true }, cb);
+        this.db.collection(store, {strict: false}, (err, collection) => {
+            if (err) {
+                return cb(err, null);
+            }
+            collection.updateOne({ "_id": id }, { $set: data }, { upsert: true }, (err, res) => {
+                if (err) {
+                    return cb(err, null);
+                }
+                cb(null, data);
+            });
+        });
     }
 
     _delete(id, store, cb = () => { }) {
@@ -144,6 +153,15 @@ class Db extends EventEmitter {
                 return;
             }
             cb(null, result);
+        });
+    }
+
+    _dropCollection(store, cb = () => {}) {
+        this.db.collection(store, { strict: true }, (err, collection) => {
+            if (err) {
+                return cb();
+            }
+            collection.drop(cb);
         });
     }
 
