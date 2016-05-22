@@ -1,7 +1,7 @@
 "use strict";
 
 import TaskHandlerBase from "./TaskHandlerBase";
-import scrypt from "scrypt";
+import hash from "../hash";
 
 class Authentication extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -14,9 +14,8 @@ class Authentication extends TaskHandlerBase {
             }
 
             var key = new Buffer(args.password);
-            scrypt.hash(key, { "N": 16384, "r": 8, "p": 1 }, 32, user.salt, function (err, res) {
-                let resStr = res.toString("base64");
-                if (user.hashedPassword != resStr) {
+            hash.calc(key, user.salt, function (err, res) {
+                if (user.hashedPassword != res) {
                     return cb(new Error("Password not match"), null);
                 }
                 delete user.hashedPassword;
