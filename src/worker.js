@@ -2,11 +2,12 @@
 
 import minimist from "minimist";
 import WampClient from "wamp";
-import taskRunner from "./taskRunner";
+import "./taskRunner";
 import taskqClient from "./taskqClient";
 import configStore from "./configStore";
 import db from "./db";
 import consoleHandler from "./consoleHandler";
+import sessions from "./sessions";
 consoleHandler.setup("debug");
 
 global.WebSocket = require("ws");
@@ -23,6 +24,7 @@ wampClient.onopen = function () {
     }, { "type": "worker" });
     subscribeToSR();
     subscribeToConfig();
+    subscribeToSessions();
 };
 wampClient.onclose = function () {
     console.info("Connection closed.");
@@ -44,6 +46,29 @@ function subscribeToSR() {
     wampClient.subscribe("registry", updateRegistry, updateRegistry, () => {
         if (_connected) {
             subscribeToSR();
+        }
+    });
+}
+
+function subscribeToSessions() {
+    var updateSessions = function (data) {
+        if (!data) {
+            return;
+        }
+        switch (data.event) {
+            case "updated":
+                sessions.update(data.data);
+                break;
+            case "deleted":
+                sessions.delete(data.data);
+                break;
+            case "init":
+                sessions.init(data.data);
+        }
+    };
+    wampClient.subscribe("sessions", updateSessions, updateSessions, () => {
+        if (_connected) {
+            subscribeToSessions();
         }
     });
 }
