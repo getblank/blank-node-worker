@@ -3,10 +3,17 @@ const denyReadReg = new RegExp("-\s*r");
 
 class Auth {
     computeAccess(rules, user, permissions) {
-        rules = (rules && rules.length) ? rules : [
+        rules = (Array.isArray(rules) && rules.length > 0) ? rules : [
             { "role": "root", "permissions": permissions || "crud" },
             { "role": "all", "permissions": permissions || "crud" },
         ];
+        for (let i = rules.length - 1; i >= 0; i--) {
+            let rule = rules[i];
+            if (rule.role === "system") {
+                rules.splice(i, 1);
+            }
+        }
+        rules.push({ "role": "system", "permissions": permissions || "crud" });
         this.__prepareUser(user);
 
         let canGrant = permissions || "crud", res = "";

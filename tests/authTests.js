@@ -16,6 +16,11 @@ let testUser = {
     ],
 };
 
+let systemUser = {
+    "_id": "system",
+    "roles": ["system"],
+};
+
 let allowXYZRule = {
     "role": "sclif",
     "permissions": "xyz",
@@ -37,6 +42,11 @@ let allowRule = {
 let denyRule = {
     "role": "sclif",
     "permissions": "c-rud",
+};
+
+let denySystem = {
+    "role": "system",
+    "permissions": "-r",
 };
 
 let denyRuleWithCondition = {
@@ -63,6 +73,10 @@ describe("auth", function () {
         });
         it("should process deny ('-') permissions only without conditions", function () {
             let access = auth.computeAccess([allowRule, denyRuleWithCondition], testUser, "r");
+            assert.equal(access, "r");
+        });
+        it("should always grant permissions for 'system' role", function () {
+            let access = auth.computeAccess([denySystem], systemUser, "r");
             assert.equal(access, "r");
         });
     });
