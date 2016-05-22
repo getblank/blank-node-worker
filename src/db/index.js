@@ -12,11 +12,29 @@ class Db {
 
     delete(_id, store, cb) { }
 
-    find(query, store, options = {}, cb = () => { }) {
+    find(request, store, options = {}, cb = () => { }) {
         if (typeof options === "function") {
             cb = options;
         }
-        db.find(query, store, cb);
+        let storeDesc = configStore.getStoreDesc(store);
+        if (!storeDesc) {
+            return cb("Store not found");
+        }
+        let filters = storeDesc.filters;
+        request.query = request.query || {};
+
+        for (let _queryName of Object.keys(request.query || {})) {
+            let filter = filters[_queryName];
+            if (!filter || !filter.query) {
+                continue;
+            }
+            let calculatedQuery = db._compileQuery(filter.query, request.query[_queryName]);
+            request.query.$and = request.query.$and || [];
+            request.query.$and.push(calculatedQuery);
+            delete request.query[_queryName];
+        }
+
+        db.find(request, store, cb);
     }
 
     get(_id, store, options = {}, cb = () => { }) {

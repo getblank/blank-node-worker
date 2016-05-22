@@ -128,7 +128,7 @@ class Db extends EventEmitter {
     }
 
     _set(id, store, data, cb = () => { }) {
-        this.db.collection(store, {strict: false}, (err, collection) => {
+        this.db.collection(store, { strict: false }, (err, collection) => {
             if (err) {
                 return cb(err, null);
             }
@@ -156,13 +156,35 @@ class Db extends EventEmitter {
         });
     }
 
-    _dropCollection(store, cb = () => {}) {
+    _dropCollection(store, cb = () => { }) {
         this.db.collection(store, { strict: true }, (err, collection) => {
             if (err) {
                 return cb();
             }
             collection.drop(cb);
         });
+    }
+
+    _compileQuery(query, value) {
+        if (typeof query !== "object") {
+            if (query === "$value") {
+                return value;
+            }
+            return query;
+        }
+        if (Array.isArray(query)) {
+            let res = [];
+            for (let e of query) {
+                res.push(this._compileQuery(e, value));
+            }
+            return res;
+        }
+        let res = {};
+        for (let propName of Object.keys(query)) {
+            let prop = query[propName];
+            res[propName] = this._compileQuery(prop, value);
+        }
+        return res;
     }
 
     __connect() {

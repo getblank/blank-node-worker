@@ -21,7 +21,7 @@ class DbSet extends TaskHandlerBase {
                 };
             }
             res.fullCount = res.count; // TODO: remove this line when client updated
-            cb (null, res);
+            cb(null, res);
         });
     }
 }

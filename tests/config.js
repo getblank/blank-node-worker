@@ -53,7 +53,15 @@ module.exports = {
         ],
         "objectLifeCycle": {},
         "storeLifeCycle": {},
-        "filters": {},
+        "filters": {
+            "_default": {
+                "query": {
+                    "name": {
+                        "$regex": "$value",
+                    },
+                },
+            },
+        },
         "httpHooks": [],
         "tasks": [],
         "i18n": {
