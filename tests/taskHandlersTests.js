@@ -41,10 +41,6 @@ let dbGetMock = {
         });
     },
 };
-dbGet.test.setDb(dbMock);
-dbSet.test.setDb(dbMock);
-dbDelete.test.setDb(dbMock);
-
 
 let storeName = "users",
     user = {
@@ -219,11 +215,24 @@ describe("taskHandler/storeLifeCycle", function () {
 });
 
 describe("taskHandlers/db", function () {
+    before(function () {
+        dbGet.test.setDb(dbMock);
+        dbSet.test.setDb(dbMock);
+        dbDelete.test.setDb(dbMock);
+    });
+    after(function () {
+        dbGet.test.setDb(db);
+        dbSet.test.setDb(db);
+        dbDelete.test.setDb(db);
+    });
     describe("#dbGet", function () {
         it("should throw error when no id provided", function () {
             assert.throws(function () {
                 dbGet.run(storeName, user, {}, (e, d) => { });
             }, /Invalid args/);
+        });
+        it("should do get to '_singles' collection when store.type is 'single'", function () {
+
         });
         it("should return object when valid args", function (done) {
             dbGet.run(storeName, user, { "_id": "00000000-0000-0000-0000-000000000000" }, (e, d) => {

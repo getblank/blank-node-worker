@@ -1,11 +1,13 @@
 "use strict";
 
 var assert = require("assert");
+var db = require("../lib/db");
 var taskRunner = require("../lib/taskRunner");
 var taskTypes = require("../lib/const").taskTypes;
 var taskUris = require("../lib/const").taskUris;
 var testConfig = require("./config");
 var configStore = require("../lib/configStore");
+var dbGet = require("../lib/taskHandlers/dbGet");
 var WampMock = require("./wampMock");
 
 configStore.setup(testConfig);
@@ -65,6 +67,18 @@ describe("taskRunner", function () {
         });
     });
     describe("#runTask", function () {
+        before(function () {
+            dbGet.test.setDb({
+                "get": function (id, store, cb) {
+                    setTimeout(function () {
+                        cb(null, { "_id": id });
+                    });
+                },
+            });
+        });
+        after(function () {
+            dbGet.test.setDb(db);
+        });
         beforeEach(function () {
             wampMock = new WampMock();
             taskRunner.test.setWamp(wampMock);
