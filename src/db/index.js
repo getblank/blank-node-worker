@@ -96,7 +96,12 @@ class Db extends EventEmitter {
             if (!options.noCheckPermissions && !auth.hasReadAccess(storeDesc.access, user)) {
                 return cb(new Error("Unauthorized"), null);
             }
-            db.get(_id, storeName, cb);
+            db.get(_id, storeName, (err, item) => {
+                if (err && err.message === "Not found") {
+                    return db.get(_id, `${storeName}_deleted`, cb);
+                }
+                cb(err, item);
+            });
         });
     }
 

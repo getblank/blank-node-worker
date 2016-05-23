@@ -18,6 +18,8 @@ describe("$db", function () {
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000002", "testProp": "42", "name": "testName" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000003", "testProp": "43", "name": "name" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000004", "testProp": "44" },
+                { "_id": "AAAAAAAA-0000-0000-0000-000000000042", "testProp": "toDelete" },
+                { "_id": "AAAAAAAA-0000-0000-0000-000000000043", "testProp": "toDelete2" },
             ],
                 "users",
                 done);
@@ -98,6 +100,11 @@ describe("$db", function () {
         });
         it("should skip matched documents correctly", function (done) {
             $db.find({
+                query: {
+                    "testProp": {
+                        "$in": ["40", "41", "42", "43", "44"],
+                    },
+                },
                 orderBy: "-_id",
                 skip: 2,
             }, "users", (e, res) => {
@@ -215,6 +222,29 @@ describe("$db", function () {
                     assert.equal(err, null);
                     assert.ok(res.user);
                     assert.equal(res.user.testProp, "44");
+                    done();
+                });
+            });
+        });
+    });
+    describe("#delete", function(){
+        it("should mark item as deleted and move to ${storeName}_deleted bucket", function(done){
+            $db.delete("AAAAAAAA-0000-0000-0000-000000000042", "users", (err) => {
+                assert.equal(err, null);
+                db.get("AAAAAAAA-0000-0000-0000-000000000042", "users_deleted", (err, item) => {
+                    assert.equal(err, null);
+                    assert.equal(item.testProp, "toDelete");
+                    assert.ok(item._deleted);
+                    done();
+                });
+            });
+        });
+        it("should return deleted item by _id and item should be marked as deleted", function(done){
+            $db.delete("AAAAAAAA-0000-0000-0000-000000000043", "users", (err) => {
+                $db.get("AAAAAAAA-0000-0000-0000-000000000043", "users", (err, item) => {
+                    assert.equal(err, null);
+                    assert.equal(item.testProp, "toDelete2");
+                    assert.ok(item._deleted);
                     done();
                 });
             });
