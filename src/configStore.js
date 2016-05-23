@@ -3,6 +3,7 @@
 import auth from "./auth";
 import {clientStoreDef} from "./const";
 import find from "utils/find";
+import configProcessor from "configProcessor";
 
 let _defaultStore = {
     "display": "none",
@@ -54,35 +55,13 @@ class ConfigStore {
         if (user == null) {
             return this._config;
         }
-        let res = {}, workspace = this.__getUserWorkspace(user);
+        let res = {};
 
         for (let storeName of Object.keys(this._config)) {
-            let storeDesc = this._config[storeName];
-            if (!auth.hasReadAccess(storeDesc.access, user) || storeDesc.type === "workspace") {
-                continue;
+            let userStoreDesc = this.__getUserStoreDesc(storeName, user);
+            if (userStoreDesc != null) {
+                res[storeName] = userStoreDesc;
             }
-
-            res[storeName] = {};
-            let wsStoreDesc = workspace && workspace[storeName];
-            for (let p of Object.keys(clientStoreDef)) {
-                res[storeName][p] = storeDesc[p];
-                if (res[storeName][p] == null && clientStoreDef[p].default != null) {
-                    res[storeName][p] = clientStoreDef[p].default;
-                }
-                //Apply workspace base settings
-                if (clientStoreDef[p].ws && wsStoreDesc && wsStoreDesc.hasOwnProperty(p)) {
-                    if (typeof clientStoreDef[p].ws === "function") {
-                        res[storeName][p] = clientStoreDef[p].ws(res[storeName][p], wsStoreDesc[p]);
-                    } else {
-                        res[storeName][p] = wsStoreDesc[p];
-                    }
-                }
-            }
-            res[storeName].props = this.__getUserProps(storeDesc.props, user, wsStoreDesc);
-            res[storeName].actions = this.__getUserActions(storeDesc.actions, user);
-            res[storeName].storeActions = this.__getUserActions(storeDesc.storeActions, user);
-            res[storeName].i18n = this.__getI18N(storeDesc.i18n, user.lang);
-            res[storeName].groupAccess = res[storeName].ownerAccess = auth.computeAccess(storeDesc.access, user);
         }
         console.log("User config ready in:", Date.now() - start);
         return res;
@@ -164,10 +143,13 @@ class ConfigStore {
         return res;
     }
 
-    getStoreDesc(storeName) {
+    getStoreDesc(storeName, user) {
         if (storeName) {
             if (storeName === "_") {
                 return _defaultStore;
+            }
+            if (user) {
+                return this.__getUserStoreDesc(storeName, user);
             }
             return (this._config || {})[storeName] || null;
         }
@@ -245,12 +227,49 @@ class ConfigStore {
         return handler;
     }
 
+    getBaseItem(storeName, user) {
+        let storeDesc = this._config[storeName];
+        if (storeDesc == null) {
+            return {};
+        }
+        return configProcessor.getBaseItem(storeDesc, this.__getI18N(storeDesc.i18n), user);
+    }
+
     getBaseConfig(lang) {
         let cs = JSON.parse(JSON.stringify(this._config["_commonSettings"]));
         cs.i18n = this.__getI18N(cs.i18n, lang);
         return {
             "_commonSettings": cs,
         };
+    }
+
+    __getUserStoreDesc(storeName, user) {
+        let storeDesc = this._config[storeName];
+        if (storeDesc == null || !auth.hasReadAccess(storeDesc.access, user) || storeDesc.type === "workspace") {
+            return null;
+        }
+        let res = {}, workspace = this.__getUserWorkspace(user);
+        let wsStoreDesc = workspace && workspace[storeName];
+        for (let p of Object.keys(clientStoreDef)) {
+            res[p] = storeDesc[p];
+            if (res[p] == null && clientStoreDef[p].default != null) {
+                res[p] = clientStoreDef[p].default;
+            }
+            //Apply workspace base settings
+            if (clientStoreDef[p].ws && wsStoreDesc && wsStoreDesc.hasOwnProperty(p)) {
+                if (typeof clientStoreDef[p].ws === "function") {
+                    res[p] = clientStoreDef[p].ws(res[p], wsStoreDesc[p]);
+                } else {
+                    res[p] = wsStoreDesc[p];
+                }
+            }
+        }
+        res.props = this.__getUserProps(storeDesc.props, user, wsStoreDesc);
+        res.actions = this.__getUserActions(storeDesc.actions, user);
+        res.storeActions = this.__getUserActions(storeDesc.storeActions, user);
+        res.i18n = this.__getI18N(storeDesc.i18n, user.lang);
+        res.groupAccess = res.ownerAccess = auth.computeAccess(storeDesc.access, user);
+        return res;
     }
 
     __getUserWorkspace(user, storeName) {

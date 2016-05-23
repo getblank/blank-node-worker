@@ -4,7 +4,9 @@
   "description": "JavaScript task runner for Blank platform",
   "main": "src/worker.js",
   "dependencies": {
+    "handlebars": "^4.0.5",
     "minimist": "latest",
+    "moment": "^2.13.0",
     "mongodb": "^2.1.18",
     "scrypt": "^6.0.3",
     "winston": "^2.2.0",

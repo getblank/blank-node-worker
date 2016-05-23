@@ -11,6 +11,11 @@ export const taskUris = Enum(
     "error"
 );
 
+export const dbErrors = {
+    "storeNotFound": "Store not found",
+    "itemNotFound": "Not found",
+};
+
 export const taskTypes = Enum(
     "authentication",
     "userConfig",
@@ -36,7 +41,7 @@ export const clientStoreDef = {
     "headerTemplate": { "ws": true },
     "headerProperty": { "ws": true },
     "icon": { "ws": true },
-    "labels": {"default": []},
+    "labels": { "default": [] },
     "filters": { "ws": true },
     "widgets": { "ws": true },
     "formGroupsOrder": { "ws": true },

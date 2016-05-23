@@ -187,6 +187,20 @@ module.exports = {
             },
         },
     },
+    "singleStore": {
+        "type": "single",
+    },
+    "displaySingleStore": {
+        "display": "single",
+        "props": {
+            "testProp": {
+                "type": "string",
+                "display": "textInput",
+                "label": "test",
+                "default": "42",
+            },
+        },
+    },
     "storeWithTask": {
         "tasks": [
             {

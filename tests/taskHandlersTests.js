@@ -15,9 +15,9 @@ var storeLifeCycle = require("../lib/taskHandlers/storeLifeCycle");
 var authentication = require("../lib/taskHandlers/authentication");
 var userConfig = require("../lib/taskHandlers/userConfig");
 let dbMock = {
-    "get": function (id, store, cb) {
+    "get": function (query, store, cb) {
         setTimeout(function () {
-            cb(null, { "_id": id });
+            cb(null, { "_id": (typeof query === "object" ? query._id : query) });
         });
     },
     "set": function (item, store, cb) {
@@ -45,7 +45,7 @@ let dbGetMock = {
 let storeName = "users",
     user = {
         "_id": "00000000-0000-0000-0000-000000000000",
-        "roles": "00000000-0000-0000-0000-000000000000",
+        "roles": ["root"],
     };
 
 describe("taskHandler/authentication", function () {
@@ -215,7 +215,7 @@ describe("taskHandler/storeLifeCycle", function () {
 });
 
 describe("taskHandlers/db", function () {
-    before(function () {
+    beforeEach(function () {
         dbGet.test.setDb(dbMock);
         dbSet.test.setDb(dbMock);
         dbDelete.test.setDb(dbMock);
@@ -231,8 +231,35 @@ describe("taskHandlers/db", function () {
                 dbGet.run(storeName, user, {}, (e, d) => { });
             }, /Invalid args/);
         });
-        it("should do get to '_singles' collection when store.type is 'single'", function () {
-
+        it("should do get to '_singles' collection when store.type is 'single'", function (done) {
+            dbGet.test.setDb({
+                "get": function (query, store) {
+                    assert.equal(query._id, "singleStore");
+                    assert.equal(store, "_singles");
+                    done();
+                },
+            });
+            dbGet.run("singleStore", user, { "_id": "singleStore" });
+        });
+        it("should modify query when store.display is 'single'", function (done) {
+            dbGet.test.setDb({
+                "get": function (query, store) {
+                    assert.deepEqual(query, {
+                        "_ownerId": user._id,
+                    });
+                    done();
+                },
+            });
+            dbGet.run("displaySingleStore", user, { "_id": "displaySingleStore" });
+        });
+        it("should return baseItem when store.display is 'single'", function (done) {
+            dbGet.test.setDb(db);
+            dbGet.run("displaySingleStore", user, { "_id": "displaySingleStore" }, (e, d) => {
+                console.log("++++++++++++++++++++++++++++", d);
+                console.log("EEEEEEE", e);
+                assert.ok(e == null);
+                assert.equal(d.testProp, "42");
+            });
         });
         it("should return object when valid args", function (done) {
             dbGet.run(storeName, user, { "_id": "00000000-0000-0000-0000-000000000000" }, (e, d) => {
