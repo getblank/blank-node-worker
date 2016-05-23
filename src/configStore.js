@@ -26,6 +26,20 @@ class ConfigStore {
         for (let storeName of Object.keys(this._config || {})) {
             let storeDesc = this._config[storeName];
             storeDesc.type = storeDesc.type || "directory";
+            this.prepareProps(storeDesc.props);
+        }
+    }
+
+    prepareProps(props) {
+        for (let propName of Object.keys(props || {})) {
+            let propDesc = props[propName];
+            if (propDesc.type === "virtual" && typeof propDesc.load !== "function") {
+                let script = propDesc.load || "return null;";
+                propDesc.load = new Function("$item", "$baseItem", "require", script);
+            }
+            if (propDesc.props) {
+                this.prepareProps(propDesc.props);
+            }
         }
     }
 
@@ -322,7 +336,7 @@ class ConfigStore {
                 }
             }
             if (propDesc.type === "virtual") {
-                res[propName] = new Function("$item", "$baseItem", "$i18n", propDesc.load || "return null;");
+                res[propName] = propDesc.load;
             }
         }
         return res;
