@@ -191,10 +191,6 @@ class Db extends EventEmitter {
         let keys = Object.keys(item);
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
-            if (key === "_id" && prevItem["_id"]) {
-                delete item["_id"];
-                continue;
-            }
             let val = item[key];
             if (val === null || typeof val === "undefined") {
                 delete prevItem[key];

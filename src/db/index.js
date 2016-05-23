@@ -92,14 +92,21 @@ class Db extends EventEmitter {
         if (!item._id) {
             return cb(new Error("No _id provided"), null);
         }
-        db._set(item._id, store, item, (err, $item) => {
+        db.get(item._id, store, (err, data) => {
+            data = data || {};
+            err = db._mergeItems(data, item);
             if (err) {
                 return cb(err, null);
             }
-            if (!options.noEmitUpdate) {
-                this.emit("update", store, item, null);
-            }
-            cb(null, $item);
+            db._set(item._id, store, data, (err) => {
+                if (err) {
+                    return cb(err, null);
+                }
+                if (!options.noEmitUpdate) {
+                    this.emit("update", store, data, null);
+                }
+                cb(null, data);
+            });
         });
     }
 
