@@ -252,5 +252,6 @@ describe("$db", function () {
     });
     after(function () {
         db._dropCollection("users");
+        db._dropCollection("users_deleted");
     });
 });
