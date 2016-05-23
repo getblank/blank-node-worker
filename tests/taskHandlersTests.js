@@ -14,13 +14,14 @@ var scheduledScript = require("../lib/taskHandlers/scheduledScript");
 var storeLifeCycle = require("../lib/taskHandlers/storeLifeCycle");
 var authentication = require("../lib/taskHandlers/authentication");
 var userConfig = require("../lib/taskHandlers/userConfig");
+var dbErrors = require("../lib/const").dbErrors;
 let dbMock = {
     "get": function (query, store, cb) {
         setTimeout(function () {
             cb(null, { "_id": (typeof query === "object" ? query._id : query) });
         });
     },
-    "set": function (item, store, options = {}, cb = () => {}) {
+    "set": function (item, store, options = {}, cb = () => { }) {
         cb = cb || options;
         setTimeout(function () {
             cb(null, Object.assign({ "_id": item.id }, item.item));
@@ -232,16 +233,6 @@ describe("taskHandlers/db", function () {
                 dbGet.run(storeName, user, {}, (e, d) => { });
             }, /Invalid args/);
         });
-        it("should do get to '_singles' collection when store.type is 'single'", function (done) {
-            dbGet.test.setDb({
-                "get": function (query, store) {
-                    assert.equal(query._id, "singleStore");
-                    assert.equal(store, "_singles");
-                    done();
-                },
-            });
-            dbGet.run("singleStore", user, { "_id": "singleStore" });
-        });
         it("should modify query when store.display is 'single'", function (done) {
             dbGet.test.setDb({
                 "get": function (query, store) {
@@ -286,6 +277,32 @@ describe("taskHandlers/db", function () {
                 assert.ok(d.test);
                 done();
             });
+        });
+        it("should find and replace '_id' when store.display is 'single'", function (done) {
+            dbSet.test.setDb({
+                "get": function (query, store, cb) {
+                    assert.deepEqual(query, { "_ownerId": user._id });
+                    cb(null, { "_id": "1234" });
+                },
+                "set": function (item, store, options = {}, cb = () => { }) {
+                    assert.equal(item._id, "1234");
+                    done();
+                },
+            });
+            dbSet.run("displaySingleStore", user, { "item": { "_id": "displaySingleStore", "test": true } });
+        });
+        it("should create new '_id' when store.display is 'single'", function (done) {
+            dbSet.test.setDb({
+                "newId": () => "42",
+                "get": function (query, store, cb) {
+                    cb(new Error(dbErrors.itemNotFound), null);
+                },
+                "set": function (item, store, options = {}, cb = () => { }) {
+                    assert.equal(item._id, "42");
+                    done();
+                },
+            });
+            dbSet.run("displaySingleStore", user, { "item": { "_id": "displaySingleStore", "test": true } });
         });
     });
     describe("#dbDelete", function () {

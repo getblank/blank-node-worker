@@ -13,21 +13,14 @@ class DbGet extends TaskHandlerBase {
             query = {
                 "_id": args._id,
             },
-            queryStoreName = storeName,
             returnBaseWhenNotFound = false;
-        if (storeDesc == null) {
-            throw new Error("Store not found or access denied");
-        }
-        if (storeDesc.type === "single") {
-            queryStoreName = "_singles";
-        }
         if (storeDesc.display === "single") {
             returnBaseWhenNotFound = true;
             query = {
                 "_ownerId": user._id,
             };
         }
-        this.db.get(query, queryStoreName, (err, res) => {
+        this.db.get(query, storeName, (err, res) => {
             if (err) {
                 if (returnBaseWhenNotFound && (err.message === dbErrors.itemNotFound || err.message === dbErrors.storeNotFound)) {
                     return cb(null, configStore.getBaseItem(storeName, user));
