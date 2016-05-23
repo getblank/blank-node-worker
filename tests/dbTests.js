@@ -134,6 +134,16 @@ describe("$db", function () {
             });
         });
     });
+    describe("#set", function () {
+        it("should return a Promise", function (done) {
+            let mayBePromise = $db.set({ "name": "test" }, "anyStore").then((res) => {
+            }, (err) => {
+                assert.ok(err != null);
+                done();
+            });
+            assert.ok(mayBePromise instanceof Promise);
+        });
+    });
     describe("#insert", function () {
         it("should return item with generated '_id'", function (done) {
             $db.insert({ "name": "test" }, "users", function (err, item) {
