@@ -187,6 +187,48 @@ class Db extends EventEmitter {
         return res;
     }
 
+    _mergeItems (prevItem, item) {
+        let keys = Object.keys(item);
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+            if (key === "_id" && prevItem["_id"]) {
+                delete item["_id"];
+                continue;
+            }
+            let val = item[key];
+            if (val === null || typeof val === "undefined") {
+                delete prevItem[key];
+                continue;
+            }
+            let inc = val.$inc;
+            if (inc != null) {
+                inc = inc * 1;
+                if (isNaN(inc)) {
+                    return new Error(`Inc value is not a number: ${val.$inc}`);
+                }
+                let prevVal = prevItem[key];
+                prevVal = prevVal ? prevVal * 1 : 0;
+                let newVal = prevVal + inc;
+                if (isNaN(newVal)) {
+                    return new Error(`New value is not a number: ${newVal}`);
+                }
+                item[key] = newVal;
+                continue;
+            }
+            let $push = val.$push;
+            if ($push != null) {
+                let prevVal = prevItem[key];
+                prevVal = (typeof prevVal === "undefined") ? [] : prevVal;
+                if (!Array.isArray(prevVal)) {
+                    return new Error(`prevValue ${key} for pushing is not an array`);
+                }
+                prevVal.push($push);
+                item[key] = prevVal;
+            }
+        }
+        Object.assign(prevItem, item);
+    }
+
     __connect() {
         if (!this.mongoUri) {
             return;

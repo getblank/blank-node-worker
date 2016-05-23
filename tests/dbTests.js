@@ -145,6 +145,45 @@ describe("$db", function () {
             });
         });
     });
+    describe("#_mergeItems", function () {
+        it("should merge all props in two items", function () {
+            let prevItem = { prop1: "prop1", prop2: "prop2" };
+            let item = { prop2: "another value", prop3: "prop3" };
+            let err = db._mergeItems(prevItem, item);
+            assert.equal(err, null);
+            assert.equal(prevItem.prop1, "prop1");
+            assert.equal(prevItem.prop2, "another value");
+            assert.equal(prevItem.prop3, "prop3");
+        });
+        it("should increment value", function () {
+            let prevItem = { prop1: "prop1", prop2: "prop2", newProp: 2 };
+            let item = { prop3: { $inc: 2 }, newProp: { $inc: -1 } };
+            let err = db._mergeItems(prevItem, item);
+            assert.equal(err, null);
+            assert.equal(prevItem.prop3, 2);
+            assert.equal(prevItem.newProp, 1);
+        });
+        it("should return error when incremented value is not a number", function () {
+            let prevItem = { prop1: "prop1", prop2: "prop2", newProp: 2 };
+            let item = { prop2: { $inc: 2 } };
+            let err = db._mergeItems(prevItem, item);
+            assert.notEqual(err, null);
+        });
+        it("should push new value to array property", function () {
+            let prevItem = { prop1: "prop1", prop2: "prop2", newProp: [1] };
+            let item = { prop3: { $push: 2 }, newProp: { $push: 2 } };
+            let err = db._mergeItems(prevItem, item);
+            assert.equal(err, null);
+            assert.deepEqual(prevItem.prop3, [2]);
+            assert.deepEqual(prevItem.newProp, [1,2]);
+        });
+        it("should return error when pushed propert value was not an array", function () {
+            let prevItem = { prop1: "prop1", prop2: "prop2", newProp: 2 };
+            let item = { prop2: { $push: 2 } };
+            let err = db._mergeItems(prevItem, item);
+            assert.notEqual(err, null);
+        });
+    });
     after(function () {
         db._dropCollection("users");
     });
