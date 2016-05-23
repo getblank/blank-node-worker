@@ -8,6 +8,8 @@
 //      noRunHooks: bool – if true, will not run itemLifeCycle hooks
 //      noValidate: bool – if true, will not run validation
 //      noEmitUpdate: bool – if true, will not emit db event
+//      noPopulate: bool
+//      noLoadVirtualProps: bool
 // }
 
 import db from "./rawDb";
@@ -78,7 +80,7 @@ class Db extends EventEmitter {
         }
         item._id = this.newId();
         options.noEmitUpdate = true;
-        console.log(item, options, cb);
+
         return this.set(item, store, options, (err, $item) => {
             if (err) {
                 return cb(err, null);
@@ -100,6 +102,19 @@ class Db extends EventEmitter {
 
     notify(receivers, store, message) { }
 
+    populateAll(item, store, user, cb = () => { }) {
+        if (typeof store === "string") {
+            let config = configStore.getConfig(user);
+            store = config[store];
+            if (!store) {
+                let err = new Error("Store not found");
+                cb(err, null);
+                return Promise.reject(err);
+            }
+        }
+        return this._populateAll(item, store, user, cb);
+    }
+
     pushComment(_id, prop, data, store, cb) { }
 
     set(item, store, options = {}, cb = () => { }) {
@@ -120,7 +135,7 @@ class Db extends EventEmitter {
             if (!storeDesc) {
                 return cb(new Error("Store not found"), null);
             }
-            if (storeDesc.type === "single" && item._id !== "store") {
+            if (storeDesc.type === "single" && item._id !== store) {
                 return cb(new Error("Invalid _id for single store"), null);
             }
             if (!options.noCheckPermissions && !auth.hasUpdateAccess(storeDesc.access, user)) {
@@ -136,6 +151,14 @@ class Db extends EventEmitter {
                 err = db._mergeItems(data, item);
                 if (err) {
                     return cb(err, null);
+                }
+                if (newItem) {
+                    data.createdAt = new Date().toISOString();
+                    data.createdBy = user._id;
+                    data._ownerId = user._id;
+                } else {
+                    data.updatedAt = new Date().toISOString();
+                    data.updatedBy = user._id;
                 }
                 let willHook = configStore.getItemEventHandler(store, newItem ? "willCreate" : "willSave") || emptyHook;
                 let willHookResult = willHook(this, userScriptRequire, user, data, prevItem);
@@ -210,10 +233,57 @@ class Db extends EventEmitter {
         });
     }
 
+    _populateAll(item, store, $user, cb = () => { }) {
+        let defer = new Promise((resolve, reject) => {
+            if (!store.props) {
+                return resolve(item);
+            }
+            let all = [];
+            let keys = Object.keys(store.props);
+            if (keys.length === 0) {
+                return resolve(item);
+            }
+
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
+                let prop = store.props[key];
+                if (prop.type !== "ref" || !prop.populateIn) {
+                    continue;
+                }
+                if (!item[key]) {
+                    continue;
+                }
+                let p = new Promise((resolve) => {
+                    db.get(item[key], prop.store, (err, data) => {
+                        if (err) {
+                            console.error("When populating", err);
+                            return resolve();
+                        }
+                        item[prop.populateIn] = data;
+                        resolve();
+                    });
+                });
+                all.push(p);
+            }
+
+            Promise.all(all)
+                .then(() => {
+                    cb(null, item);
+                    resolve(item);
+                })
+                .catch(err => {
+                    cb(err, null);
+                    reject(err);
+                });
+        });
+
+        return defer;
+    }
+
     _validate() { }
 }
 
-function emptyHook () {}
+function emptyHook() { }
 
 let $db = new Db();
 module.exports = $db;
