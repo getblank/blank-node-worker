@@ -12,6 +12,52 @@ module.exports = {
                 "type": "string",
                 "display": "textInput",
             },
+            "virtualProp": {
+                "type": "virtual",
+                "display": "textInput",
+                "load": "return $item.testProp + '_virtual'",
+            },
+            "objectOfVirtuals": {
+                "type": "object",
+                "formOrder": 0,
+                "props": {
+                    "nestedProp": {
+                        "type": "string",
+                        "display": "textInput",
+                        "label": "",
+                        "formOrder": 0,
+                    },
+                    "nestedVirtualProp": {
+                        "type": "virtual",
+                        "display": "none",
+                        "label": "",
+                        "formOrder": 0,
+                        "load": "return $item.nestedProp + $baseItem.testProp",
+                    },
+                },
+            },
+            "objectListOfVirtuals": {
+                "type": "objectList",
+                "display": "none",
+                "label": "",
+                "formOrder": 0,
+                "props": {
+                    "nestedProp": {
+                        "type": "string",
+                        "display": "textInput",
+                        "label": "",
+                        "formOrder": 0,
+                    },
+                    "nestedVirtualProp": {
+                        "type": "virtual",
+                        "display": "none",
+                        "label": "",
+                        "formOrder": 0,
+                        "load": "return $baseItem.testProp + $item.nestedProp",
+                    },
+
+                },
+            },
         },
         "actions": [
             {

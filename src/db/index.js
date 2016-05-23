@@ -8,8 +8,8 @@
 //      noRunHooks: bool – if true, will not run itemLifeCycle hooks
 //      noValidate: bool – if true, will not run validation
 //      noEmitUpdate: bool – if true, will not emit db event
-//      noPopulate: bool
-//      noLoadVirtualProps: bool
+//      populate: bool
+//      loadVirtualProps: bool
 // }
 
 import db from "./rawDb";
@@ -137,9 +137,18 @@ class Db extends EventEmitter {
             if (!options.noCheckPermissions && !auth.hasReadAccess(storeDesc.access, user)) {
                 return cb(new Error("Unauthorized"), null);
             }
+
             db.get(_id, storeName, (err, item) => {
                 if (err && err.message === "Not found") {
-                    return db.get(_id, `${storeName}_deleted`, cb);
+                    return db.get(_id, `${storeName}_deleted`, (err, item) => {
+                        if (err == null) {
+                            return this._populateAndVirtualing(item, storeName, storeDesc, user, options, cb);
+                        }
+                        return cb(err, item);
+                    });
+                }
+                if (err == null) {
+                    return this._populateAndVirtualing(item, storeName, storeDesc, user, options, cb);
                 }
                 cb(err, item);
             });
@@ -169,7 +178,54 @@ class Db extends EventEmitter {
         });
     }
 
-    loadVirtualProps(item, store, cb) { }
+    loadVirtualProps(item, storeName, storeDesc) {
+        // storeDesc = storeDesc || configStore.getStoreDesc(storeName);
+        // let loaders = configStore.getVirtualPropsLoaders(storeName);
+        // let load = (_item, baseItem, props, _loaders) => {
+        //     for (let propName of Object.keys(_loaders)) {
+        //         if (!props[propName]) {
+        //             continue;
+        //         }
+        //         let loader = _loaders[propName];
+        //         if (typeof loader === "object") {
+        //             let propDesc = props[propName];
+        //             if (propDesc.type === "object") {
+        //                 load(_item[propName], _item, propDesc.props, loader);
+        //                 continue;
+        //             }
+        //             let propValue = _item[propName];
+        //             for (let i = 0; i < (propValue || []).length; i++) {
+        //                 let subItem = propValue[i];
+        //                 load(subItem, _item, propDesc.props, loader);
+        //             }
+        //         }
+        //         _item[propName] = loader(_item, baseItem);
+        //     }
+        // };
+        // load(item, null, storeDesc.props, loaders);
+        storeDesc = storeDesc || configStore.getStoreDesc(storeName);
+        let load = (_item, baseItem, props) => {
+            for (let propName of Object.keys(props)) {
+                let propDesc = props[propName];
+                switch (propDesc.type) {
+                    case "virtual":
+                        _item[propName] = propDesc.load(_item, baseItem, userScriptRequire);
+                        break;
+                    case "object":
+                        load(_item[propName], _item, propDesc.props);
+                        break;
+                    case "objectList": {
+                        let propValue = _item[propName];
+                        for (let i = 0; i < (propValue || []).length; i++) {
+                            let subItem = propValue[i];
+                            load(subItem, _item, propDesc.props);
+                        }
+                    }
+                }
+            }
+        };
+        load(item, null, storeDesc.props);
+    }
 
     newId() {
         return uuid.v4();
@@ -242,30 +298,32 @@ class Db extends EventEmitter {
                     return cb(new Error(willHookResult), null);
                 }
 
-                let set = (_id, store, item, cb) => {
-                    db._set(item._id, store, data, (err) => {
+                let set = (_id, item) => {
+                    db._set(item._id, storeName, data, (err) => {
                         if (err) {
                             return cb(err, null);
                         }
-                        if (!options.noEmitUpdate) {
-                            this.emit("update", store, data, null);
-                        }
-                        cb(null, data);
-                        let didHook = configStore.getItemEventHandler(store, newItem ? "didCreate" : "didSave") || emptyHook;
-                        didHook(this, userScriptRequire, user, data, prevItem);
+                        this._populateAndVirtualing(data, storeName, storeDesc, user, options, (err, item) => {
+                            if (!options.noEmitUpdate) {
+                                this.emit("update", storeName, data, null);
+                            }
+                            cb(null, data);
+                            let didHook = configStore.getItemEventHandler(storeName, newItem ? "didCreate" : "didSave") || emptyHook;
+                            didHook(this, userScriptRequire, user, data, prevItem);
+                        });
                     });
                 };
 
                 if (willHookResult instanceof Promise) {
                     willHookResult.then((res) => {
-                        set(item._id, storeName, data, cb);
+                        set(item._id, data);
                     }, (err) => {
                         cb(err, null);
                     });
                     return;
                 }
 
-                set(item._id, storeName, data, cb);
+                set(item._id, data);
             });
         });
     }
@@ -358,6 +416,24 @@ class Db extends EventEmitter {
         });
 
         return defer;
+    }
+
+    _populateAndVirtualing(item, storeName, storeDesc, user, options, cb) {
+        if (options.populate) {
+            this.populateAll(item, storeName, user, (err, item) => {
+                if (err) {
+                    return cb(err, item);
+                }
+                if (options.loadVirtualProps) {
+                    this.loadVirtualProps(item, storeName, storeDesc);
+                }
+                return cb(null, item);
+            });
+        }
+        if (options.loadVirtualProps) {
+            this.loadVirtualProps(item, storeName, storeDesc);
+        }
+        cb(null, item);
     }
 
     _validate() { }

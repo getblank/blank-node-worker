@@ -21,7 +21,17 @@ describe("$db", function () {
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000042", "testProp": "toDelete" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000043", "testProp": "toDelete2" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000044", "testProp": "toDelete3" },
-                { "_id": "AAAAAAAA-0000-0000-0000-000000000045", "testProp": "toDelete4" },
+                {
+                    "_id": "AAAAAAAA-0000-0000-0000-000000000045",
+                    "testProp": "toLoadVirtual",
+                    "objectOfVirtuals": {
+                        "nestedProp": "NESTED_PROP",
+                    },
+                    "objectListOfVirtuals": [
+                        {"nestedProp": "NESTED_LIST_PROP1"},
+                        {"nestedProp": "NESTED_LIST_PROP2"},
+                    ],
+                },
             ],
                 "users",
                 done);
@@ -46,6 +56,16 @@ describe("$db", function () {
             $db.get("AAAAAAAA-0000-0000-0000-000000000000", "users", (e, d) => {
                 assert.equal(e, null);
                 assert.equal(d.testProp, 40);
+                done();
+            });
+        });
+        it("should load virtual props", function(done){
+            $db.get("AAAAAAAA-0000-0000-0000-000000000045", "users", {loadVirtualProps: true}, (err, res) => {
+                assert.equal(err, null);
+                assert.equal(res.virtualProp, "toLoadVirtual_virtual");
+                assert.equal(res.objectOfVirtuals.nestedVirtualProp, "NESTED_PROPtoLoadVirtual");
+                assert.equal(res.objectListOfVirtuals[0].nestedVirtualProp, "toLoadVirtualNESTED_LIST_PROP1");
+                assert.equal(res.objectListOfVirtuals[1].nestedVirtualProp, "toLoadVirtualNESTED_LIST_PROP2");
                 done();
             });
         });
@@ -219,7 +239,7 @@ describe("$db", function () {
             assert.deepEqual(prevItem.prop3, [2]);
             assert.deepEqual(prevItem.newProp, [1, 2]);
         });
-        it("should return error when pushed propert value was not an array", function () {
+        it("should return error when pushed property value was not an array", function () {
             let prevItem = { prop1: "prop1", prop2: "prop2", newProp: 2 };
             let item = { prop2: { $push: 2 } };
             let err = db._mergeItems(prevItem, item);
