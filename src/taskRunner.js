@@ -25,7 +25,7 @@ module.exports.test = {
     },
     "validateTask": validateTask,
     "runTask": runTask,
-    "getUser": $db._getUser,
+    "getUser": $db.getUser,
 };
 
 function getTask() {
@@ -58,7 +58,12 @@ function runTask(task) {
         sendTaskError(task, "Store not found");
         return;
     }
-    $db._getUser(task.userId, (error, user) => {
+    $db.getUser(task.userId, (error, user) => {
+        if (user == null) {
+            sendTaskError(task, "User not found");
+            emitter.emit("taskUserNotFoundError", task);
+            return;
+        }
         if (!auth(task, user, storeDesc)) {
             sendTaskError(task, "Unauthorized");
             emitter.emit("taskAuthorizationError", task);
