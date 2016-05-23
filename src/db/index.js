@@ -179,30 +179,6 @@ class Db extends EventEmitter {
     }
 
     loadVirtualProps(item, storeName, storeDesc) {
-        // storeDesc = storeDesc || configStore.getStoreDesc(storeName);
-        // let loaders = configStore.getVirtualPropsLoaders(storeName);
-        // let load = (_item, baseItem, props, _loaders) => {
-        //     for (let propName of Object.keys(_loaders)) {
-        //         if (!props[propName]) {
-        //             continue;
-        //         }
-        //         let loader = _loaders[propName];
-        //         if (typeof loader === "object") {
-        //             let propDesc = props[propName];
-        //             if (propDesc.type === "object") {
-        //                 load(_item[propName], _item, propDesc.props, loader);
-        //                 continue;
-        //             }
-        //             let propValue = _item[propName];
-        //             for (let i = 0; i < (propValue || []).length; i++) {
-        //                 let subItem = propValue[i];
-        //                 load(subItem, _item, propDesc.props, loader);
-        //             }
-        //         }
-        //         _item[propName] = loader(_item, baseItem);
-        //     }
-        // };
-        // load(item, null, storeDesc.props, loaders);
         storeDesc = storeDesc || configStore.getStoreDesc(storeName);
         let load = (_item, baseItem, props) => {
             for (let propName of Object.keys(props)) {
