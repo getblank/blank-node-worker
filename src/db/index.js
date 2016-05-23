@@ -15,6 +15,7 @@ import configStore from "../configStore";
 import uuid from "node-uuid";
 import EventEmitter from "events";
 import auth from "../auth";
+import userScriptRequire from "../userScriptRequire";
 
 class Db extends EventEmitter {
     constructor() {
@@ -119,6 +120,9 @@ class Db extends EventEmitter {
             if (!storeDesc) {
                 return cb(new Error("Store not found"), null);
             }
+            if (storeDesc.type === "single" && item._id !== "store") {
+                return cb(new Error("Invalid _id for single store"), null);
+            }
             if (!options.noCheckPermissions && !auth.hasUpdateAccess(storeDesc.access, user)) {
                 return cb(new Error("Unauthorized"), null);
             }
@@ -134,7 +138,7 @@ class Db extends EventEmitter {
                     return cb(err, null);
                 }
                 let willHook = configStore.getItemEventHandler(store, newItem ? "willCreate" : "willSave") || emptyHook;
-                let willHookResult = willHook(this, require, user, data, prevItem);
+                let willHookResult = willHook(this, userScriptRequire, user, data, prevItem);
                 if (typeof willHookResult === "string") {
                     return cb(new Error(willHookResult), null);
                 }
@@ -148,6 +152,8 @@ class Db extends EventEmitter {
                             this.emit("update", store, data, null);
                         }
                         cb(null, data);
+                        let didHook = configStore.getItemEventHandler(store, newItem ? "didCreate" : "didSave") || emptyHook;
+                        didHook(this, userScriptRequire, user, data, prevItem);
                     });
                 };
 
