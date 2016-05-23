@@ -14,10 +14,6 @@ class Db extends EventEmitter {
     }
 
     get(query, store, cb) {
-        if (!configStore.isStore(store)) {
-            return cb(new Error("Store not found"), null);
-        }
-
         if (typeof query === "string") {
             query = { _id: query };
         }
@@ -145,17 +141,16 @@ class Db extends EventEmitter {
     }
 
     _delete(id, store, cb = () => { }) {
-        let storeDesc = configStore.getStoreDesc(store);
-        if (storeDesc == null) {
-            throw new Error("Store not found");
-        }
-        let collection = this.db.collection(store);
-        collection.remove({ "_id": id }, { single: true }, (err, result) => {
+        this.db.collection(store, { strict: true }, (err, collection) => {
             if (err) {
-                cb(err, null);
-                return;
+                return cb(err);
             }
-            cb(null, result);
+            collection.remove({ "_id": id }, { single: true }, (err, result) => {
+                if (err) {
+                    return cb(err, null);
+                }
+                cb(null, result);
+            });
         });
     }
 

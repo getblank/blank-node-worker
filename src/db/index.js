@@ -26,20 +26,42 @@ class Db extends EventEmitter {
         this.setup = db.setup.bind(db);
     }
 
-    delete(_id, store, cb = () => {}) {
+    delete(_id, storeName, cb = () => { }) {
         this.getUser("system", (err, user) => {
             if (err) {
                 return cb(err, null);
             }
-            db.get(_id, store, cb);
+            let config = configStore.getConfig(user);
+            let storeDesc = config[storeName];
+            if (!storeDesc) {
+                return cb(new Error("Store not found"), null);
+            }
+            if (!auth.hasUpdateAccess(storeDesc.access, user)) {
+                return cb(new Error("Unauthorized"), null);
+            }
+            db.get(_id, storeName, (err, item) => {
+                if (err) {
+                    if (err.message === "Not found") {
+                        return cb(null);
+                    }
+                    return cb(err);
+                }
+                item._deleted = true;
+                db._set(item._id, `${storeName}_deleted`, item, (err, res) => {
+                    if (err) {
+                        return cb(err);
+                    }
+                    db._delete(item._id, storeName, cb);
+                });
+            });
         });
     }
 
-    find(request, store, options = {}, cb = () => { }) {
+    find(request, storeName, options = {}, cb = () => { }) {
         if (typeof options === "function") {
             cb = options;
         }
-        let storeDesc = configStore.getStoreDesc(store);
+        let storeDesc = configStore.getStoreDesc(storeName);
         if (!storeDesc) {
             return cb("Store not found");
         }
@@ -57,21 +79,25 @@ class Db extends EventEmitter {
             delete request.query[_queryName];
         }
 
-        db.find(request, store, cb);
+        db.find(request, storeName, cb);
     }
 
-    get(_id, store, options = {}, cb = () => { }) {
+    get(_id, storeName, options = {}, cb = () => { }) {
         if (typeof options === "function") {
             cb = options;
+            options = {};
         }
-        // if (options.user) {
-        //     let config = configStore.getConfig(options.user);
-        // }
-        // let storeDesc = configStore.getStoreDesc(store);
-        // if (!storeDesc) {
-        //     return cb(new Error("Store not found"), null);
-        // }
-        db.get(_id, store, cb);
+        this.getUser(options.user || options.userId || "system", (err, user) => {
+            let config = configStore.getConfig(options.user);
+            let storeDesc = config[storeName];
+            if (!storeDesc) {
+                return cb(new Error("Store not found"), null);
+            }
+            if (!options.noCheckPermissions && !auth.hasReadAccess(storeDesc.access, user)) {
+                return cb(new Error("Unauthorized"), null);
+            }
+            db.get(_id, storeName, cb);
+        });
     }
 
     getAll(store, cb) { }
@@ -80,7 +106,7 @@ class Db extends EventEmitter {
 
     getAllKeys(store, cb) { }
 
-    insert(item, store, options = {}, cb = () => { }) {
+    insert(item, storeName, options = {}, cb = () => { }) {
         if (typeof options === "function") {
             cb = options;
             options = {};
@@ -88,11 +114,11 @@ class Db extends EventEmitter {
         item._id = this.newId();
         options.noEmitUpdate = true;
 
-        return this.set(item, store, options, (err, $item) => {
+        return this.set(item, storeName, options, (err, $item) => {
             if (err) {
                 return cb(err, null);
             }
-            this.emit("create", store, item, null);
+            this.emit("create", storeName, item, null);
             cb(null, $item);
         });
     }
@@ -109,10 +135,11 @@ class Db extends EventEmitter {
 
     notify(receivers, store, message) { }
 
-    populateAll(item, store, user, cb = () => { }) {
-        if (typeof store === "string") {
+    populateAll(item, storeName, user, cb = () => { }) {
+        var store;
+        if (typeof storeName === "string") {
             let config = configStore.getConfig(user);
-            store = config[store];
+            store = config[storeName];
             if (!store) {
                 let err = new Error("Store not found");
                 cb(err, null);
@@ -122,9 +149,9 @@ class Db extends EventEmitter {
         return this._populateAll(item, store, user, cb);
     }
 
-    pushComment(_id, prop, data, store, cb) { }
+    pushComment(_id, prop, data, storeName, cb) { }
 
-    set(item, store, options = {}, cb = () => { }) {
+    set(item, storeName, options = {}, cb = () => { }) {
         if (typeof options === "function") {
             cb = options;
             options = {};
@@ -138,17 +165,17 @@ class Db extends EventEmitter {
             }
             options.user = user;
             let config = configStore.getConfig(options.user);
-            let storeDesc = config[store];
+            let storeDesc = config[storeName];
             if (!storeDesc) {
                 return cb(new Error("Store not found"), null);
             }
-            if (storeDesc.type === "single" && item._id !== store) {
+            if (storeDesc.type === "single" && item._id !== storeName) {
                 return cb(new Error("Invalid _id for single store"), null);
             }
             if (!options.noCheckPermissions && !auth.hasUpdateAccess(storeDesc.access, user)) {
                 return cb(new Error("Unauthorized"), null);
             }
-            db.get(item._id, store, (err, data) => {
+            db.get(item._id, storeName, (err, data) => {
                 var newItem = false;
                 if (!data) {
                     data = {};
@@ -167,7 +194,7 @@ class Db extends EventEmitter {
                     data.updatedAt = new Date().toISOString();
                     data.updatedBy = user._id;
                 }
-                let willHook = configStore.getItemEventHandler(store, newItem ? "willCreate" : "willSave") || emptyHook;
+                let willHook = configStore.getItemEventHandler(storeName, newItem ? "willCreate" : "willSave") || emptyHook;
                 let willHookResult = willHook(this, userScriptRequire, user, data, prevItem);
                 if (typeof willHookResult === "string") {
                     return cb(new Error(willHookResult), null);
@@ -189,19 +216,19 @@ class Db extends EventEmitter {
 
                 if (willHookResult instanceof Promise) {
                     willHookResult.then((res) => {
-                        set(item._id, store, data, cb);
+                        set(item._id, storeName, data, cb);
                     }, (err) => {
                         cb(err, null);
                     });
                     return;
                 }
 
-                set(item._id, store, data, cb);
+                set(item._id, storeName, data, cb);
             });
         });
     }
 
-    setDangerously(item, store, cb) { }
+    setDangerously(item, storeName, cb) { }
 
     getUser(userId, cb) {
         if (typeof userId === "object") {
