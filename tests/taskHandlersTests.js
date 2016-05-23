@@ -20,7 +20,8 @@ let dbMock = {
             cb(null, { "_id": (typeof query === "object" ? query._id : query) });
         });
     },
-    "set": function (item, store, cb) {
+    "set": function (item, store, options = {}, cb = () => {}) {
+        cb = cb || options;
         setTimeout(function () {
             cb(null, Object.assign({ "_id": item.id }, item.item));
         });
@@ -255,10 +256,9 @@ describe("taskHandlers/db", function () {
         it("should return baseItem when store.display is 'single'", function (done) {
             dbGet.test.setDb(db);
             dbGet.run("displaySingleStore", user, { "_id": "displaySingleStore" }, (e, d) => {
-                console.log("++++++++++++++++++++++++++++", d);
-                console.log("EEEEEEE", e);
                 assert.ok(e == null);
                 assert.equal(d.testProp, "42");
+                done();
             });
         });
         it("should return object when valid args", function (done) {

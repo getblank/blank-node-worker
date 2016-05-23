@@ -4,6 +4,7 @@ import taskqClient from "./taskqClient";
 import EventEmitter from "events";
 import configStore from "./configStore";
 import authUtils from "./auth";
+import $db from "./db";
 import {taskTypes, taskUris} from "./const";
 
 let wampClient = taskqClient.wampClient;
@@ -24,7 +25,7 @@ module.exports.test = {
     },
     "validateTask": validateTask,
     "runTask": runTask,
-    "getUser": getUser,
+    "getUser": $db._getUser,
 };
 
 function getTask() {
@@ -57,7 +58,7 @@ function runTask(task) {
         sendTaskError(task, "Store not found");
         return;
     }
-    getUser(task.userId, (error, user) => {
+    $db._getUser(task.userId, (error, user) => {
         if (!auth(task, user, storeDesc)) {
             sendTaskError(task, "Unauthorized");
             emitter.emit("taskAuthorizationError", task);
@@ -120,35 +121,4 @@ function auth(task, user, storeDesc) {
         return true;
     }
     return false;
-}
-
-function getUser(userId, cb) {
-    setTimeout(() => {
-        switch (userId) {
-            case "system":
-                cb(null, {
-                    "_id": userId,
-                    "roles": ["system"],
-                });
-                break;
-            case "root":
-                cb(null, {
-                    "_id": userId,
-                    "roles": ["root"],
-                });
-                break;
-            case "guest":
-                cb(null, {
-                    "_id": userId,
-                    "roles": ["guest"],
-                });
-                break;
-            default:
-                cb(null, {
-                    "_id": userId,
-                    "roles": ["root"],
-                });
-                break;
-        }
-    });
 }

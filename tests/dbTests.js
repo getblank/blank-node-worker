@@ -144,6 +144,20 @@ describe("$db", function () {
                 });
             });
         });
+        it("should return modify item when willCreate called", function (done) {
+            $db.insert({ "name": "test", "testProp": "notError" }, "users", function (err, item) {
+                assert.equal(err, null);
+                assert.equal(item.testProp, "42");
+                done();
+            });
+        });
+        it("should return error when willCreate returns error", function (done) {
+            $db.insert({ "name": "test", "testProp": "Error" }, "users", function (err, item) {
+                assert.notEqual(err, null);
+                assert.equal(err.message, "Error");
+                done();
+            });
+        });
     });
     describe("#_mergeItems", function () {
         it("should merge all props in two items", function () {
@@ -175,7 +189,7 @@ describe("$db", function () {
             let err = db._mergeItems(prevItem, item);
             assert.equal(err, null);
             assert.deepEqual(prevItem.prop3, [2]);
-            assert.deepEqual(prevItem.newProp, [1,2]);
+            assert.deepEqual(prevItem.newProp, [1, 2]);
         });
         it("should return error when pushed propert value was not an array", function () {
             let prevItem = { prop1: "prop1", prop2: "prop2", newProp: 2 };

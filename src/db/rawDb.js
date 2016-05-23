@@ -23,6 +23,9 @@ class Db extends EventEmitter {
         }
         this.db.collection(store, { strict: true }, (err, collection) => {
             if (err) {
+                if (/collection.*does not exist/i.test(err.message)) {
+                    return cb(new Error("Not found"), null);
+                }
                 return cb(err, null);
             }
             this.rawFindOne(query, store, cb);

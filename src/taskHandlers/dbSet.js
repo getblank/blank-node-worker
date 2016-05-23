@@ -7,7 +7,7 @@ class DbSet extends TaskHandlerBase {
         if (args == null || !args.item || !args.item._id) {
             throw new Error("Invalid args.");
         }
-        this.db.set(args.item, storeName, cb);
+        this.db.set(args.item, storeName, {"user": user}, cb);
     }
 }
 let dbSet = new DbSet();

@@ -51,7 +51,9 @@ module.exports = {
                 "hidden": "false",
             },
         ],
-        "objectLifeCycle": {},
+        "objectLifeCycle": {
+            "willCreate": "if ($item.testProp === 'Error') {return 'Error'}; $item.testProp = '42'",
+        },
         "storeLifeCycle": {},
         "filters": {
             "_default": {

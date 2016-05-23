@@ -36,9 +36,22 @@ class Auth {
         return res;
     }
 
+    hasCreateAccess(rules, user) {
+        return this.computeAccess(rules, user, "c") === "c";
+    }
+
     hasReadAccess(rules, user) {
         return this.computeAccess(rules, user, "r") === "r";
     }
+
+    hasUpdateAccess(rules, user) {
+        return this.computeAccess(rules, user, "u") === "u";
+    }
+
+    hasDeleteAccess(rules, user) {
+        return this.computeAccess(rules, user, "d") === "d";
+    }
+
 
     computeMongoQuery(rules, user) {
         if (rules == null) {
