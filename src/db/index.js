@@ -24,6 +24,23 @@ class Db extends EventEmitter {
         super();
         this.del = this.delete.bind(this);
         this.setup = db.setup.bind(db);
+        this._set = this.set.bind(this);
+        this.set = function (item, storeName, options = {}, cb = () => { }) {
+            if (typeof options === "function") {
+                cb = options;
+                options = {};
+            }
+            return new Promise((resolve, reject) => {
+                this._set(item, storeName, options, (e, d) => {
+                    if (e != null) {
+                        reject(e);
+                    } else {
+                        resolve(d);
+                    }
+                    cb(e, d);
+                });
+            });
+        };
     }
 
     delete(_id, storeName, cb = () => { }) {
