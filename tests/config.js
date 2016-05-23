@@ -189,6 +189,16 @@ module.exports = {
             },
         },
     },
+    "storeForPopulating": {
+        "props": {
+            "userId": {
+                "type": "ref",
+                "display": "none",
+                "store": "users",
+                "populateIn": "user",
+            },
+        },
+    },
     "singleStore": {
         "type": "single",
     },
@@ -268,10 +278,10 @@ module.exports = {
             "userActivation": false,
             "meta": [
                 { "name": "description", "content": "Application description" },
-                { "name": "author", "content": "Application author" }
+                { "name": "author", "content": "Application author" },
             ],
             "links": [
-                { "rel": "canonical", "href": "http://mysite.com/example" }
+                { "rel": "canonical", "href": "http://mysite.com/example" },
             ],
             "lessVars": {
                 //"@baseColor": "#FF0044"
@@ -346,22 +356,22 @@ module.exports = {
                     "license": "License agreement",
                     "createRoot": "Create root account",
                     "accept": "Accept",
-                    "next": "Next"
+                    "next": "Next",
                 },
                 "signIn": {
                     "action": "Sign in",
                     "title": "Sign in",
                     "error": "Login or password incorrect",
-                    "restoreLinkSent": "Email with recent link sent. If you provide correct address, you will receive it within 10 minutes"
+                    "restoreLinkSent": "Email with recent link sent. If you provide correct address, you will receive it within 10 minutes",
                 },
                 "signOut": {
-                    "action": "Sign out"
+                    "action": "Sign out",
                 },
                 "sendResetLink": {
                     "title": "Password restore",
                     "link": "I forgot password",
                     "action": "Send link",
-                    "emailSubject": "Password restore"
+                    "emailSubject": "Password restore",
                 },
                 "signUp": {
                     "title": "Registration",
@@ -373,14 +383,14 @@ module.exports = {
                     "subscribeCheck": "I want to receive information e-mails",
                     "activationEmailSubject": "Account activation",
                     "invalidEmail": "Invalid email",
-                    "registrationSuccessEmailSubject": "Congratulations with registration"
+                    "registrationSuccessEmailSubject": "Congratulations with registration",
                 },
                 "resetPassword": {
                     "title": "Password change",
                     "oldPassword": "Current password",
                     "newPassword": "New password",
                     "action": "change",
-                    "successEmailSubject": "Password was changed"
+                    "successEmailSubject": "Password was changed",
                 },
                 "profile": {
                     "link": "Profile",
@@ -388,14 +398,14 @@ module.exports = {
                     "changeLogin": "Login change",
                     "newLogin": "New login",
                     "saved": "Profile info did save",
-                    "passwordSaved": "Password did change"
+                    "passwordSaved": "Password did change",
                 },
                 "filters": {
                     "title": "Filter",
                     "clear": "reset",
                     "all": "All",
                     "search": "Search",
-                    "enterSearchText": "Search"
+                    "enterSearchText": "Search",
                 },
                 "form": {
                     "save": "Save",
@@ -416,11 +426,11 @@ module.exports = {
                 },
                 "notifications": {
                     "empty": "No notifications",
-                    "previously": "Previously"
+                    "previously": "Previously",
                 },
                 "comments": {
                     "label": "Comments",
-                    "placeholder": "Write..."
+                    "placeholder": "Write...",
                 },
                 "common": {
                     "userName": "Login",
@@ -437,7 +447,7 @@ module.exports = {
                     "week": "Week",
                     "month": "Month",
                     "actionError": "Something went wrong: ",
-                    "recordsOnPage": "Records on page: "
+                    "recordsOnPage": "Records on page: ",
                 },
                 "lists": {
                     "empty": "Looks like there is nothing here...",
@@ -455,8 +465,8 @@ module.exports = {
                     "delete": "Delete error",
                     "INVALID_OLD_PASSWORD": "Invalid old password",
                     "PASSWORD_NOT_MATCHED": "Invalid password",
-                    "EMAIL_NOT_FOUND": "E-mail address not found"
-                }
+                    "EMAIL_NOT_FOUND": "E-mail address not found",
+                },
             },
         },
     },

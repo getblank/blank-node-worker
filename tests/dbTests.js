@@ -144,6 +144,15 @@ describe("$db", function () {
                 });
             });
         });
+        it("should add correct _ownerId, createdBy and createdAt", function(done){
+            $db.insert({ "name": "test" }, "users", function (err, item) {
+                assert.equal(err, null, "returned error");
+                assert.equal(item._ownerId, "system");
+                assert.ok(item.createdBy);
+                assert.ok(item.createdAt);
+                done();
+            });
+        });
         it("should return modify item when willCreate called", function (done) {
             $db.insert({ "name": "test", "testProp": "notError" }, "users", function (err, item) {
                 assert.equal(err, null);
@@ -196,6 +205,19 @@ describe("$db", function () {
             let item = { prop2: { $push: 2 } };
             let err = db._mergeItems(prevItem, item);
             assert.notEqual(err, null);
+        });
+    });
+    describe("#populateAll", function(){
+        it("should populate user prop correctly and execute callback", function(done){
+            let item = {userId: "AAAAAAAA-0000-0000-0000-000000000004"};
+            $db._getUser("system", (err, user) => {
+                $db.populateAll(item, "storeForPopulating", user, (err, res) => {
+                    assert.equal(err, null);
+                    assert.ok(res.user);
+                    assert.equal(res.user.testProp, "44");
+                    done();
+                });
+            });
         });
     });
     after(function () {
