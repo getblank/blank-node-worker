@@ -178,6 +178,17 @@ class ConfigStore {
         return res;
     }
 
+    getVirtualPropsLoaders(storeName) {
+        let storeDesc = this._config[storeName];
+        if (storeDesc == null) {
+            throw new Error("Store not found");
+        }
+        if (!storeDesc._virtualPropsLoadersCache) {
+            storeDesc._virtualPropsLoadersCache = this.__getVirtualPropsLoaders(storeDesc.props || {});
+        }
+        return storeDesc._virtualPropsLoadersCache;
+    }
+
     getTaskDesc(storeName, taskIndex) {
         let storeDesc = this._config[storeName];
         if (storeDesc == null || !Array.isArray(storeDesc.tasks) || taskIndex > (storeDesc.tasks.length - 1)) {
@@ -186,13 +197,12 @@ class ConfigStore {
         if (storeDesc._tasksCache == null) {
             storeDesc._tasksCache = [];
         }
-        if (storeDesc._tasksCache[taskIndex]) {
-            return storeDesc._tasksCache[taskIndex];
+        if (!storeDesc._tasksCache[taskIndex]) {
+            let res = storeDesc.tasks[taskIndex];
+            res.script = new Function("$db", "require", res.script);
+            storeDesc._tasksCache[taskIndex] = res;
         }
-        let res = storeDesc.tasks[taskIndex];
-        res.script = new Function("$db", "require", res.script);
-        storeDesc._tasksCache[taskIndex] = res;
-        return res;
+        return storeDesc._tasksCache[taskIndex];
     }
 
     getStoreEventHandler(storeName, event) {
@@ -296,6 +306,23 @@ class ConfigStore {
                 if (wsDesc && wsDesc.props && wsDesc.props[propName]) {
                     res[propName] = Object.assign({}, propDesc, wsDesc.props[propName]);
                 }
+            }
+        }
+        return res;
+    }
+
+    __getVirtualPropsLoaders(props) {
+        let res = {};
+        for (let propName of Object.keys(props)) {
+            let propDesc = props[propName];
+            if (propDesc.props) {
+                res[propName] = this.__getVirtualPropsLoaders(propDesc.props);
+                if (Object.keys(res[propName]).length < 1) {
+                    delete res[propName];
+                }
+            }
+            if (propDesc.type === "virtual") {
+                res[propName] = new Function("$item", "$baseItem", "$i18n", propDesc.load || "return null;");
             }
         }
         return res;

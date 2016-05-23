@@ -170,6 +170,16 @@ describe("configStore", function () {
             assert.ok(defaultStore != null);
         });
     });
+    describe("#getVirtualPropsLoaders", function () {
+        it("should create load functions for all virtual props", function () {
+            let res = configStore.getVirtualPropsLoaders("storeWithVirtualProps");
+            console.log("Reeeeees:", res);
+            assert.equal(typeof res.v1, "function");
+            assert.equal(typeof res.listProp.v2, "function");
+            assert.equal(res.v1(), "v1");
+            assert.equal(res.listProp.v2(), "v2");
+        });
+    });
     describe("#getTaskDesc", function () {
         it("should return null when store not found", function () {
             let taskDesc = configStore.getTaskDesc("UNKNOWN_STORE");

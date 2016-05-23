@@ -221,6 +221,26 @@ module.exports = {
             "willSave": "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
         },
     },
+    "storeWithVirtualProps": {
+        "props": {
+            "v1": {
+                "type": "virtual",
+                "display": "text",
+                "load": "return 'v1';",
+            },
+            "listProp": {
+                "type": "objectList",
+                "formOrder": 0,
+                "props": {
+                    "v2": {
+                        "type": "virtual",
+                        "display": "text",
+                        "load": "return 'v2';",
+                    },
+                },
+            },
+        },
+    },
     "testWorkspace": {
         "type": "workspace",
         "config": {
