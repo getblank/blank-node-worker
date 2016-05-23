@@ -26,7 +26,7 @@ class Db extends EventEmitter {
         this.setup = db.setup.bind(db);
     }
 
-    delete(_id, store, cb = () => {}) {
+    delete(_id, store, cb = () => { }) {
         this.getUser("system", (err, user) => {
             if (err) {
                 return cb(err, null);
@@ -229,10 +229,14 @@ class Db extends EventEmitter {
                     break;
                 default:
                     if (process.env.NODE_ENV === "test") {
-                        return cb(null, {
-                            "_id": userId,
-                            "roles": ["root"],
-                        });
+                        if (userId === "UNKNOWN") {
+                            return cb(null, null);
+                        } else {
+                            return cb(null, {
+                                "_id": userId,
+                                "roles": ["root"],
+                            });
+                        }
                     }
                     db.get(userId, "users", cb);
                     break;

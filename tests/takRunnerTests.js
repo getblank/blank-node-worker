@@ -93,6 +93,20 @@ describe("taskRunner", function () {
             let c = wampMock.calls[taskUris.error][0];
             assert.equal(c.args[1], "Store not found");
         });
+        it("should call error 'User not found' when no store for task", function (done) {
+            let taskData = { "id": Math.random(), "userId": "UNKNOWN" };
+            var h = function (t) {
+                if (taskData.id === t.id) {
+                    assert.equal(wampMock.getCallsCount(taskUris.error), 1);
+                    let c = wampMock.calls[taskUris.error][0];
+                    assert.equal(c.args[1], "User not found");
+                    taskRunner.removeListener("taskUserNotFoundError", h);
+                    done();
+                }
+            };
+            taskRunner.on("taskUserNotFoundError", h);
+            taskRunner.test.runTask(getTask(taskData));
+        });
         it("should call error 'Unauthorized' when no access to store", function (done) {
             let taskData = { "id": Math.random(), "store": "deniedStore1" };
             var h = function (t) {
