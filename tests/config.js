@@ -200,6 +200,11 @@ module.exports = {
             "didStart": "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
         },
     },
+    "storeWithObjectLifeCycle": {
+        "objectLifeCycle": {
+            "willSave": "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
+        },
+    },
     "testWorkspace": {
         "type": "workspace",
         "config": {

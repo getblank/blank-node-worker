@@ -229,6 +229,22 @@ class ConfigStore {
         return handler;
     }
 
+    getItemEventHandler(storeName, event) {
+        let storeDesc = this._config[storeName];
+        if (storeDesc == null || storeDesc.objectLifeCycle == null || storeDesc.objectLifeCycle[event] == null) {
+            return null;
+        }
+        if (storeDesc._itemLifeCycleHandlerCache == null) {
+            storeDesc._itemLifeCycleHandlerCache = {};
+        }
+        if (storeDesc._itemLifeCycleHandlerCache[event]) {
+            return storeDesc._itemLifeCycleHandlerCache[event];
+        }
+        let handler = new Function("$db", "require", "$user", "$item", "$prevItem", storeDesc.objectLifeCycle[event]);
+        storeDesc._itemLifeCycleHandlerCache[event] = handler;
+        return handler;
+    }
+
     getBaseConfig(lang) {
         let cs = JSON.parse(JSON.stringify(this._config["_commonSettings"]));
         cs.i18n = this.__getI18N(cs.i18n, lang);

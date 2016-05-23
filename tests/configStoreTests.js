@@ -202,6 +202,22 @@ describe("configStore", function () {
             assert.strictEqual(eventHandler, sameEventHandler);
         });
     });
+    describe("#getItemEventHandler", function () {
+        it("should return null when store not found", function () {
+            let eventHandler = configStore.getItemEventHandler("UNKNOWN_STORE");
+            assert.ok(eventHandler == null);
+        });
+        it("should return null when handler not found", function () {
+            let eventHandler = configStore.getItemEventHandler("storeWithObjectLifeCycle", "UNKNOWN_EVENT");
+            assert.ok(eventHandler == null);
+        });
+        it("should compile and cache script", function () {
+            let eventHandler = configStore.getItemEventHandler("storeWithObjectLifeCycle", "willSave");
+            assert.equal(typeof eventHandler, "function");
+            let sameEventHandler = configStore.getItemEventHandler("storeWithObjectLifeCycle", "willSave");
+            assert.strictEqual(eventHandler, sameEventHandler);
+        });
+    });
     describe("#getActionDesc", function () {
         it("should throw when store not found", function () {
             assert.throws(function () {
