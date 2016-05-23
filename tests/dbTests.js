@@ -20,6 +20,8 @@ describe("$db", function () {
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000004", "testProp": "44" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000042", "testProp": "toDelete" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000043", "testProp": "toDelete2" },
+                { "_id": "AAAAAAAA-0000-0000-0000-000000000044", "testProp": "toDelete3" },
+                { "_id": "AAAAAAAA-0000-0000-0000-000000000045", "testProp": "toDelete4" },
             ],
                 "users",
                 done);
@@ -245,6 +247,17 @@ describe("$db", function () {
                     assert.equal(err, null);
                     assert.equal(item.testProp, "toDelete2");
                     assert.ok(item._deleted);
+                    done();
+                });
+            });
+        });
+        it("should return return error if willDelete hook return Promise that rejected", function(done){
+            $db.delete("AAAAAAAA-0000-0000-0000-000000000044", "users", (err) => {
+                assert.notEqual(err, null);
+                assert.equal(err.message, "NO_DELETE");
+                $db.get("AAAAAAAA-0000-0000-0000-000000000044", "users", (err, item) => {
+                    assert.equal(err, null);
+                    assert.ok(!item._deleted);
                     done();
                 });
             });

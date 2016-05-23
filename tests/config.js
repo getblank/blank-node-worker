@@ -53,6 +53,14 @@ module.exports = {
         ],
         "objectLifeCycle": {
             "willCreate": "if ($item.testProp === 'Error') {return 'Error'}; $item.testProp = '42'",
+            "willRemove": `
+                return new Promise((resolve, reject) => {
+                    if ($item.testProp === "toDelete3") {
+                        reject(new Error('NO_DELETE'))
+                    };
+                    resolve();
+                });
+            `,
         },
         "storeLifeCycle": {},
         "filters": {

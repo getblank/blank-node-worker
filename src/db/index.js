@@ -47,12 +47,36 @@ class Db extends EventEmitter {
                     return cb(err);
                 }
                 item._deleted = true;
-                db._set(item._id, `${storeName}_deleted`, item, (err, res) => {
-                    if (err) {
-                        return cb(err);
-                    }
-                    db._delete(item._id, storeName, cb);
-                });
+                let willHook = configStore.getItemEventHandler(storeName, "willRemove") || emptyHook;
+                let willHookResult = willHook(this, userScriptRequire, user, item, null);
+                if (typeof willHookResult === "string") {
+                    return cb(new Error(willHookResult), null);
+                }
+
+                let del = () => {
+                    db._set(item._id, `${storeName}_deleted`, item, (err, res) => {
+                        if (err) {
+                            return cb(err);
+                        }
+                        db._delete(item._id, storeName, (err) => {
+                            cb(err);
+                            this.emit("delete", storeName, _id, null);
+                            let didHook = configStore.getItemEventHandler(storeName, "didRemove") || emptyHook;
+                            didHook(this, userScriptRequire, user, item, null);
+                        });
+                    });
+                };
+
+                if (willHookResult instanceof Promise) {
+                    willHookResult.then((res) => {
+                        del();
+                    }, (err) => {
+                        cb(err);
+                    });
+                    return;
+                }
+
+                del();
             });
         });
     }
