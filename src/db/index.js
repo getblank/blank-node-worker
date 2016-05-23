@@ -197,11 +197,7 @@ class Db extends EventEmitter {
 
     pushComment(_id, prop, data, storeName, cb) { }
 
-    set(item, storeName, options = {}, cb = () => { }) {
-        if (typeof options === "function") {
-            cb = options;
-            options = {};
-        }
+    set(item, storeName, options, cb) {
         if (!item._id) {
             return cb(new Error("No _id provided"), null);
         }
