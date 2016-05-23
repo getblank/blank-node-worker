@@ -26,7 +26,14 @@ class Db extends EventEmitter {
         this.setup = db.setup.bind(db);
     }
 
-    delete(_id, store, cb) { }
+    delete(_id, store, cb = () => {}) {
+        this.getUser("system", (err, user) => {
+            if (err) {
+                return cb(err, null);
+            }
+            db.get(_id, store, cb);
+        });
+    }
 
     find(request, store, options = {}, cb = () => { }) {
         if (typeof options === "function") {
@@ -125,7 +132,7 @@ class Db extends EventEmitter {
         if (!item._id) {
             return cb(new Error("No _id provided"), null);
         }
-        this._getUser(options.user || options.userId || "system", (err, user) => {
+        this.getUser(options.user || options.userId || "system", (err, user) => {
             if (err) {
                 return cb(err, null);
             }
@@ -196,7 +203,7 @@ class Db extends EventEmitter {
 
     setDangerously(item, store, cb) { }
 
-    _getUser(userId, cb) {
+    getUser(userId, cb) {
         if (typeof userId === "object") {
             return cb(null, userId);
         }

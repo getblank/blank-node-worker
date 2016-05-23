@@ -210,7 +210,7 @@ describe("$db", function () {
     describe("#populateAll", function(){
         it("should populate user prop correctly and execute callback", function(done){
             let item = {userId: "AAAAAAAA-0000-0000-0000-000000000004"};
-            $db._getUser("system", (err, user) => {
+            $db.getUser("system", (err, user) => {
                 $db.populateAll(item, "storeForPopulating", user, (err, res) => {
                     assert.equal(err, null);
                     assert.ok(res.user);
