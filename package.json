@@ -20,7 +20,7 @@
     "prestart": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js src -d lib",
     "start": "NODE_PATH='./blank-js-core' node ./lib/worker.js $SR",
     "pretest": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js src -d lib",
-    "test": "NODE_PATH='./blank-js-core' TESTING='TESTING' mocha ./tests"
+    "test": "NODE_PATH='./blank-js-core' NODE_ENV='test' mocha ./tests"
   },
   "babel": {
     "plugins": [

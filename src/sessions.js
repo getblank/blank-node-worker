@@ -53,6 +53,6 @@ exports.getSubscribers = getSubscribers;
 exports.update = update;
 exports.init = init;
 
-if (process.env.TESTING === "TESTING") {
+if (process.env.NODE_ENV === "test") {
     exports.sessions = sessions;
 }
