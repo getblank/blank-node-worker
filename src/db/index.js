@@ -155,12 +155,6 @@ class Db extends EventEmitter {
         });
     }
 
-    getAll(store, cb) { }
-
-    getAllForUser(store, cb) { }
-
-    getAllKeys(store, cb) { }
-
     insert(item, storeName, options = {}, cb = () => { }) {
         if (typeof options === "function") {
             cb = options;
