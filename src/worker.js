@@ -94,7 +94,7 @@ function setupModules() {
     db.setup("mongodb://localhost:27017/blank");
     if (_serviceRegistry.pbx && _serviceRegistry.pbx[0]) {
         let firstPBX = _serviceRegistry.pbx[0];
-        registerModule("pbx", firstPBX.commonJS);
+        registerModule("pbx", firstPBX.address, firstPBX.port, firstPBX.commonJS);
     }
     if (configStore.isReady()) {
         let taskQueueList = _serviceRegistry.taskQueue || [],

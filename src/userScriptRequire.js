@@ -18,8 +18,7 @@ module.exports.require = function (moduleName) {
         if (externalModule.cached == null) {
             externalModule.cached = __requireFromString(externalModule.code, moduleName);
         }
-        externalModule.cached.setAddress(externalModule.address);
-        externalModule.cached.setPort(externalModule.port);
+        externalModule.cached.init(externalModule.address, externalModule.port);
         return externalModule.cached;
     }
 };
