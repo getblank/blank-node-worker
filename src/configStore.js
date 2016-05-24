@@ -185,9 +185,21 @@ class ConfigStore {
         if (res == null) {
             throw new Error("Action not found");
         }
-        res.script = new Function("$db", "require", "$user", "$item", "$data", res.script);
-        res.hidden = new Function("$user", "$item", res.hidden || "return false;");
-        res.disabled = new Function("$user", "$item", res.disabled || "return false;");
+        try {
+            res.script = new Function("$db", "require", "$user", "$item", "$data", res.script);
+        } catch (e) {
+            throw new Error(`${storeName} | ${actionId} | Error while compiling action script handler: ${e.message}`);
+        }
+        try {
+            res.hidden = new Function("$user", "$item", res.hidden || "return false;");
+        } catch (e) {
+            throw new Error(`${storeName} | ${actionId} | Error while compiling action hidden handler: ${e.message}`);
+        }
+        try {
+            res.disabled = new Function("$user", "$item", res.disabled || "return false;");
+        } catch (e) {
+            throw new Error(`${storeName} | ${actionId} | Error while compiling action disabled handler: ${e.message}`);
+        }
         storeDesc._actionsCache[actionId] = res;
         return res;
     }
@@ -213,7 +225,11 @@ class ConfigStore {
         }
         if (!storeDesc._tasksCache[taskIndex]) {
             let res = storeDesc.tasks[taskIndex];
-            res.script = new Function("$db", "require", res.script);
+            try {
+                res.script = new Function("$db", "require", res.script);
+            } catch (e) {
+                throw new Error(`${storeName} | ${taskIndex} | Error while compiling scheduled task handler: ${e.message}`);
+            }
             storeDesc._tasksCache[taskIndex] = res;
         }
         return storeDesc._tasksCache[taskIndex];
@@ -230,7 +246,12 @@ class ConfigStore {
         if (storeDesc._storeLifeCycleHandlerCache[event]) {
             return storeDesc._storeLifeCycleHandlerCache[event];
         }
-        let handler = new Function("$db", "require", storeDesc.storeLifeCycle[event]);
+        let handler;
+        try {
+            handler = new Function("$db", "require", storeDesc.storeLifeCycle[event]);
+        } catch (e) {
+            throw new Error(`${storeName} | ${event} | Error while compiling store event handler: ${e.message}`);
+        }
         storeDesc._storeLifeCycleHandlerCache[event] = handler;
         return handler;
     }
@@ -246,7 +267,12 @@ class ConfigStore {
         if (storeDesc._itemLifeCycleHandlerCache[event]) {
             return storeDesc._itemLifeCycleHandlerCache[event];
         }
-        let handler = new Function("$db", "require", "$user", "$item", "$prevItem", storeDesc.objectLifeCycle[event]);
+        let handler;
+        try {
+            handler = new Function("$db", "require", "$user", "$item", "$prevItem", storeDesc.objectLifeCycle[event]);
+        } catch (e) {
+            throw new Error(`${storeName} | ${event} | Error while compiling item event handler: ${e.message}`);
+        }
         storeDesc._itemLifeCycleHandlerCache[event] = handler;
         return handler;
     }
