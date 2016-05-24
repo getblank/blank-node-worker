@@ -2,7 +2,7 @@
 
 import TaskHandlerBase from "./TaskHandlerBase";
 import configStore from "../configStore";
-import userScriptRequire from "../userScriptRequire";
+import {require as userScriptRequire} from "../userScriptRequire";
 
 class ScheduledScript extends TaskHandlerBase {
     run(storeName, user, args, cb) {

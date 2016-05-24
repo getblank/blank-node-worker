@@ -36,7 +36,7 @@ function getTask() {
     console.debug("Wating for task...");
     wampClient.call(taskUris.get, (data, err) => {
         if (err == null) {
-            console.debug("Task received");
+            console.debug(`Task received: "${data.type}"`);
             runTask(data);
         } else {
             console.warn(`Error while getting task: ${err}`);

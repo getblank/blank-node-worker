@@ -17,7 +17,7 @@ import configStore from "../configStore";
 import uuid from "node-uuid";
 import EventEmitter from "events";
 import auth from "../auth";
-import userScriptRequire from "../userScriptRequire";
+import {require as userScriptRequire} from "../userScriptRequire";
 
 class Db extends EventEmitter {
     constructor() {

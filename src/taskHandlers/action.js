@@ -2,7 +2,7 @@
 
 import TaskHandlerBase from "./TaskHandlerBase";
 import configStore from "../configStore";
-import userScriptRequire from "../userScriptRequire";
+import {require as userScriptRequire} from "../userScriptRequire";
 
 class PerformAction extends TaskHandlerBase {
     __run(cb, actionDesc, user, data, item) {
