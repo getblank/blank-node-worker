@@ -343,10 +343,26 @@ class ConfigStore {
     }
 
     __getUserActions(actions, user) {
+        //TODO: Tests needed!
         let res = [];
         for (let actionDesc of (actions || [])) {
             if (auth.hasReadAccess(actionDesc.access, user)) {
-                res.push(actionDesc);
+                let _actionDesc = {
+                    "_id": actionDesc._id,
+                    "clientPreScript": actionDesc.clientPreScript,
+                    "clientPostScript": actionDesc.clientPostScript,
+                    "hidden": actionDesc.hidden,
+                    "disabled": actionDesc.disabled,
+                    "label": actionDesc.label,
+                    "formLabel": actionDesc.formLabel,
+                    "icon": actionDesc.icon,
+                    "hideInHeader": actionDesc.hideInHeader,
+                    "disableItemReadyCheck": actionDesc.disableItemReadyCheck,
+                };
+                if (actionDesc.props != null && Object.keys(actionDesc.props).length > 0) {
+                    _actionDesc.props = this.__getUserProps(actionDesc.props, user);
+                }
+                res.push(_actionDesc);
             }
         }
         return res;
