@@ -295,8 +295,7 @@ describe("$db", function () {
     });
     describe("#nextSequence", function(){
         before(function(done){
-            db._dropCollection("_sequences");
-            done();
+            db._dropCollection("_sequences", done);
         });
         it("should return next sequence number when first $db.nextSequence called", function(done){
             $db.nextSequence("users", function(err, sequence){
@@ -312,10 +311,9 @@ describe("$db", function () {
     });
     describe("#nextSequenceString", function(){
         before(function(done){
-            db._dropCollection("_sequences");
-            done();
+            db._dropCollection("_sequences", done);
         });
-        it("should return next sequence number when first $db.nextSequence called", function(done){
+        it("should return next sequence number when first $db.nextSequence called", function (done){
             $db.nextSequenceString("users", function(err, sequence){
                 assert.equal(err, null);
                 assert.strictEqual(sequence, "000001");
