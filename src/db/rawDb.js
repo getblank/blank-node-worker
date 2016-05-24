@@ -14,6 +14,9 @@ class Db extends EventEmitter {
     }
 
     get(query, store, cb) {
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
         if (typeof query === "string") {
             query = { _id: query };
         }
@@ -29,6 +32,9 @@ class Db extends EventEmitter {
     }
 
     find(query, store, cb) {
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
         if (!configStore.isStore(store)) {
             return cb(new Error("Store not found"), null);
         }
@@ -64,6 +70,9 @@ class Db extends EventEmitter {
     }
 
     rawFindOne(query, store, cb) {
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
         this.db.collection(store, { strict: true }, (err, collection) => {
             if (err) {
                 return cb(err, null);
@@ -80,8 +89,27 @@ class Db extends EventEmitter {
             });
         });
     }
+    rawFindOneAndUpdate(query, update, storeName, cb) {
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
+        this.db.collection(storeName, { strict: false }, (err, collection) => {
+            collection.findOneAndUpdate(query, update, {returnOriginal: false, upsert: true}, (err, res) => {
+                if (err) {
+                    return cb(err, null);
+                }
+                if (res.ok) {
+                    return cb(null, res.value);
+                }
+                return cb(new Error(res.lastErrorObject), null);
+            });
+        });
+    }
 
     rawFindAll(query, store, cb) {
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
         this.db.collection(store, { strict: true }, (err, collection) => {
             if (err) {
                 return cb(err, null);
@@ -122,11 +150,21 @@ class Db extends EventEmitter {
     }
 
     _insertMany(data, store, cb = () => { }) {
-        let collection = this.db.collection(store);
-        collection.insertMany(data, { strict: false }, cb);
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
+        this.db.collection(store, {strict: false}, (err, collection) => {
+            if (err) {
+                return cb(err, null);
+            }
+            collection.insertMany(data, { strict: false }, cb);
+        });
     }
 
     _set(id, store, data, cb = () => { }) {
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
         this.db.collection(store, { strict: false }, (err, collection) => {
             if (err) {
                 return cb(err, null);
@@ -141,6 +179,9 @@ class Db extends EventEmitter {
     }
 
     _delete(id, store, cb = () => { }) {
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
         this.db.collection(store, { strict: true }, (err, collection) => {
             if (err) {
                 return cb(err);
@@ -155,6 +196,9 @@ class Db extends EventEmitter {
     }
 
     _dropCollection(store, cb = () => { }) {
+        if (!this.connected) {
+            return cb(new Error("Not connected"), null);
+        }
         this.db.collection(store, { strict: true }, (err, collection) => {
             if (err) {
                 return cb();

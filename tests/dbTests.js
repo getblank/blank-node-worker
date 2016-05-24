@@ -293,6 +293,40 @@ describe("$db", function () {
             });
         });
     });
+    describe("#nextSequence", function(){
+        before(function(done){
+            db._dropCollection("_sequences");
+            done();
+        });
+        it("should return next sequence number when first $db.nextSequence called", function(done){
+            $db.nextSequence("users", function(err, sequence){
+                assert.equal(err, null);
+                assert.strictEqual(sequence, 1);
+                $db.nextSequence("users", function(err, sequence){
+                    assert.equal(err, null);
+                    assert.strictEqual(sequence, 2);
+                    done();
+                });
+            });
+        });
+    });
+    describe("#nextSequenceString", function(){
+        before(function(done){
+            db._dropCollection("_sequences");
+            done();
+        });
+        it("should return next sequence number when first $db.nextSequence called", function(done){
+            $db.nextSequenceString("users", function(err, sequence){
+                assert.equal(err, null);
+                assert.strictEqual(sequence, "000001");
+                $db.nextSequenceString("users", 3, function(err, sequence){
+                    assert.equal(err, null);
+                    assert.strictEqual(sequence, "002");
+                    done();
+                });
+            });
+        });
+    });
     after(function () {
         db._dropCollection("users");
         db._dropCollection("users_deleted");

@@ -201,11 +201,35 @@ class Db extends EventEmitter {
         return uuid.v4();
     }
 
-    nextSequence(store, cb) { }
+    nextSequence(storeName, cb) {
+        if (!configStore.isStore(storeName)) {
+            return cb(new Error("Store not found"), null);
+        }
+        db.rawFindOneAndUpdate({_id: storeName}, {$inc: {sequence: 1}}, "_sequences", (err, res) => {
+            if (err) {
+                return cb(err, null);
+            }
+            cb(null, res.sequence);
+        });
+    }
 
-    nextSequenceString(store, stringLength, cb) { }
+    nextSequenceString(storeName, stringLength, cb) {
+        cb = cb || stringLength;
+        if (typeof stringLength === "function") {
+            stringLength = 6;
+        }
+        this.nextSequence(storeName, (err, res) => {
+            if (err) {
+                return cb(err, res);
+            }
+            res += "";
+            let zeros = "0000000000000000";
+            res = zeros.slice(0, stringLength - res.length) + res;
+            cb(null, res);
+        });
+    }
 
-    notify(receivers, store, message) { }
+    notify(receivers, storeName, message) { }
 
     populateAll(item, storeName, user, cb = () => { }) {
         var store;
