@@ -10,6 +10,7 @@
 //      noEmitUpdate: bool – if true, will not emit db event
 //      populate: bool
 //      loadVirtualProps: bool
+//      maxAttempts: 3 – number of attempts to save document with version control
 // }
 
 import db from "./rawDb";
@@ -205,7 +206,7 @@ class Db extends EventEmitter {
         if (!configStore.isStore(storeName)) {
             return cb(new Error("Store not found"), null);
         }
-        db.rawFindOneAndUpdate({_id: storeName}, {$inc: {sequence: 1}}, "_sequences", (err, res) => {
+        db.rawFindOneAndUpdate({ _id: storeName }, { $inc: { sequence: 1 } }, "_sequences", (err, res) => {
             if (err) {
                 return cb(err, null);
             }
@@ -267,58 +268,87 @@ class Db extends EventEmitter {
             if (!options.noCheckPermissions && !auth.hasUpdateAccess(storeDesc.access, user)) {
                 return cb(new Error("Unauthorized"), null);
             }
-            db.get(item._id, storeName, (err, data) => {
-                var newItem = false;
-                if (!data) {
-                    data = {};
-                    newItem = true;
-                }
-                let prevItem = JSON.parse(JSON.stringify(data));
-                err = db._mergeItems(data, item);
-                if (err) {
-                    return cb(err, null);
-                }
-                if (newItem) {
-                    data.createdAt = new Date().toISOString();
-                    data.createdBy = user._id;
-                    data._ownerId = user._id;
-                } else {
-                    data.updatedAt = new Date().toISOString();
-                    data.updatedBy = user._id;
-                }
-                let willHook = configStore.getItemEventHandler(storeName, newItem ? "willCreate" : "willSave") || emptyHook;
-                let willHookResult = willHook(this, userScriptRequire, user, data, prevItem);
-                if (typeof willHookResult === "string") {
-                    return cb(new Error(willHookResult), null);
-                }
+            let originalItemJSON = JSON.stringify(item);
+            let currentAttempt = 0;
+            options.maxAttempts = options.maxAttempts || 3;
 
-                let set = (_id, item) => {
-                    db._set(item._id, storeName, data, (err) => {
-                        if (err) {
-                            return cb(err, null);
+            let setAttempt = () => {
+                item = JSON.parse(originalItemJSON);
+                db.get(item._id, storeName, (err, data) => {
+                    var newItem = false;
+                    if (!data) {
+                        data = {};
+                        newItem = true;
+                    }
+                    let version = newItem ? 0 : data.__v || null;
+                    let prevItem = JSON.parse(JSON.stringify(data));
+                    err = db._mergeItems(data, item);
+                    if (err) {
+                        return cb(err, null);
+                    }
+                    if (newItem) {
+                        data.createdAt = new Date().toISOString();
+                        data.createdBy = user._id;
+                        data._ownerId = user._id;
+                    } else {
+                        data.updatedAt = new Date().toISOString();
+                        data.updatedBy = user._id;
+                    }
+                    let willHook = configStore.getItemEventHandler(storeName, newItem ? "willCreate" : "willSave") || emptyHook;
+                    let willHookResult = willHook(this, userScriptRequire, user, data, prevItem);
+                    if (typeof willHookResult === "string") {
+                        return cb(new Error(willHookResult), null);
+                    }
+
+                    let set = (_id, item) => {
+                        let query = { _id: item._id };
+                        if (version !== 0) {
+                            query.__v = version;
                         }
-                        this._populateAndVirtualing(data, storeName, storeDesc, user, options, (err, item) => {
-                            if (!options.noEmitUpdate) {
-                                this.emit("update", storeName, data, null);
+                        if (!newItem) {
+                            delete data._id;
+                        }
+                        delete data.__v;
+                        data = {
+                            "$set": data,
+                            "$inc": { __v: 1 },
+                        };
+
+                        currentAttempt++;
+                        db.rawFindOneAndUpdate(query, data, storeName, (err, res) => {
+                            if (err) {
+                                if (currentAttempt === options.maxAttempts) {
+                                    console.warn("Max set attempts reached", options.maxAttempts);
+                                    return cb(err, null);
+                                }
+                                console.debug("Set attempt failed. Will retry. Attempts remaining", options.maxAttempts - currentAttempt);
+                                return setAttempt();
                             }
-                            cb(null, data);
-                            let didHook = configStore.getItemEventHandler(storeName, newItem ? "didCreate" : "didSave") || emptyHook;
-                            didHook(this, userScriptRequire, user, data, prevItem);
+                            data = res;
+                            this._populateAndVirtualing(data, storeName, storeDesc, user, options, (err, item) => {
+                                if (!options.noEmitUpdate) {
+                                    this.emit("update", storeName, data, null);
+                                }
+                                cb(null, data);
+                                let didHook = configStore.getItemEventHandler(storeName, newItem ? "didCreate" : "didSave") || emptyHook;
+                                didHook(this, userScriptRequire, user, data, prevItem);
+                            });
                         });
-                    });
-                };
+                    };
 
-                if (willHookResult instanceof Promise) {
-                    willHookResult.then((res) => {
-                        set(item._id, data);
-                    }, (err) => {
-                        cb(err, null);
-                    });
-                    return;
-                }
+                    if (willHookResult instanceof Promise) {
+                        willHookResult.then((res) => {
+                            set(item._id, data);
+                        }, (err) => {
+                            cb(err, null);
+                        });
+                        return;
+                    }
 
-                set(item._id, data);
-            });
+                    set(item._id, data);
+                });
+            };
+            setAttempt();
         });
     }
 

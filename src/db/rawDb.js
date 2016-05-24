@@ -89,6 +89,7 @@ class Db extends EventEmitter {
             });
         });
     }
+
     rawFindOneAndUpdate(query, update, storeName, cb) {
         if (!this.connected) {
             return cb(new Error("Not connected"), null);
@@ -101,7 +102,7 @@ class Db extends EventEmitter {
                 if (res.ok) {
                     return cb(null, res.value);
                 }
-                return cb(new Error(res.lastErrorObject), null);
+                return cb(new Error(res.lastErrorObject.MongoError || res.lastErrorObject), null);
             });
         });
     }
@@ -273,8 +274,8 @@ class Db extends EventEmitter {
         }
         MongoClient.connect(this.mongoUri, {
             autoReconnect: true,
-            reconnectTries: 86400,
-            reconnectInterval: 1000,
+            // reconnectTries: 86400,
+            // reconnectInterval: 1000,
         }, (err, db) => {
             if (err) {
                 console.log("DB connection error:", err);

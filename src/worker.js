@@ -9,6 +9,7 @@ import db from "./db";
 import consoleHandler from "./consoleHandler";
 import sessions from "./sessions";
 import "./db/events";
+import register from "./userScriptRequire";
 consoleHandler.setup("debug");
 
 global.WebSocket = require("ws");

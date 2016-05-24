@@ -28,8 +28,8 @@ describe("$db", function () {
                         "nestedProp": "NESTED_PROP",
                     },
                     "objectListOfVirtuals": [
-                        {"nestedProp": "NESTED_LIST_PROP1"},
-                        {"nestedProp": "NESTED_LIST_PROP2"},
+                        { "nestedProp": "NESTED_LIST_PROP1" },
+                        { "nestedProp": "NESTED_LIST_PROP2" },
                     ],
                 },
             ],
@@ -59,8 +59,8 @@ describe("$db", function () {
                 done();
             });
         });
-        it("should load virtual props", function(done){
-            $db.get("AAAAAAAA-0000-0000-0000-000000000045", "users", {loadVirtualProps: true}, (err, res) => {
+        it("should load virtual props", function (done) {
+            $db.get("AAAAAAAA-0000-0000-0000-000000000045", "users", { loadVirtualProps: true }, (err, res) => {
                 assert.equal(err, null);
                 assert.equal(res.virtualProp, "toLoadVirtual_virtual");
                 assert.equal(res.objectOfVirtuals.nestedVirtualProp, "NESTED_PROPtoLoadVirtual");
@@ -163,6 +163,23 @@ describe("$db", function () {
             });
             assert.ok(mayBePromise instanceof Promise);
         });
+        it("should retry to set with version", function (done) {
+            let _id = "newId";
+            for (let i = 0; i < 50; i++) {
+                $db.set({ "_id": _id, prop: i }, "users", (err, data) => {
+                    assert.equal(err, null);
+                });
+            }
+            setTimeout(() => {
+                $db.get(_id, "users", (err, res) => {
+                    assert.equal(err, null);
+                    assert.equal(res.__v, 50);
+                    assert.ok(res.prop >= 0);
+                    assert.ok(res.prop < 50);
+                    done();
+                });
+            }, 1000);
+        });
     });
     describe("#insert", function () {
         it("should return item with generated '_id'", function (done) {
@@ -174,7 +191,7 @@ describe("$db", function () {
         });
         it("should return created item from db", function (done) {
             $db.insert({ "name": "test" }, "users", function (err, item) {
-                assert.equal(err, null, "returned error");
+                assert.equal(err, null);
                 assert.ok(item._id, "no '_id' in item");
                 $db.get(item._id, "users", (err, $item) => {
                     assert.equal(err, null, "returned error");
@@ -183,7 +200,7 @@ describe("$db", function () {
                 });
             });
         });
-        it("should add correct _ownerId, createdBy and createdAt", function(done){
+        it("should add correct _ownerId, createdBy and createdAt", function (done) {
             $db.insert({ "name": "test" }, "users", function (err, item) {
                 assert.equal(err, null, "returned error");
                 assert.equal(item._ownerId, "system");
@@ -246,9 +263,9 @@ describe("$db", function () {
             assert.notEqual(err, null);
         });
     });
-    describe("#populateAll", function(){
-        it("should populate user prop correctly and execute callback", function(done){
-            let item = {userId: "AAAAAAAA-0000-0000-0000-000000000004"};
+    describe("#populateAll", function () {
+        it("should populate user prop correctly and execute callback", function (done) {
+            let item = { userId: "AAAAAAAA-0000-0000-0000-000000000004" };
             $db.getUser("system", (err, user) => {
                 $db.populateAll(item, "storeForPopulating", user, (err, res) => {
                     assert.equal(err, null);
@@ -259,8 +276,8 @@ describe("$db", function () {
             });
         });
     });
-    describe("#delete", function(){
-        it("should mark item as deleted and move to ${storeName}_deleted bucket", function(done){
+    describe("#delete", function () {
+        it("should mark item as deleted and move to ${storeName}_deleted bucket", function (done) {
             $db.delete("AAAAAAAA-0000-0000-0000-000000000042", "users", (err) => {
                 assert.equal(err, null);
                 db.get("AAAAAAAA-0000-0000-0000-000000000042", "users_deleted", (err, item) => {
@@ -271,7 +288,7 @@ describe("$db", function () {
                 });
             });
         });
-        it("should return deleted item by _id and item should be marked as deleted", function(done){
+        it("should return deleted item by _id and item should be marked as deleted", function (done) {
             $db.delete("AAAAAAAA-0000-0000-0000-000000000043", "users", (err) => {
                 $db.get("AAAAAAAA-0000-0000-0000-000000000043", "users", (err, item) => {
                     assert.equal(err, null);
@@ -281,7 +298,7 @@ describe("$db", function () {
                 });
             });
         });
-        it("should return return error if willDelete hook return Promise that rejected", function(done){
+        it("should return return error if willDelete hook return Promise that rejected", function (done) {
             $db.delete("AAAAAAAA-0000-0000-0000-000000000044", "users", (err) => {
                 assert.notEqual(err, null);
                 assert.equal(err.message, "NO_DELETE");
@@ -293,15 +310,15 @@ describe("$db", function () {
             });
         });
     });
-    describe("#nextSequence", function(){
-        before(function(done){
+    describe("#nextSequence", function () {
+        before(function (done) {
             db._dropCollection("_sequences", done);
         });
-        it("should return next sequence number when first $db.nextSequence called", function(done){
-            $db.nextSequence("users", function(err, sequence){
+        it("should return next sequence number when first $db.nextSequence called", function (done) {
+            $db.nextSequence("users", function (err, sequence) {
                 assert.equal(err, null);
                 assert.strictEqual(sequence, 1);
-                $db.nextSequence("users", function(err, sequence){
+                $db.nextSequence("users", function (err, sequence) {
                     assert.equal(err, null);
                     assert.strictEqual(sequence, 2);
                     done();
@@ -309,15 +326,15 @@ describe("$db", function () {
             });
         });
     });
-    describe("#nextSequenceString", function(){
-        before(function(done){
+    describe("#nextSequenceString", function () {
+        before(function (done) {
             db._dropCollection("_sequences", done);
         });
-        it("should return next sequence number when first $db.nextSequence called", function (done){
-            $db.nextSequenceString("users", function(err, sequence){
+        it("should return next sequence number when first $db.nextSequence called", function (done) {
+            $db.nextSequenceString("users", function (err, sequence) {
                 assert.equal(err, null);
                 assert.strictEqual(sequence, "000001");
-                $db.nextSequenceString("users", 3, function(err, sequence){
+                $db.nextSequenceString("users", 3, function (err, sequence) {
                     assert.equal(err, null);
                     assert.strictEqual(sequence, "002");
                     done();
