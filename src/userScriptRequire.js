@@ -14,15 +14,18 @@ module.exports.require = function (moduleName) {
         return require(workerPublicModules[moduleName]);
     }
     if (externalModules.hasOwnProperty(moduleName)) {
-        if (externalModules[moduleName].cached == null) {
-            externalModules[moduleName].cached = __requireFromString(externalModules[moduleName].code, moduleName);
+        let externalModule = externalModules[moduleName];
+        if (externalModule.cached == null) {
+            externalModule.cached = __requireFromString(externalModule.code, moduleName);
         }
-        return externalModules[moduleName].cached;
+        externalModule.cached.setAddress(externalModule.address);
+        externalModule.cached.setPort(externalModule.port);
+        return externalModule.cached;
     }
 };
 
-module.exports.register = function (name, code) {
-    externalModules[name] = { "code": code };
+module.exports.register = function (name, address, port, code) {
+    externalModules[name] = { "address": address, "port": port, "code": code };
 };
 
 function __requireFromString(code, filename = "", opts = {}) {

@@ -9,7 +9,7 @@ import db from "./db";
 import consoleHandler from "./consoleHandler";
 import sessions from "./sessions";
 import "./db/events";
-import register from "./userScriptRequire";
+import {register as registerModule} from "./userScriptRequire";
 consoleHandler.setup("debug");
 
 global.WebSocket = require("ws");
@@ -92,6 +92,10 @@ function setupModules() {
     console.log("Modules setup started");
     configStore.setup(_config);
     db.setup("mongodb://localhost:27017/blank");
+    if (_serviceRegistry.pbx && _serviceRegistry.pbx[0]) {
+        let firstPBX = _serviceRegistry.pbx[0];
+        registerModule("pbx", firstPBX.commonJS);
+    }
     if (configStore.isReady()) {
         let taskQueueList = _serviceRegistry.taskQueue || [],
             firstTQ = taskQueueList[0];
