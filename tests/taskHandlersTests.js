@@ -195,7 +195,7 @@ describe("taskHandler/httpHook", function () {
     });
     it("should callback error when no httpHook description found", function (done) {
         httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 23 }, (e, d) => {
-            assert.equal(e.message, "Task not found");
+            assert.equal(e.message, "Http Hook not found");
             done();
         });
     });

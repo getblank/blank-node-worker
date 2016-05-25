@@ -12,7 +12,7 @@ class ScheduledScript extends TaskHandlerBase {
         }
         let taskDesc = configStore.getHttpHookDesc(storeName, args.hookIndex);
         if (taskDesc == null) {
-            return cb(new Error("Task not found"), null);
+            return cb(new Error("Http Hook not found"), null);
         }
         let res = taskDesc.script(this.db, userScriptRequire, args.request);
         if (res instanceof Promise) {
