@@ -115,7 +115,7 @@
      */
     WampClient.prototype.call = function (url, callback) {
         if (this._wsClient.readyState === wsStates.OPEN) {
-            let callId = ++this._callSequence + "";
+            let callId = ++this._callSequence;
             this._callResponseHandlers[callId] = callback;
             var callData = [(this._stringMsgTypes ? "CALL" : msgTypes.CALL), callId, url];
             callData = callData.concat(Array.prototype.slice.call(arguments, 2));
