@@ -11,6 +11,7 @@ var dbSet = require("../lib/taskHandlers/dbSet");
 var dbDelete = require("../lib/taskHandlers/dbDelete");
 var action = require("../lib/taskHandlers/action");
 var scheduledScript = require("../lib/taskHandlers/scheduledScript");
+var httpHook = require("../lib/taskHandlers/httpHook");
 var storeLifeCycle = require("../lib/taskHandlers/storeLifeCycle");
 var authentication = require("../lib/taskHandlers/authentication");
 var userConfig = require("../lib/taskHandlers/userConfig");
@@ -181,6 +182,42 @@ describe("taskHandler/scheduledScript", function () {
             done();
         };
         scheduledScript.run("storeWithTask", { "_id": "root" }, { "taskIndex": 0 }, (e, d) => {
+        });
+    });
+});
+
+describe("taskHandler/httpHook", function () {
+    it("should callback error when invalid hookIndex", function (done) {
+        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": "6" }, (e, d) => {
+            assert.equal(e.message, "Invalid args.");
+            done();
+        });
+    });
+    it("should callback error when no httpHook description found", function (done) {
+        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 23 }, (e, d) => {
+            assert.equal(e.message, "Task not found");
+            done();
+        });
+    });
+    it("should run httpHook script that resolve promise", function (done) {
+        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 0 }, (e, d) => {
+            assert.equal(e, null);
+            assert.equal(d, "42");
+            done();
+        });
+    });
+    it("should run httpHook script that promise rejected", function (done) {
+        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 1 }, (e, d) => {
+            assert.notEqual(e, null);
+            assert.equal(e, "42");
+            done();
+        });
+    });
+    it("should run httpHook script that use uri param", function (done) {
+        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 2, "request": {"params": {"id": 24}} }, (e, d) => {
+            assert.equal(e, null);
+            assert.equal(d, 24);
+            done();
         });
     });
 });

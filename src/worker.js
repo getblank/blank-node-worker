@@ -95,6 +95,7 @@ function setupModules() {
     if (_serviceRegistry.pbx && _serviceRegistry.pbx[0]) {
         let firstPBX = _serviceRegistry.pbx[0];
         registerModule("pbx", firstPBX.address, firstPBX.port, firstPBX.commonJS);
+        console.info(`Module "pbx" registered. Address: "${firstPBX.address}"; port: "${firstPBX.port}"`);
     }
     if (configStore.isReady()) {
         let taskQueueList = _serviceRegistry.taskQueue || [],

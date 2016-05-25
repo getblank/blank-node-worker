@@ -235,6 +235,26 @@ class ConfigStore {
         return storeDesc._tasksCache[taskIndex];
     }
 
+    getHttpHookDesc(storeName, hookIndex) {
+        let storeDesc = this._config[storeName];
+        if (storeDesc == null || !Array.isArray(storeDesc.httpHooks) || hookIndex > (storeDesc.httpHooks.length - 1)) {
+            return null;
+        }
+        if (storeDesc._httpHooksCache == null) {
+            storeDesc._httpHooksCache = [];
+        }
+        if (!storeDesc._httpHooksCache[hookIndex]) {
+            let res = storeDesc.httpHooks[hookIndex];
+            try {
+                res.script = new Function("$db", "require", "$request", res.script);
+            } catch (e) {
+                throw new Error(`${storeName} | ${hookIndex} | Error while compiling httpHook handler: ${e.message}`);
+            }
+            storeDesc._httpHooksCache[hookIndex] = res;
+        }
+        return storeDesc._httpHooksCache[hookIndex];
+    }
+
     getStoreEventHandler(storeName, event) {
         let storeDesc = this._config[storeName];
         if (storeDesc == null || storeDesc.storeLifeCycle == null || storeDesc.storeLifeCycle[event] == null) {
@@ -384,6 +404,8 @@ class ConfigStore {
                     "icon": actionDesc.icon,
                     "hideInHeader": actionDesc.hideInHeader,
                     "disableItemReadyCheck": actionDesc.disableItemReadyCheck,
+                    "groupAccess": auth.computeAccess(actionDesc.access, user),
+                    "ownerAccess": auth.computeAccess(actionDesc.access, user),
                 };
                 if (actionDesc.props != null && Object.keys(actionDesc.props).length > 0) {
                     _actionDesc.props = this.__getUserProps(actionDesc.props, user);

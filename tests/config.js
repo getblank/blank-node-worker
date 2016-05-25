@@ -305,6 +305,44 @@ module.exports = {
             },
         },
     },
+    "storeWithHttpHook": {
+        "display": "list",
+        "navOrder": 0,
+        "label": "{{$i18n.storeLabel}}",
+        "labels": [],
+        "props": {
+            "defaultProp": {
+                "type": "string",
+                "formOrder": 10,
+                "display": "textInput",
+            },
+        },
+        "actions": [],
+        "objectLifeCycle": {},
+        "storeLifeCycle": {},
+        "filters": {},
+        "httpHooks": [
+            {
+                "uri": "/resolved/:id",
+                "method": "POST",
+                "script": "return new Promise((resolve, reject) => {resolve('42')});",
+            },
+            {
+                "uri": "/rejected/:id",
+                "method": "POST",
+                "script": "return new Promise((resolve, reject) => {reject('42')});",
+            },
+            {
+                "uri": "/async/:id",
+                "method": "POST",
+                "script": "return $request.params.id;",
+            },
+        ],
+        "tasks": [],
+        "i18n": {
+            "storeLabel": "class",
+        },
+    },
     "testWorkspace": {
         "type": "workspace",
         "config": {
