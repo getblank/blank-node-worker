@@ -28,13 +28,8 @@
         "CLOSING": 2,
         "CLOSED": 3,
     };
+
     var helpers = {
-        newGuid: function () {
-            var s4 = function () {
-                return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-            };
-            return (s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4());
-        },
         getRandom: function (min, max) {
             return Math.random() * (max - min) + min;
         },
@@ -47,6 +42,7 @@
         this._wsClient = null;
         this._heartBeat = heartBeat;
         this._stringMsgTypes = stringMsgTypes;
+        this._callSequence = 0;
         //Outbound subscriptions (from THIS to SERVER)
         this._eventHandlers = {};
         this._subscribedHandlers = {};
@@ -119,7 +115,7 @@
      */
     WampClient.prototype.call = function (url, callback) {
         if (this._wsClient.readyState === wsStates.OPEN) {
-            let callId = helpers.newGuid();
+            let callId = ++this._callSequence + "";
             this._callResponseHandlers[callId] = callback;
             var callData = [(this._stringMsgTypes ? "CALL" : msgTypes.CALL), callId, url];
             callData = callData.concat(Array.prototype.slice.call(arguments, 2));
