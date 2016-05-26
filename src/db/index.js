@@ -229,7 +229,30 @@ class Db extends EventEmitter {
         });
     }
 
-    notify(receivers, storeName, message) { }
+    notify(receivers, storeName, message, cb = () => { }) {
+        if (typeof message === "string") {
+            message = {
+                "event": "notification",
+                "level": "info",
+                "message": message,
+            };
+        }
+        if (typeof receivers === "string") {
+            receivers = [receivers];
+        }
+        let all = [];
+        for (let receiver of receivers) {
+            let m = {
+                _id: this.newId(),
+                _ownerId : receiver,
+                event: message.event,
+                level: message.level,
+                message: message.message,
+            };
+            all.push(this.set(m, storeName));
+        }
+        Promise.all(all).then((res) => {console.info(":RES:      ", res);cb(null)}).catch(e => cb(e));
+    }
 
     populateAll(item, storeName, user, cb = () => { }) {
         var store;
@@ -288,7 +311,7 @@ class Db extends EventEmitter {
                     if (newItem) {
                         data.createdAt = new Date().toISOString();
                         data.createdBy = user._id;
-                        data._ownerId = user._id;
+                        data._ownerId = data._ownerId || user._id;
                     } else {
                         data.updatedAt = new Date().toISOString();
                         data.updatedBy = user._id;
