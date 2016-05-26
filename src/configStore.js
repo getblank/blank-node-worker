@@ -4,6 +4,7 @@ import auth from "./auth";
 import {clientStoreDef} from "./const";
 import find from "utils/find";
 import configProcessor from "configProcessor";
+import userScript from "./userScript";
 
 let _defaultStore = {
     "display": "none",
@@ -35,7 +36,7 @@ class ConfigStore {
             let propDesc = props[propName];
             if (propDesc.type === "virtual" && typeof propDesc.load !== "function") {
                 let script = propDesc.load || "return null;";
-                propDesc.load = new Function("$item", "$baseItem", "require", script);
+                propDesc.load = userScript.create(script, `${propName}_load`, ["$item", "$baseItem", "require"]);
             }
             if (propDesc.props) {
                 this.prepareProps(propDesc.props);
@@ -188,21 +189,15 @@ class ConfigStore {
         if (res == null) {
             throw new Error("Action not found");
         }
-        try {
-            res.script = new Function("$db", "require", "$user", "$item", "$data", res.script);
-        } catch (e) {
-            throw new Error(`${storeName} | ${actionId} | Error while compiling action script handler: ${e.message}`);
-        }
-        try {
-            res.hidden = new Function("$user", "$item", res.hidden || "return false;");
-        } catch (e) {
-            throw new Error(`${storeName} | ${actionId} | Error while compiling action hidden handler: ${e.message}`);
-        }
-        try {
-            res.disabled = new Function("$user", "$item", res.disabled || "return false;");
-        } catch (e) {
-            throw new Error(`${storeName} | ${actionId} | Error while compiling action disabled handler: ${e.message}`);
-        }
+        res.script = userScript.create(res.script,
+            `${storeName}_${res.storeAction ? "storeActions" : "actions"}_${actionId}`,
+            ["$user", "$item", "$data"]);
+        res.hidden = userScript.create(res.hidden || "return false;",
+            `${storeName}_${res.storeAction ? "storeActions" : "actions"}_${actionId}_hidden`,
+            ["$user", "$item"]);
+        res.disabled = userScript.create(res.disabled || "return false;",
+            `${storeName}_${res.storeAction ? "storeActions" : "actions"}_${actionId}_disabled`,
+            ["$user", "$item"]);
         storeDesc._actionsCache[actionId] = res;
         return res;
     }
@@ -228,11 +223,7 @@ class ConfigStore {
         }
         if (!storeDesc._tasksCache[taskIndex]) {
             let res = storeDesc.tasks[taskIndex];
-            try {
-                res.script = new Function("$db", "require", res.script);
-            } catch (e) {
-                throw new Error(`${storeName} | ${taskIndex} | Error while compiling scheduled task handler: ${e.message}`);
-            }
+            res.script = userScript.create(res.script, `${storeName}_task_${taskIndex}`);
             storeDesc._tasksCache[taskIndex] = res;
         }
         return storeDesc._tasksCache[taskIndex];
@@ -248,11 +239,7 @@ class ConfigStore {
         }
         if (!storeDesc._httpHooksCache[hookIndex]) {
             let res = storeDesc.httpHooks[hookIndex];
-            try {
-                res.script = new Function("$db", "require", "$request", res.script);
-            } catch (e) {
-                throw new Error(`${storeName} | ${hookIndex} | Error while compiling httpHook handler: ${e.message}`);
-            }
+            res.script = userScript.create(res.script, `${storeName}_HTTPHook_${hookIndex}`, ["$request"]);
             storeDesc._httpHooksCache[hookIndex] = res;
         }
         return storeDesc._httpHooksCache[hookIndex];
@@ -269,12 +256,7 @@ class ConfigStore {
         if (storeDesc._storeLifeCycleHandlerCache[event]) {
             return storeDesc._storeLifeCycleHandlerCache[event];
         }
-        let handler;
-        try {
-            handler = new Function("$db", "require", storeDesc.storeLifeCycle[event]);
-        } catch (e) {
-            throw new Error(`${storeName} | ${event} | Error while compiling store event handler: ${e.message}`);
-        }
+        let handler = userScript.create(storeDesc.storeLifeCycle[event], `${storeName}_storeEvents_${event}`);
         storeDesc._storeLifeCycleHandlerCache[event] = handler;
         return handler;
     }
@@ -290,12 +272,7 @@ class ConfigStore {
         if (storeDesc._itemLifeCycleHandlerCache[event]) {
             return storeDesc._itemLifeCycleHandlerCache[event];
         }
-        let handler;
-        try {
-            handler = new Function("$db", "require", "$user", "$item", "$prevItem", storeDesc.objectLifeCycle[event]);
-        } catch (e) {
-            throw new Error(`${storeName} | ${event} | Error while compiling item event handler: ${e.message}`);
-        }
+        let handler = userScript.create(storeDesc.objectLifeCycle[event], `${storeName}_itemEvents_${event}`, ["$user", "$item", "$prevItem"]);
         storeDesc._itemLifeCycleHandlerCache[event] = handler;
         return handler;
     }

@@ -3,7 +3,6 @@
 import TaskHandlerBase from "./TaskHandlerBase";
 import configStore from "../configStore";
 import {dbErrors} from "../const";
-import {require as userScriptRequire} from "../userScriptRequire";
 
 class PerformAction extends TaskHandlerBase {
     __run(cb, actionDesc, user, data, item) {
@@ -15,9 +14,9 @@ class PerformAction extends TaskHandlerBase {
             cb(new Error("Action is disabled"), null);
             return;
         }
-        let res = actionDesc.script(this.db, userScriptRequire, user, item, data);
+        let res = actionDesc.script(user, item, data);
         if (res instanceof Promise) {
-            return res.then(r => cb(null, r), e => cb (e, null));
+            return res.then(r => cb(null, r), e => cb(e, null));
         }
         cb(null, res);
     }

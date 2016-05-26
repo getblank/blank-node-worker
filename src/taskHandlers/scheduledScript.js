@@ -2,7 +2,6 @@
 
 import TaskHandlerBase from "./TaskHandlerBase";
 import configStore from "../configStore";
-import {require as userScriptRequire} from "../userScriptRequire";
 
 class ScheduledScript extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -14,7 +13,7 @@ class ScheduledScript extends TaskHandlerBase {
         if (taskDesc == null) {
             return cb(new Error("Task not found"), null);
         }
-        cb(null, taskDesc.script(this.db, userScriptRequire));
+        cb(null, taskDesc.script());
     }
 }
 let scheduledScript = new ScheduledScript();

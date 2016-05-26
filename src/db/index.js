@@ -65,7 +65,7 @@ class Db extends EventEmitter {
                 }
                 item._deleted = true;
                 let willHook = configStore.getItemEventHandler(storeName, "willRemove") || emptyHook;
-                let willHookResult = willHook(this, userScriptRequire, user, item, null);
+                let willHookResult = willHook(user, item, null);
                 if (typeof willHookResult === "string") {
                     return cb(new Error(willHookResult), null);
                 }
@@ -79,7 +79,7 @@ class Db extends EventEmitter {
                             cb(err);
                             this.emit("delete", storeName, _id, null);
                             let didHook = configStore.getItemEventHandler(storeName, "didRemove") || emptyHook;
-                            didHook(this, userScriptRequire, user, item, null);
+                            didHook(user, item, null);
                         });
                     });
                 };
@@ -317,7 +317,7 @@ class Db extends EventEmitter {
                         data.updatedBy = user._id;
                     }
                     let willHook = configStore.getItemEventHandler(storeName, newItem ? "willCreate" : "willSave") || emptyHook;
-                    let willHookResult = willHook(this, userScriptRequire, user, data, prevItem);
+                    let willHookResult = willHook(user, data, prevItem);
                     if (typeof willHookResult === "string") {
                         return cb(new Error(willHookResult), null);
                     }
@@ -353,7 +353,7 @@ class Db extends EventEmitter {
                                 }
                                 cb(null, data);
                                 let didHook = configStore.getItemEventHandler(storeName, newItem ? "didCreate" : "didSave") || emptyHook;
-                                didHook(this, userScriptRequire, user, data, prevItem);
+                                didHook(user, data, prevItem);
                             });
                         });
                     };
