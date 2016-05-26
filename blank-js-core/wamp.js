@@ -336,7 +336,7 @@
 
     Object.defineProperty(WampClient.prototype, "state", {
         get: function () {
-            return this._wsClient.readyState;
+            return this._wsClient && this._wsClient.readyState;
         },
         enumerable: true,
     });

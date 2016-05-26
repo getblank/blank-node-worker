@@ -15,19 +15,16 @@ module.exports.require = function (moduleName) {
     }
     if (externalModules.hasOwnProperty(moduleName)) {
         let m = externalModules[moduleName];
-        if (m.cached == null) {
-            m.cached = __requireFromString(m.code, moduleName);
-            m.cached.init(m.address, m.port);
-        }
         return m.cached;
     }
 };
 
 module.exports.register = function (name, address, port, code) {
     let m = externalModules[name] = Object.assign({}, externalModules[name], { "address": address, "port": port, "code": code });
-    if (m.cached) {
-        m.cached.init(m.address, m.port);
+    if (m.cached == null) {
+        m.cached = __requireFromString(m.code, name);
     }
+    m.cached.init(m.address, m.port);
 };
 
 function __requireFromString(code, filename = "", opts = {}) {
