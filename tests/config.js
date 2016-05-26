@@ -357,6 +357,12 @@ module.exports = {
             },
         },
     },
+    "_serverSettings": {
+        "type": "map",
+        "entries": {
+            "serverParam": true,
+        },
+    },
     "_commonSettings": {
         "type": "map",
         "access": [
