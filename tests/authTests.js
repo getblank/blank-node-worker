@@ -21,6 +21,11 @@ let systemUser = {
     "roles": ["system"],
 };
 
+let rootUser = {
+    "_id": "root",
+    "roles": ["root"],
+};
+
 let allowXYZRule = {
     "role": "sclif",
     "permissions": "xyz",
@@ -77,6 +82,10 @@ describe("auth", function () {
         });
         it("should always grant permissions for 'system' role", function () {
             let access = auth.computeAccess([denySystem], systemUser, "r");
+            assert.equal(access, "r");
+        });
+        it("should grant permissions for 'root' role if it not provided in rules", function () {
+            let access = auth.computeAccess([denyRule], rootUser, "r");
             assert.equal(access, "r");
         });
     });

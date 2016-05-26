@@ -1,19 +1,27 @@
 const reg = new RegExp("\s*-?\s*[a-z]\s*", "g");
 const denyReadReg = new RegExp("-\s*r");
 
+function getRule(role, permissions) {
+    return { "role": role, "permissions": permissions || "crud" };
+}
+
 class Auth {
     computeAccess(rules, user, permissions) {
-        rules = (Array.isArray(rules) && rules.length > 0) ? rules : [
-            { "role": "root", "permissions": permissions || "crud" },
-            { "role": "all", "permissions": permissions || "crud" },
-        ];
+        rules = (Array.isArray(rules) && rules.length > 0) ? rules : [getRule("all")];
+        let pushRoot = true;
         for (let i = rules.length - 1; i >= 0; i--) {
             let rule = rules[i];
             if (rule.role === "system") {
                 rules.splice(i, 1);
             }
+            if (rule.role === "root") {
+                pushRoot = false;
+            }
         }
-        rules.push({ "role": "system", "permissions": permissions || "crud" });
+        rules.push(getRule("system"));
+        if (pushRoot) {
+            rules.push(getRule("root"));
+        }
         this.__prepareUser(user);
 
         let canGrant = permissions || "crud", res = "";
