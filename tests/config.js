@@ -88,6 +88,14 @@ module.exports = {
                 "_id": "availability_test",
                 "script": "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {return 'ok';} else {return 'fail';}",
             },
+            {
+                "_id": "promise_test",
+                "script": `return new Promise((resolve, reject) => {
+                    setTimeout(function() {
+                        resolve("42");
+                    }, 1);
+                });`,
+            },
         ],
         "storeActions": [
             {

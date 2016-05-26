@@ -152,6 +152,13 @@ describe("taskHandler/action", function () {
             done();
         });
     });
+    it("should wait for resolve/reject if promise returned", function (done) {
+        action.run(storeName, user, { "actionId": "promise_test", "itemId": "0" }, (e, d) => {
+            assert.equal(e, null);
+            assert.equal(d, "42");
+            done();
+        });
+    });
     it("should provide 'require' function and $db object in script", function (done) {
         action.run(storeName, user, { "actionId": "availability_test", "itemId": "0" }, (e, d) => {
             assert.equal(e, null);

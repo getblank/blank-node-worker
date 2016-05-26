@@ -2,6 +2,7 @@
 
 import TaskHandlerBase from "./TaskHandlerBase";
 import configStore from "../configStore";
+import {dbErrors} from "../const";
 import {require as userScriptRequire} from "../userScriptRequire";
 
 class PerformAction extends TaskHandlerBase {
@@ -14,7 +15,11 @@ class PerformAction extends TaskHandlerBase {
             cb(new Error("Action is disabled"), null);
             return;
         }
-        cb(null, actionDesc.script(this.db, userScriptRequire, user, item, data));
+        let res = actionDesc.script(this.db, userScriptRequire, user, item, data);
+        if (res instanceof Promise) {
+            return res.then(r => cb(null, r), e => cb (e, null));
+        }
+        cb(null, res);
     }
 
     run(storeName, user, args, cb) {
@@ -37,10 +42,19 @@ class PerformAction extends TaskHandlerBase {
             this.__run(cb, actionDesc, user, args.data);
             return;
         }
+        let storeDesc = configStore.getStoreDesc(storeName, user), createBaseIfNotFound = false;
+        if (storeDesc.type === "single" || storeDesc.display === "single") {
+            createBaseIfNotFound = true;
+        }
         this.db.get(args.itemId, storeName, (e, item) => {
             if (e) {
-                cb(new Error("Item load error"), null);
-                return;
+                if (createBaseIfNotFound && (e.message === dbErrors.itemNotFound || e.message === dbErrors.storeNotFound)) {
+                    item = configStore.getBaseItem(storeName, user);
+                } else {
+                    console.log(e);
+                    cb(new Error("Item load error"), null);
+                    return;
+                }
             }
             this.__run(cb, actionDesc, user, args.data, item);
         });
