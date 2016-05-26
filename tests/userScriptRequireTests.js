@@ -11,11 +11,11 @@ describe("UserScriptRequire", function () {
             assert.equal(testModule.fn(), "42");
         });
         it("should pass address and port to external module", function () {
-            userScriptRequire.register("testModule", "localhost", "42", `
+            userScriptRequire.register("testModuleWithAddress", "localhost", "42", `
                 let address, port;
                 exports.fn = function () { return address + ":" + port; };
                 exports.init = (a, p) => {address = a; port = p};`);
-            let testModule = userScriptRequire.require("testModule");
+            let testModule = userScriptRequire.require("testModuleWithAddress");
             assert.equal(testModule.fn(), "localhost:42");
         });
     });

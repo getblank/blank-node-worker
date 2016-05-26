@@ -14,17 +14,21 @@ module.exports.require = function (moduleName) {
         return require(workerPublicModules[moduleName]);
     }
     if (externalModules.hasOwnProperty(moduleName)) {
-        let externalModule = externalModules[moduleName];
-        if (externalModule.cached == null) {
-            externalModule.cached = __requireFromString(externalModule.code, moduleName);
+        let m = externalModules[moduleName];
+        if (m.cached == null) {
+            m.cached = __requireFromString(m.code, moduleName);
+            console.log("_________+++++++++++++++",m);
+            m.cached.init(m.address, m.port);
         }
-        externalModule.cached.init(externalModule.address, externalModule.port);
-        return externalModule.cached;
+        return m.cached;
     }
 };
 
 module.exports.register = function (name, address, port, code) {
-    externalModules[name] = { "address": address, "port": port, "code": code };
+    let m = externalModules[name] = Object.assign({}, externalModules[name], { "address": address, "port": port, "code": code });
+    if (m.cached) {
+        m.cached.init(m.address, m.port);
+    }
 };
 
 function __requireFromString(code, filename = "", opts = {}) {
