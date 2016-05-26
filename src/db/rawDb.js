@@ -274,11 +274,14 @@ class Db extends EventEmitter {
         }
         MongoClient.connect(this.mongoUri, {
             autoReconnect: true,
-            // reconnectTries: 86400,
-            // reconnectInterval: 1000,
+            reconnectTries: 86400,
+            reconnectInterval: 1000,
         }, (err, db) => {
             if (err) {
                 console.log("DB connection error:", err);
+                setTimeout(()=>{
+                    this.__connect();
+                }, 5000);
                 return;
             }
             console.log("Connected successfully to DB");
