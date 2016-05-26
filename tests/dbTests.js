@@ -342,8 +342,48 @@ describe("$db", function () {
             });
         });
     });
+    describe("#notify", function () {
+        beforeEach(function (done) {
+            db._dropCollection("partialTestsNotificationStore", done);
+        });
+        it("should create documents in 'partialTestsNotificationStore' for all receivers when notify called", function (done) {
+            let receivers = [
+                "AAAAAAAA-0000-0000-0000-000000000000",
+                "AAAAAAAA-0000-0000-0000-000000000001",
+            ];
+            $db.notify(receivers, "partialTestsNotificationStore", "Hello", (e, res) => {
+                assert.equal(e, null);
+                $db.find({ query: {} }, "partialTestsNotificationStore", (e, res) => {
+                    assert.equal(e, null);
+                    assert.notEqual(res, null);
+                    assert.equal(res.count, 2);
+                    assert.equal(res.items[0].message, "Hello");
+                    assert.equal(res.items[0].event, "notification");
+                    assert.equal(res.items[0].level, "info");
+                    done();
+                });
+            });
+        });
+        it("should create documents in 'partialTestsNotificationStore' for one receiver passed as string when notify called", function (done) {
+            let receivers = "AAAAAAAA-0000-0000-0000-000000000000";
+            $db.notify(receivers, "partialTestsNotificationStore", "Hello, receiver", (e, res) => {
+                assert.equal(e, null);
+                $db.find({ query: {} }, "partialTestsNotificationStore", (e, res) => {
+                    assert.equal(e, null);
+                    assert.notEqual(res, null);
+                    assert.equal(res.count, 1);
+                    assert.equal(res.items[0].message, "Hello, receiver");
+                    assert.equal(res.items[0].event, "notification");
+                    assert.equal(res.items[0].level, "info");
+                    done();
+                });
+            });
+        });
+
+    });
     after(function () {
         db._dropCollection("users");
         db._dropCollection("users_deleted");
+        db._dropCollection("partialTestsNotificationStore");
     });
 });
