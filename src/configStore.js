@@ -305,7 +305,9 @@ class ConfigStore {
         if (storeDesc == null) {
             return {};
         }
-        return configProcessor.getBaseItem(storeDesc, this.__getI18N(storeDesc.i18n), user);
+        let res = configProcessor.getBaseItem(storeDesc, this.__getI18N(storeDesc.i18n), user);
+        res._ownerId = user._id;
+        return res;
     }
 
     getBaseConfig(lang) {

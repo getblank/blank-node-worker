@@ -17,7 +17,6 @@ module.exports.require = function (moduleName) {
         let m = externalModules[moduleName];
         if (m.cached == null) {
             m.cached = __requireFromString(m.code, moduleName);
-            console.log("_________+++++++++++++++",m);
             m.cached.init(m.address, m.port);
         }
         return m.cached;

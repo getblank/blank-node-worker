@@ -4,7 +4,7 @@ import TaskHandlerBase from "./TaskHandlerBase";
 import configStore from "../configStore";
 import {require as userScriptRequire} from "../userScriptRequire";
 
-class ScheduledScript extends TaskHandlerBase {
+class HTTPHook extends TaskHandlerBase {
     run(storeName, user, args, cb) {
         if (args == null || !Number.isInteger(args.hookIndex)) {
             cb(new Error("Invalid args."), null);
@@ -21,6 +21,6 @@ class ScheduledScript extends TaskHandlerBase {
         cb(null, res);
     }
 }
-let scheduledScript = new ScheduledScript();
-export default scheduledScript;
-module.exports = scheduledScript;
+let httpHook = new HTTPHook();
+export default httpHook;
+module.exports = httpHook;
