@@ -18,6 +18,7 @@ module.exports.require = function (moduleName) {
         let m = externalModules[moduleName];
         return m.cached;
     }
+    return require(moduleName);
 };
 
 module.exports.register = function (name, address, port, code) {
