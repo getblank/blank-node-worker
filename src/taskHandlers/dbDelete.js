@@ -7,7 +7,7 @@ class DbDelete extends TaskHandlerBase {
         if (args == null || !args._id) {
             throw new Error("Invalid args.");
         }
-        this.db.delete(storeName, args._id, cb);
+        this.db.delete(args._id, storeName, cb);
     }
 }
 let dbDelete = new DbDelete();

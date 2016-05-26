@@ -49,12 +49,11 @@ class Db extends EventEmitter {
             if (err) {
                 return cb(err, null);
             }
-            let config = configStore.getConfig(user);
-            let storeDesc = config[storeName];
+            let storeDesc = configStore.getStoreDesc(storeName, user);
             if (!storeDesc) {
                 return cb(new Error("Store not found"), null);
             }
-            if (!auth.hasUpdateAccess(storeDesc.access, user)) {
+            if (!auth.hasDeleteAccess(storeDesc.access, user)) {
                 return cb(new Error("Unauthorized"), null);
             }
             db.get(_id, storeName, (err, item) => {
