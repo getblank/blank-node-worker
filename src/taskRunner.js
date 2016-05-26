@@ -73,7 +73,7 @@ function runTask(task) {
         let handler = require("./taskHandlers/" + task.type);
         let taskCb = (e, d) => {
             if (e != null) {
-                sendTaskError(task, e.message);
+                sendTaskError(task, e instanceof Error ? e.message : e);
             } else {
                 sendTaskResult(task, d);
             }
