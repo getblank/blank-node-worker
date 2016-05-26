@@ -268,8 +268,6 @@ class Db extends EventEmitter {
         return this._populateAll(item, store, user, cb);
     }
 
-    pushComment(_id, prop, data, storeName, cb) { }
-
     set(item, storeName, options, cb) {
         if (!item._id) {
             return cb(new Error("No _id provided"), null);
@@ -374,7 +372,10 @@ class Db extends EventEmitter {
         });
     }
 
-    setDangerously(item, storeName, cb) { }
+    setDangerously(item, storeName, cb =() => {}) {
+        let options = {noValidate: true};
+        return this.set(item, storeName, options, cb);
+    }
 
     getUser(userId, cb) {
         if (typeof userId === "object") {
