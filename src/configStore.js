@@ -72,6 +72,9 @@ class ConfigStore {
         let res = {};
 
         for (let storeName of Object.keys(this._config)) {
+            if (storeName === "_serverSettings") {
+                continue;
+            }
             let userStoreDesc = this.__getUserStoreDesc(storeName, user);
             if (userStoreDesc != null) {
                 res[storeName] = userStoreDesc;

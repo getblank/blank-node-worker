@@ -21,6 +21,10 @@ describe("configStore", function () {
             assert.equal(stores.length, 1);
             assert.equal(stores[0], "_commonSettings");
         });
+        it("should not return _serverSettings store when user provided", function () {
+            let c = configStore.getConfig(testUser);
+            assert.ok(c._serverSettings == null);
+        });
         it("should return only stores with read access", function () {
             let c = configStore.getConfig(testUser);
             assert.ok(c.allowedStore != null);
@@ -196,7 +200,7 @@ describe("configStore", function () {
             assert.strictEqual(taskDesc.script, sameTaskDesc.script);
         });
     });
-    describe("#getStorEventHandler", function () {
+    describe("#getStoreEventHandler", function () {
         it("should return null when store not found", function () {
             let eventHandler = configStore.getStoreEventHandler("UNKNOWN_STORE");
             assert.ok(eventHandler == null);
