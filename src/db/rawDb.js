@@ -11,6 +11,7 @@ class Db extends EventEmitter {
         this.db = null;
         this.mongoUri = null;
         this.connected = false;
+        this._timeout = 250;
     }
 
     get(query, store, cb) {
@@ -95,7 +96,7 @@ class Db extends EventEmitter {
             return cb(new Error("Not connected"), null);
         }
         this.db.collection(storeName, { strict: false }, (err, collection) => {
-            collection.findOneAndUpdate(query, update, {returnOriginal: false, upsert: true}, (err, res) => {
+            collection.findOneAndUpdate(query, update, { returnOriginal: false, upsert: true }, (err, res) => {
                 if (err) {
                     return cb(err, null);
                 }
@@ -154,7 +155,7 @@ class Db extends EventEmitter {
         if (!this.connected) {
             return cb(new Error("Not connected"), null);
         }
-        this.db.collection(store, {strict: false}, (err, collection) => {
+        this.db.collection(store, { strict: false }, (err, collection) => {
             if (err) {
                 return cb(err, null);
             }
@@ -230,7 +231,7 @@ class Db extends EventEmitter {
         return res;
     }
 
-    _mergeItems (prevItem, item) {
+    _mergeItems(prevItem, item) {
         let keys = Object.keys(item);
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i];
@@ -276,14 +277,17 @@ class Db extends EventEmitter {
             autoReconnect: true,
             reconnectTries: 86400,
             reconnectInterval: 1000,
+            connectTimeoutMS: this._timeout,
         }, (err, db) => {
             if (err) {
                 console.log("DB connection error:", err);
-                setTimeout(()=>{
+                this._timeout = this._timeout < 8000 ? this._timeout + this._timeout : this._timeout;
+                setTimeout(() => {
                     this.__connect();
-                }, 5000);
+                }, this._timeout);
                 return;
             }
+            this._timeout = 500;
             console.log("Connected successfully to DB");
 
             this.db = db;
@@ -300,6 +304,10 @@ class Db extends EventEmitter {
             db.on("close", (_db) => {
                 this.connected = false;
                 console.log("Connection to mongo closed");
+            });
+            db.on("timeout", (_db) => {
+                this.connected = false;
+                console.log("Connection to mongo timeout", _db);
             });
         });
     }
