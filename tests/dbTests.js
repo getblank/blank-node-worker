@@ -342,19 +342,18 @@ describe("$db", function () {
             });
         });
     });
-    describe("#notify", function() {
+    describe("#notify", function () {
         beforeEach(function (done) {
             db._dropCollection("partialTestsNotificationStore", done);
         });
-        it("should create documents in 'partialTestsNotificationStore' for all receivers when notify called", function(done){
+        it("should create documents in 'partialTestsNotificationStore' for all receivers when notify called", function (done) {
             let receivers = [
                 "AAAAAAAA-0000-0000-0000-000000000000",
                 "AAAAAAAA-0000-0000-0000-000000000001",
             ];
             $db.notify(receivers, "partialTestsNotificationStore", "Hello", (e, res) => {
                 assert.equal(e, null);
-                $db.find({query: {}}, "partialTestsNotificationStore", (e, res) => {
-                    console.log("NOTIFYING!!!", e, res);
+                $db.find({ query: {} }, "partialTestsNotificationStore", (e, res) => {
                     assert.equal(e, null);
                     assert.notEqual(res, null);
                     assert.equal(res.count, 2);
@@ -365,12 +364,11 @@ describe("$db", function () {
                 });
             });
         });
-        it("should create documents in 'partialTestsNotificationStore' for one receiver passed as string when notify called", function(done){
+        it("should create documents in 'partialTestsNotificationStore' for one receiver passed as string when notify called", function (done) {
             let receivers = "AAAAAAAA-0000-0000-0000-000000000000";
             $db.notify(receivers, "partialTestsNotificationStore", "Hello, receiver", (e, res) => {
                 assert.equal(e, null);
-                $db.find({query: {}}, "partialTestsNotificationStore", (e, res) => {
-                    console.log("NOTIFYING!!! TWO", e, res);
+                $db.find({ query: {} }, "partialTestsNotificationStore", (e, res) => {
                     assert.equal(e, null);
                     assert.notEqual(res, null);
                     assert.equal(res.count, 1);

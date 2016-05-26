@@ -244,14 +244,14 @@ class Db extends EventEmitter {
         for (let receiver of receivers) {
             let m = {
                 _id: this.newId(),
-                _ownerId : receiver,
+                _ownerId: receiver,
                 event: message.event,
                 level: message.level,
                 message: message.message,
             };
             all.push(this.set(m, storeName));
         }
-        Promise.all(all).then((res) => {console.info(":RES:      ", res);cb(null)}).catch(e => cb(e));
+        Promise.all(all).then(res => cb(null)).catch(e => cb(e));
     }
 
     populateAll(item, storeName, user, cb = () => { }) {
