@@ -5,6 +5,7 @@ var path = require("path");
 
 let workerPublicModules = {
     "hash": "./hash",
+    "i18n": "./i18n",
 };
 
 let externalModules = {};
