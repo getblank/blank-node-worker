@@ -131,12 +131,16 @@
      * @param callback
      * @private
      */
-    WampClient.prototype.subscribe = function (uri, eventCb, okCb, errorCb) {
+    WampClient.prototype.subscribe = function (uri, eventCb, okCb, errorCb, params) {
         if (this._wsClient.readyState === wsStates.OPEN) {
             this._eventHandlers[uri] = eventCb;
             this._subscribedHandlers[uri] = okCb;
             this._subscribeErrorHandlers[uri] = errorCb;
-            this._wsClient.send(JSON.stringify([(this._stringMsgTypes ? "SUBSCRIBE" : msgTypes.SUBSCRIBE), uri]));
+            let msg = [(this._stringMsgTypes ? "SUBSCRIBE" : msgTypes.SUBSCRIBE), uri];
+            if (params) {
+                msg.push(params);
+            }
+            this._wsClient.send(JSON.stringify(msg));
         } else {
             throw new Error("WebSocket not connected");
         }
@@ -279,7 +283,6 @@
     };
 
     WampClient.prototype._wsClosedHandler = function (closeEvent) {
-        console.log(closeEvent);
         var self = this;
         self._eventHandlers = {};
         self._subscribedHandlers = {};
