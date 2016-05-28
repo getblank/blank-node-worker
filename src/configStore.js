@@ -380,6 +380,7 @@ class ConfigStore {
             if (auth.hasReadAccess(actionDesc.access, user)) {
                 let _actionDesc = {
                     "_id": actionDesc._id,
+                    "type": actionDesc.type,
                     "clientPreScript": actionDesc.clientPreScript,
                     "clientPostScript": actionDesc.clientPostScript,
                     "hidden": actionDesc.hidden,
