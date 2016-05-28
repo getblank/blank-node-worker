@@ -20,9 +20,9 @@
   "scripts": {
     "startHelper": "SR=\"ws://localhost:1234\" npm start",
     "prestart": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js src -d lib",
-    "start": "NODE_PATH='./lib/blank-js-core' node ./lib/worker.js $SR",
+    "start": "NODE_PATH='./local:./lib/blank-js-core' node ./lib/worker.js $SR",
     "pretest": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js src -d lib",
-    "test": "NODE_PATH='./lib/blank-js-core' NODE_ENV='test' mocha -t 5000 ./tests"
+    "test": "NODE_PATH='./local:./lib/blank-js-core' NODE_ENV='test' mocha -t 5000 ./tests"
   },
   "babel": {
     "plugins": [
