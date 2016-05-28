@@ -349,6 +349,9 @@ class ConfigStore {
                     res[propName] = Object.assign({}, propDesc, wsDesc.props[propName]);
                 }
             }
+            if (propDesc.props) {
+                propDesc.props = this.__getUserProps(propDesc.props, user);
+            }
         }
         return res;
     }
