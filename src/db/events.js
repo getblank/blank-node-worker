@@ -3,9 +3,14 @@
 import taskqClient from "../taskqClient";
 import $db from "./index";
 import sessions from "../sessions";
+import sift from "sift";
 
 $db.on("create", (store, item) => {
     setTimeout(() => {
+        if (taskqClient.wampClient.state !== 1) {
+            console.warn("Can't send events when no connection to TaskQueue");
+            return;
+        }
         let event = {
             event: "create",
             data: [item],
@@ -24,6 +29,10 @@ $db.on("create", (store, item) => {
 
 $db.on("update", (store, item, prevItem) => {
     setTimeout(() => {
+        if (taskqClient.wampClient.state !== 1) {
+            console.warn("Can't send events when no connection to TaskQueue");
+            return;
+        }
         let event = {
             event: "update",
             data: [item],
@@ -54,6 +63,10 @@ $db.on("update", (store, item, prevItem) => {
 
 $db.on("delete", (store, item) => {
     setTimeout(() => {
+        if (taskqClient.wampClient.state !== 1) {
+            console.warn("Can't send events when no connection to TaskQueue");
+            return;
+        }
         let event = {
             event: "delete",
             data: [item._id],
@@ -69,5 +82,15 @@ $db.on("delete", (store, item) => {
 });
 
 function matchQuery(query, item) {
-    return true;
+    if (!query) {
+        return true;
+    }
+    if (!item) {
+        return false;
+    }
+    return sift(query, [item]).length == 1;
+}
+
+if (process.env.NODE_ENV === "test") {
+    exports.matchQuery = matchQuery;
 }
