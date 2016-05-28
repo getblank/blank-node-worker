@@ -1,5 +1,5 @@
 "use strict";
-
+process.title = "blank-node-worker";
 import minimist from "minimist";
 import WampClient from "wamp";
 import "./taskRunner";

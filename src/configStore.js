@@ -392,6 +392,9 @@ class ConfigStore {
                 if (actionDesc.props != null && Object.keys(actionDesc.props).length > 0) {
                     _actionDesc.props = this.__getUserProps(actionDesc.props, user);
                 }
+                if (actionDesc.type === "client") {
+                    _actionDesc.script = actionDesc.script;
+                }
                 res.push(_actionDesc);
             }
         }

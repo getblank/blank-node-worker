@@ -8,8 +8,6 @@ d.on("error", function (error) {
     console.log(error);
 });
 
-console.log("Global:", global);
-
 var initSandbox = {
     Promise: Promise,
     console: console,

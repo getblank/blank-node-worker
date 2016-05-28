@@ -2,7 +2,7 @@
   "name": "blank-node-worker",
   "version": "0.0.1",
   "description": "JavaScript task runner for Blank platform",
-  "main": "src/worker.js",
+  "main": "lib/worker.js",
   "dependencies": {
     "handlebars": "^4.0.5",
     "minimist": "latest",
