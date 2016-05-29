@@ -5,6 +5,7 @@
   "main": "lib/worker.js",
   "dependencies": {
     "handlebars": "^4.0.5",
+    "jszip": "^3.0.0",
     "minimist": "latest",
     "moment": "^2.13.0",
     "mongodb": "^2.1.18",

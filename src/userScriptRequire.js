@@ -9,6 +9,15 @@ let workerPublicModules = {
 };
 
 let externalModules = {};
+let networkModules = null;
+
+module.exports.isReady = function () {
+    return networkModules != null;
+};
+
+module.exports.setup = function (libs) {
+    networkModules = libs;
+};
 
 module.exports.require = function (moduleName) {
     if (workerPublicModules.hasOwnProperty(moduleName)) {
@@ -17,6 +26,13 @@ module.exports.require = function (moduleName) {
     if (externalModules.hasOwnProperty(moduleName)) {
         let m = externalModules[moduleName];
         return m.cached;
+    }
+    let nameWithExt = (moduleName.slice(moduleName.length - 3) === ".js" ? moduleName : moduleName + ".js");
+    if (networkModules != null && networkModules.hasOwnProperty(nameWithExt)) {
+        if (typeof networkModules[nameWithExt] === "string") {
+            networkModules[nameWithExt] = __requireFromString(networkModules[nameWithExt], nameWithExt);
+        }
+        return networkModules[nameWithExt];
     }
     return require(moduleName);
 };
