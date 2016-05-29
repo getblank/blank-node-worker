@@ -12,12 +12,12 @@ import consoleHandler from "./consoleHandler";
 import sessions from "./sessions";
 import "./db/events";
 import userScriptRequire from "./userScriptRequire";
+import serviceRegistry from "./serviceRegistry";
 consoleHandler.setup("debug");
 
 global.WebSocket = require("ws");
 let wampClient = new WampClient(true, true),
     _connected = false,
-    _serviceRegistry = {},
     _config = null,
     _libs = null;
 
@@ -45,7 +45,7 @@ wampClient.open(srUri);
 
 function subscribeToSR() {
     var updateRegistry = function (data) {
-        _serviceRegistry = data || {};
+        serviceRegistry.update(data);
         setupModules();
     };
     wampClient.subscribe("registry", updateRegistry, updateRegistry, () => {
@@ -142,17 +142,14 @@ function setupModules() {
     configStore.setup(_config);
     userScriptRequire.setup(_libs);
     db.setup("mongodb://localhost:27017/blank");
-    if (_serviceRegistry.pbx && _serviceRegistry.pbx[0]) {
-        let firstPBX = _serviceRegistry.pbx[0];
+    if (serviceRegistry.getPBX()) {
+        let firstPBX = serviceRegistry.getPBX();
         userScriptRequire.register("pbx", firstPBX.address, firstPBX.port, firstPBX.commonJS);
         console.info(`Module "pbx" registered. Address: "${firstPBX.address}"; port: "${firstPBX.port}"`);
     }
     if (configStore.isReady() && userScriptRequire.isReady()) {
-        let taskQueueList = _serviceRegistry.taskQueue || [],
-            firstTQ = taskQueueList[0];
-        if (firstTQ && firstTQ.address) {
-            taskqClient.setup(firstTQ.address + (firstTQ.port ? ":" + firstTQ.port : ""));
-        }
+        let firstTQ = serviceRegistry.getTaskQueueAddress();
+        taskqClient.setup(firstTQ);
     } else {
         taskqClient.setup(null);
     }
