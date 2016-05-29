@@ -10,8 +10,10 @@ function formatArgs(args) {
 
 module.exports.setup = function (level) {
     level = level || "info";
+    let consoleJson = false;
     switch ((process.env.NODE_ENV || "").toLowerCase()) {
         case "production":
+            consoleJson = true;
             // logger.add(winston.transports.File, {
             //     filename: __dirname + "/application.log",
             //     handleExceptions: true,
@@ -22,16 +24,15 @@ module.exports.setup = function (level) {
         case "test":
             // Don't set up the logger overrides
             break;
-        default:
-            logger.add(winston.transports.Console, {
-                colorize: true,
-                timestamp: true,
-                level: level,
-            });
-            break;
     }
-
-
+    logger.add(winston.transports.Console, {
+        colorize: !consoleJson,
+        timestamp: true,
+        level: level,
+        stderrLevels: ["error", "warn"],
+        json: consoleJson,
+        stringify: consoleJson,
+    });
 
     // Override the built-in console methods with winston hooks
     console.log = function () {
