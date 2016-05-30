@@ -117,7 +117,16 @@ class Db extends EventEmitter {
                 return cb(err, null);
             }
             let q = query.query || {};
-            let cursor = collection.find(q);
+            let cursor;
+            if (query.props && query.props.length > 0) {
+                let props = {};
+                for (let propName of query.props) {
+                    props[propName] = true;
+                }
+                cursor = collection.find(q, props);
+            } else {
+                cursor = collection.find(q);
+            }
             if (query.skip != null) {
                 cursor = cursor.skip(query.skip);
             }

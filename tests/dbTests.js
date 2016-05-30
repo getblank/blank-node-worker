@@ -153,6 +153,24 @@ describe("$db", function () {
                 done();
             });
         });
+        it("should limit number of returned fields", function(done) {
+            $db.find({
+                query: {},
+                orderBy: "-testProp",
+                props: ["name"],
+            }, "users", (e, res) => {
+                assert.equal(e, null);
+                assert.notEqual(res, null);
+                assert.notEqual(res.items, null);
+                res.items.forEach((item) => {
+                    assert.equal(item.testProp, null);
+                    if (item._id === "AAAAAAAA-0000-0000-0000-000000000000") {
+                        assert.equal(item.name, "testName");
+                    }
+                });
+                done();
+            });
+        });
     });
     describe("#set", function () {
         it("should return a Promise", function (done) {
