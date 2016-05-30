@@ -390,6 +390,7 @@ class ConfigStore {
                     "icon": actionDesc.icon,
                     "hideInHeader": actionDesc.hideInHeader,
                     "disableItemReadyCheck": actionDesc.disableItemReadyCheck,
+                    "dynamicLabel": actionDesc.dynamicLabel,
                     "groupAccess": auth.computeAccess(actionDesc.access, user),
                     "ownerAccess": auth.computeAccess(actionDesc.access, user),
                 };
