@@ -13,25 +13,28 @@ class DbGet extends TaskHandlerBase {
             query = {
                 "_id": args._id,
             },
-            returnBaseWhenNotFound = false;
-        if (storeDesc.display === "single") {
-            returnBaseWhenNotFound = true;
+            singleView = storeDesc.display === "single";
+        if (singleView) {
             query = {
                 "_ownerId": user._id,
             };
         }
         this.db.get(query, storeName, (err, res) => {
             if (err) {
-                if (returnBaseWhenNotFound && (err.message === dbErrors.itemNotFound || err.message === dbErrors.storeNotFound)) {
-                    return cb(null, configStore.getBaseItem(storeName, user));
+                if (singleView && (err.message === dbErrors.itemNotFound || err.message === dbErrors.storeNotFound)) {
+                    res = configStore.getBaseItem(storeName, user);
+                } else {
+                    return cb(err, null);
                 }
-                return cb(err, null);
             }
             if (res && storeName === "users") {
                 delete res.hashedPassword;
                 delete res.salt;
                 delete res.activationToken;
                 delete res.passwordResetToken;
+            }
+            if (singleView) {
+                res._id = storeName;
             }
             cb(null, res);
         });

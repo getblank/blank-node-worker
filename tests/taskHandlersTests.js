@@ -40,6 +40,7 @@ let dbGetMock = {
             if (!id || id === "UNKNOWN") {
                 cb(new Error(), null);
             }
+            console.log("_________ID", id);
             cb(null, { "_id": id, "disabled": true, "hidden": true, "test": 42 });
         });
     },
@@ -221,7 +222,7 @@ describe("taskHandler/httpHook", function () {
         });
     });
     it("should run httpHook script that use uri param", function (done) {
-        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 2, "request": {"params": {"id": 24}} }, (e, d) => {
+        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 2, "request": { "params": { "id": 24 } } }, (e, d) => {
             assert.equal(e, null);
             assert.equal(d, 24);
             done();
@@ -293,6 +294,12 @@ describe("taskHandlers/db", function () {
             dbGet.run("displaySingleStore", user, { "_id": "displaySingleStore" }, (e, d) => {
                 assert.ok(e == null);
                 assert.equal(d.testProp, "42");
+                done();
+            });
+        });
+        it("should return proper '_id' when store.display is 'single'", function (done) {
+            dbGet.run("displaySingleStore", user, { "_id": "displaySingleStore" }, (e, d) => {
+                assert.equal(d._id, "displaySingleStore");
                 done();
             });
         });
