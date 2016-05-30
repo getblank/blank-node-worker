@@ -321,6 +321,9 @@ class ConfigStore {
         res.storeActions = this.__getUserActions(storeDesc.storeActions, user);
         res.i18n = this.__getI18N(storeDesc.i18n, user.lang);
         res.groupAccess = res.ownerAccess = auth.computeAccess(storeDesc.access, user);
+        if (res.display === "single" || res.type === "single") {
+            res.headerProperty = null;
+        }
         return res;
     }
 

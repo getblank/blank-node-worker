@@ -60,6 +60,13 @@ describe("configStore", function () {
                 assert.ok(store.hasOwnProperty(propName));
             }
         });
+        it("should cleanup 'headerProperty' if store.type or store.display is single", function () {
+            let c = configStore.getConfig(testUser),
+                singleStore = c.singleStore,
+                displaySingleStore = c.displaySingleStore;
+            assert.ok(singleStore.headerProperty == null);
+            assert.ok(displaySingleStore.headerProperty == null);
+        });
         it("should assign i18n by user lang", function () {
             let c = configStore.getConfig(testUser),
                 i18n = c.allowedStore.i18n;

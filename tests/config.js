@@ -263,9 +263,11 @@ module.exports = {
     },
     "singleStore": {
         "type": "single",
+        "headerProperty": "testProp",
     },
     "displaySingleStore": {
         "display": "single",
+        "headerProperty": "testProp",
         "props": {
             "testProp": {
                 "type": "string",
