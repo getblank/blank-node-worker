@@ -62,9 +62,6 @@ function getSandbox(requireBasePath = ".") {
 }
 
 function registerModule(name, code, address, port) {
-    if (name.endsWith(".js")) {
-        name = name.slice(0, name.length - 3);
-    }
     externalModules[name] = Object.assign({}, externalModules[name], { "address": address, "port": port, "code": code, "name": name });
     checkWaiting();
 }

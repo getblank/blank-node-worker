@@ -114,19 +114,17 @@ function loadLibs() {
         res.on("end", function () {
             var buf = Buffer.concat(data);
             JSZip.loadAsync(buf).then(function (zip) {
-                let res = {}, defers = [];
+                let promises = [];
                 zip.forEach(function (relativePath, file) {
                     if (!file.dir && path.extname(relativePath) === ".js") {
-                        let defer = file.async("string");
-                        defer.then((content) => {
-                            console.log("Extracted: ", relativePath, " Code:", res[relativePath].slice(0, 10).replace(/(\r?\n)/g), "...");
-                            userScript.require.register(relativePath, content);
-                        });
-                        defers.push(defer);
+                        promises.push(file.async("string").then((r) => {
+                            console.log("Extracted: ", relativePath, " Code:", r.slice(0, 10).replace(/(\r?\n)/g), "...");
+                            userScript.require.register(relativePath, r);
+                        }));
                     }
                 });
-                Promise.all(defers).then(() => {
-                    console.log(`Libs loaded: ${defers.length}`);
+                Promise.all(promises).then(() => {
+                    console.log(`Libs loaded: ${promises.length}`);
                     _libsReady = true;
                     setupModules();
                 });
