@@ -26,21 +26,23 @@ describe("UserScript", function () {
     });
     describe("#require.ensure", function () {
         it("should wait for module registration", function (done) {
-            let _log = console.log,
+            let _warn = console.warn,
                 _end = false;
-            console.log = function (test) {
+            console.warn = function (test) {
                 assert.equal(test, "42");
                 assert.equal(_end, true);
-                console.log = _log;
+                console.warn = _warn;
                 done();
             };
             userScript.require.register("moduleOne",
                 `require.ensure("moduleTwo", () => {
-                    console.log(require("moduleTwo"));
-                });`);
+                    console.warn(require("moduleTwo"));
+                });
+                module.exports.hello = "world"`);
             setTimeout(() => {
                 userScript.require.register("moduleTwo", "module.exports = \"42\";");
             });
+            userScript.require("moduleOne");
             _end = true;
         });
     });

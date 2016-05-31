@@ -1,6 +1,7 @@
 "use strict";
 process.title = "blank-node-worker";
 import http from "http";
+import path from "path";
 import minimist from "minimist";
 import JSZip from "jszip";
 import WampClient from "wamp";
@@ -115,7 +116,7 @@ function loadLibs() {
             JSZip.loadAsync(buf).then(function (zip) {
                 let res = {}, defers = [];
                 zip.forEach(function (relativePath, file) {
-                    if (!file.dir) {
+                    if (!file.dir && path.extname(relativePath) === ".js") {
                         let defer = file.async("string");
                         defer.then((content) => {
                             console.log("Extracted: ", relativePath, " Code:", res[relativePath].slice(0, 10).replace(/(\r?\n)/g), "...");

@@ -2,6 +2,7 @@
 
 import vm from "vm";
 import domain from "domain";
+import path from "path";
 import db from "./db";
 
 let waiting = [];
@@ -46,17 +47,17 @@ let internalModules = {
     "i18n": "./i18n",
 };
 
-function getSandbox() {
+function getSandbox(requireBasePath = ".") {
     let res = {
         Promise: Promise,
         Function: Function,
         console: console,
         setTimeout: setTimeout,
         setInterval: setInterval,
-        require: _require,
+        require: userRequire.bind(this, requireBasePath),
         $db: db,
     };
-    res.require.ensure = ensureModule;
+    res.require.ensure = ensureModule.bind(this, requireBasePath);
     return res;
 }
 
@@ -64,42 +65,30 @@ function registerModule(name, code, address, port) {
     if (name.endsWith(".js")) {
         name = name.slice(0, name.length - 3);
     }
-    let m = externalModules[name] = Object.assign({}, externalModules[name], { "address": address, "port": port, "code": code });
-    if (m.cached == null) {
-        let sandbox = getSandbox();
-        sandbox.module = {
-            "exports": {},
-        };
-        sandbox.exports = sandbox.module.exports;
-        vm.createContext(sandbox);
-        vm.runInContext(m.code, sandbox);
-        m.cached = sandbox.module.exports;
-    }
-    if (m.address) {
-        m.cached.init(m.address, m.port);
-    }
+    externalModules[name] = Object.assign({}, externalModules[name], { "address": address, "port": port, "code": code, "name": name });
     checkWaiting();
 }
 
-function _require(moduleName) {
+function userRequire(basePath, moduleName) {
     if (internalModules.hasOwnProperty(moduleName)) {
         return require(internalModules[moduleName]);
-    }
-    if (externalModules.hasOwnProperty(moduleName)) {
-        let m = externalModules[moduleName];
-        return m.cached;
     }
     if (coreModules.indexOf(moduleName) >= 0) {
         return require(moduleName);
     }
+    let m = resolve(basePath, moduleName);
+    if (m != null) {
+        loadModule(m);
+        return m.cached;
+    }
     throw new Error(`Cannot find module ${moduleName}`);
 }
 
-function ensureModule(moduleName, cb) {
-    if (!Array.isArray(moduleName)) {
-        moduleName = [moduleName];
+function ensureModule(basePath, waitFor, cb) {
+    if (!Array.isArray(waitFor)) {
+        waitFor = [waitFor];
     }
-    waiting.push({ "modules": moduleName, "cb": cb });
+    waiting.push({ "modules": waitFor, "basePath": basePath, "cb": cb });
     checkWaiting();
 }
 
@@ -107,7 +96,9 @@ function checkWaiting() {
     for (let j = waiting.length - 1; j >= 0; j--) {
         let waiter = waiting[j];
         for (let i = waiter.modules.length - 1; i >= 0; i--) {
-            if (resolve(externalModules, waiter.modules[i])) {
+            let m = resolve(waiter.basePath, waiter.modules[i]);
+            if (m != null) {
+                loadModule(m);
                 waiter.modules.splice(i, 1);
             }
         }
@@ -118,12 +109,38 @@ function checkWaiting() {
     }
 }
 
-function resolve(modules, name) {
-    if (name.endsWith(".js")) {
-        name = name.slice(0, name.length - 3);
+function resolve(basePath, moduleName) {
+    //If path begins with '/', '../', or './', join it with base path
+    if (/^\.{0,2}\//.test(moduleName)) {
+        moduleName = path.join(basePath, moduleName).replace(/^\.{0,2}\//, "");
     }
-    if (modules.hasOwnProperty(name)) {
-        return modules[name];
+
+    if (externalModules.hasOwnProperty(moduleName)) {
+        return externalModules[moduleName];
+    }
+    if (externalModules.hasOwnProperty(moduleName + ".js")) {
+        return externalModules[moduleName + ".js"];
+    }
+    let nameWithIndex = path.normalize(moduleName + "/index.js");
+    if (externalModules.hasOwnProperty(nameWithIndex)) {
+        return externalModules[nameWithIndex];
+    }
+    return null;
+}
+
+function loadModule(m) {
+    if (m.cached == null) {
+        let sandbox = getSandbox(path.dirname(m.name));
+        sandbox.module = {
+            "exports": {},
+        };
+        sandbox.exports = sandbox.module.exports;
+        vm.createContext(sandbox);
+        vm.runInContext(m.code, sandbox);
+        m.cached = sandbox.module.exports;
+        if (m.address) {
+            m.cached.init(m.address, m.port);
+        }
     }
 }
 
@@ -156,8 +173,8 @@ class UserScript {
         return fn.apply(null, args);
     }
 
-    require() {
-        return _require.apply(null, arguments);
+    require(moduleName) {
+        return userRequire(".", moduleName);
     }
 }
 
