@@ -25,14 +25,14 @@ class Db extends EventEmitter {
         super();
         this.del = this.delete.bind(this);
         this.setup = db.setup.bind(db);
-        this._set = this.set.bind(this);
+        let _set = this.set.bind(this);
         this.set = function (item, storeName, options = {}, cb = () => { }) {
             if (typeof options === "function") {
                 cb = options;
                 options = {};
             }
             return new Promise((resolve, reject) => {
-                this._set(item, storeName, options, (e, d) => {
+                _set(item, storeName, options, (e, d) => {
                     if (e != null) {
                         reject(e);
                     } else {
@@ -320,7 +320,8 @@ class Db extends EventEmitter {
                         return cb(new Error(willHookResult), null);
                     }
 
-                    let set = (_id, item) => {
+                    let willHookDefer = (willHookResult instanceof Promise ? willHookResult : Promise.resolve());
+                    willHookDefer.then(() => {
                         let query = { _id: item._id };
                         if (version !== 0) {
                             query.__v = version;
@@ -354,26 +355,17 @@ class Db extends EventEmitter {
                                 didHook(user, data, prevItem);
                             });
                         });
-                    };
-
-                    if (willHookResult instanceof Promise) {
-                        willHookResult.then((res) => {
-                            set(item._id, data);
-                        }, (err) => {
-                            cb(err, null);
-                        });
-                        return;
-                    }
-
-                    set(item._id, data);
+                    }, (err) => {
+                        cb(err, null);
+                    });
                 });
             };
             setAttempt();
         });
     }
 
-    setDangerously(item, storeName, cb =() => {}) {
-        let options = {noValidate: true};
+    setDangerously(item, storeName, cb = () => { }) {
+        let options = { noValidate: true };
         return this.set(item, storeName, options, cb);
     }
 
