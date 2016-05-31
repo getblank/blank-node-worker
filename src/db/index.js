@@ -18,7 +18,6 @@ import configStore from "../configStore";
 import uuid from "node-uuid";
 import EventEmitter from "events";
 import auth from "../auth";
-import {require as userScriptRequire} from "../userScriptRequire";
 
 class Db extends EventEmitter {
     constructor() {
@@ -179,7 +178,7 @@ class Db extends EventEmitter {
                 let propDesc = props[propName];
                 switch (propDesc.type) {
                     case "virtual":
-                        _item[propName] = propDesc.load(_item, baseItem, userScriptRequire);
+                        _item[propName] = propDesc.load(_item, baseItem);
                         break;
                     case "object":
                         load(_item[propName], _item, propDesc.props);

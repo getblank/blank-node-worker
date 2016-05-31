@@ -11,7 +11,7 @@ import db from "./db";
 import consoleHandler from "./consoleHandler";
 import sessions from "./sessions";
 import "./db/events";
-import userScriptRequire from "./userScriptRequire";
+import userScript from "./userScript";
 import serviceRegistry from "./serviceRegistry";
 consoleHandler.setup("debug");
 
@@ -19,7 +19,7 @@ global.WebSocket = require("ws");
 let wampClient = new WampClient(true, true),
     _connected = false,
     _config = null,
-    _libs = null;
+    _libsReady = false;
 
 wampClient.onopen = function () {
     console.info("Connection to " + srUri + " established");
@@ -93,13 +93,13 @@ function subscribeToConfig() {
 }
 
 function loadLibs() {
+    _libsReady = false;
     let uri = srUri.replace("ws://", "http://");
     uri += (uri[uri.length - 1] === "/" ? "" : "/") + "lib/";
     console.log("Loading libs from:", uri);
     http.get(uri, (res) => {
         if (res.statusCode !== 200) {
             console.log("Libs load error:", res.statusCode);
-            _libs = {};
             setupModules();
             return;
         }
@@ -113,25 +113,27 @@ function loadLibs() {
         res.on("end", function () {
             var buf = Buffer.concat(data);
             JSZip.loadAsync(buf).then(function (zip) {
-                let res = {}, promises = [];
+                let res = {}, defers = [];
                 zip.forEach(function (relativePath, file) {
                     if (!file.dir) {
-                        promises.push(file.async("string").then((r) => {
-                            res[relativePath] = r;
-                            console.log("Extracted: ", relativePath, " Code:", res[relativePath].slice(0, 20), "...");
-                        }));
+                        let defer = file.async("string");
+                        defer.then((content) => {
+                            console.log("Extracted: ", relativePath, " Code:", res[relativePath].slice(0, 10).replace(/(\r?\n)/g), "...");
+                            userScript.require.register(relativePath, content);
+                        });
+                        defers.push(defer);
                     }
                 });
-                Promise.all(promises).then(() => {
-                    console.log("All libs extracted");
-                    _libs = res;
+                Promise.all(defers).then(() => {
+                    console.log(`Libs loaded: ${defers.length}`);
+                    _libsReady = true;
                     setupModules();
                 });
             });
         });
     }).on("error", (e) => {
         console.log(`Libs load error: ${e.message}`);
-        _libs = {};
+        _libsReady = false;
         setupModules();
         return;
     });
@@ -140,14 +142,13 @@ function loadLibs() {
 function setupModules() {
     console.log("Modules setup started");
     configStore.setup(_config);
-    userScriptRequire.setup(_libs);
     db.setup("mongodb://localhost:27017/blank");
     if (serviceRegistry.getPBX()) {
         let firstPBX = serviceRegistry.getPBX();
-        userScriptRequire.register("pbx", firstPBX.address, firstPBX.port, firstPBX.commonJS);
+        userScript.require.register("pbx", firstPBX.commonJS, firstPBX.address, firstPBX.port);
         console.info(`Module "pbx" registered. Address: "${firstPBX.address}"; port: "${firstPBX.port}"`);
     }
-    if (configStore.isReady() && userScriptRequire.isReady()) {
+    if (configStore.isReady() && _libsReady) {
         let firstTQ = serviceRegistry.getTaskQueueAddress();
         taskqClient.setup(firstTQ);
     } else {

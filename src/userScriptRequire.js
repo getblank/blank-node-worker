@@ -27,12 +27,12 @@ module.exports.require = function (moduleName) {
         let m = externalModules[moduleName];
         return m.cached;
     }
-    let nameWithExt = (moduleName.slice(moduleName.length - 3) === ".js" ? moduleName : moduleName + ".js");
-    if (networkModules != null && networkModules.hasOwnProperty(nameWithExt)) {
-        if (typeof networkModules[nameWithExt] === "string") {
-            networkModules[nameWithExt] = __requireFromString(networkModules[nameWithExt], nameWithExt);
+    let _moduleName = __resolveNetworkModuleName(moduleName);
+    if (networkModules != null && networkModules.hasOwnProperty(_moduleName)) {
+        if (typeof networkModules[_moduleName] === "string") {
+            networkModules[_moduleName] = __requireFromString(networkModules[_moduleName], _moduleName);
         }
-        return networkModules[nameWithExt];
+        return networkModules[_moduleName];
     }
     return require(moduleName);
 };
@@ -44,6 +44,14 @@ module.exports.register = function (name, address, port, code) {
     }
     m.cached.init(m.address, m.port);
 };
+
+function __resolveNetworkModuleName(moduleName) {
+    moduleName = (moduleName.slice(moduleName.length - 3) === ".js" ? moduleName : moduleName + ".js");
+    if (moduleName.indexOf("./" === 0)) {
+        moduleName = moduleName.replace("./", "");
+    }
+    return moduleName;
+}
 
 function __requireFromString(code, filename = "", opts = {}) {
     if (typeof filename === "object") {

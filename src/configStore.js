@@ -36,7 +36,7 @@ class ConfigStore {
             let propDesc = props[propName];
             if (propDesc.type === "virtual" && typeof propDesc.load !== "function") {
                 let script = propDesc.load || "return null;";
-                propDesc.load = userScript.create(script, `${propName}_load`, ["$item", "$baseItem", "require"]);
+                propDesc.load = userScript.create(script, `${propName}_load`, ["$item", "$baseItem"]);
             }
             if (propDesc.props) {
                 this.prepareProps(propDesc.props);
