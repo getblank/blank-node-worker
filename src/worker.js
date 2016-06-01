@@ -1,19 +1,18 @@
 "use strict";
 process.title = "blank-node-worker";
-import http from "http";
-import path from "path";
-import minimist from "minimist";
-import JSZip from "jszip";
-import WampClient from "wamp";
-import "./taskRunner";
-import taskqClient from "./taskqClient";
-import configStore from "./configStore";
-import db from "./db";
-import consoleHandler from "./consoleHandler";
-import sessions from "./sessions";
-import "./db/events";
-import userScript from "./userScript";
-import serviceRegistry from "./serviceRegistry";
+let http = require("http");
+let minimist = require("minimist");
+let WampClient = require("wamp");
+let taskqClient = require("./taskqClient");
+let configStore = require("./configStore");
+let db = require("./db");
+let consoleHandler = require("./consoleHandler");
+let sessions = require("./sessions");
+let userScript = require("./userScript");
+let serviceRegistry = require("./serviceRegistry");
+let mutex = require("./mutex");
+require("./taskRunner");
+require("./db/events");
 consoleHandler.setup("debug");
 
 global.WebSocket = require("ws");
@@ -31,10 +30,15 @@ wampClient.onopen = function () {
     subscribeToSR();
     subscribeToConfig();
     subscribeToSessions();
+    mutex.setup(
+        (id, cb) => { wampClient.call("mutex.lock", cb, id) },
+        (id, cb) => { wampClient.call("mutex.unlock", cb, id) }
+    );
 };
 wampClient.onclose = function () {
     console.info("Connection closed.");
     _connected = false;
+    mutex.setup(null, null);
 };
 let argv = minimist(process.argv.slice(2));
 let srUri = argv.sr || argv._[0] || process.env.BLANK_SERVICE_REGISTRY;

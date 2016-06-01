@@ -1,10 +1,10 @@
 "use strict";
 
-import vm from "vm";
-import domain from "domain";
-import path from "path";
-import JSZip from "jszip";
-import db from "./db";
+let vm = require("vm");
+let domain = require("domain");
+let path = require("path");
+let JSZip = require("jszip");
+let db = require("./db");
 
 let d = domain.create();
 d.on("error", function (error) {
