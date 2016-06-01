@@ -3,6 +3,7 @@
 import vm from "vm";
 import domain from "domain";
 import path from "path";
+import JSZip from "jszip";
 import db from "./db";
 
 let waiting = [];
@@ -37,12 +38,13 @@ let coreModules = [
     "tty",
     "url",
     "util",
-    "v8",
+    // "v8",
     "vm",
     "zlib",
 ];
 let externalModules = {};
 let internalModules = {
+    "wamp": "wamp",
     "hash": "./hash",
     "i18n": "./i18n",
     "email": "./email",
@@ -62,9 +64,48 @@ function getSandbox(requireBasePath = ".") {
     return res;
 }
 
-function registerModule(name, code, address, port) {
+function registerModule(name, code, address, port, dontCheckWaiting) {
     externalModules[name] = Object.assign({}, externalModules[name], { "address": address, "port": port, "code": code, "name": name });
-    checkWaiting();
+    if (!dontCheckWaiting) {
+        checkWaiting();
+    }
+}
+
+function registerZip(buf, cb) {
+    JSZip.loadAsync(buf).then(function (zip) {
+        let promises = [];
+        zip.forEach(function (relativePath, file) {
+            if (!file.dir && (path.extname(relativePath) === ".js") || path.extname(relativePath) === ".json") {
+                promises.push(file.async("string").then((r) => {
+                    if (path.basename(relativePath) === "package.json") {
+                        try {
+                            let p = JSON.parse(r);
+                            if (p.main) {
+                                let mainPath = path.join(relativePath, p);
+                                console.log("Extracted package.json:", relativePath, "Main path:", mainPath);
+                                registerModule(relativePath, `module.exports = require(${mainPath})`, null, null, true);
+                            }
+                        }
+                        catch (e) {
+                            console.log("Invalid package.json in:", relativePath);
+                        }
+                    } else {
+                        console.log("Extracted: ", relativePath, " Code:", r.slice(0, 10).replace(/(\r?\n)/g), "...");
+                        registerModule(relativePath, r, null, null, true);
+                    }
+                    return Promise.resolve();
+                }));
+            }
+        });
+        Promise.all(promises).then(() => {
+            console.log(`Modules loaded from zip: ${promises.length}`);
+            checkWaiting();
+            cb(null);
+        }).catch((err) => {
+            console.log("Error while loading modules from zip:", err);
+            cb(err);
+        });
+    });
 }
 
 function userRequire(basePath, moduleName) {
@@ -150,6 +191,7 @@ class UserScript {
         });
         this.context = vm.createContext(getSandbox());
         this.require.register = registerModule;
+        this.require.registerZip = registerZip;
     }
 
     create(code, scriptName, args) {
