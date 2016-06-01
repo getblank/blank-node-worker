@@ -17,6 +17,18 @@ describe("Mutext", function () {
             );
             _async = true;
         });
+        it("should return unlock function", function (done) {
+            mutex.lock("1", (unlock) => {
+                unlock();
+            });
+            mutex.setup(
+                (id, cb) => { cb() },
+                (id, cb) => {
+                    assert.equal(id, "1");
+                    done();
+                }
+            );
+        });
     });
 });
 
