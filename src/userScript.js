@@ -48,6 +48,7 @@ let coreModules = [
 ];
 let externalModules = {};
 let internalModules = {
+    "utils/find": "utils/find",
     "wamp": "wamp",
     "hash": "./hash",
     "i18n": "./i18n",
@@ -130,7 +131,7 @@ function userRequire(basePath, moduleName) {
         return m.cached;
     }
     let errMessage = `Cannot find module ${moduleName}`;
-    console.log(errMessage);
+    console.error(errMessage);
     throw new Error(errMessage);
 }
 
