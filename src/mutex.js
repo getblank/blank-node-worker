@@ -22,13 +22,20 @@ module.exports.setup = function (lockFn, unlockFn) {
 };
 
 module.exports.lock = function (id, cb) {
+    let d;
+    if (typeof cb !== "function") {
+        d = new Promise(resolve => (cb = resolve));
+    }
     _defer.then(() => {
-        _lock(id, cb);
+        _lock(id, () => {
+            cb(unlock.bind(global, id));
+        });
     });
+    return d;
 };
 
-module.exports.unlock = function (id, cb) {
+function unlock(id, cb) {
     _defer.then(() => {
         _unlock(id, cb);
     });
-};
+}
