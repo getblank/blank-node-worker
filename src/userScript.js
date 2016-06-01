@@ -6,6 +6,10 @@ import path from "path";
 import JSZip from "jszip";
 import db from "./db";
 
+let d = domain.create();
+d.on("error", function (error) {
+    console.log(error);
+});
 let waiting = [];
 let coreModules = [
     "assert",
@@ -180,7 +184,9 @@ function loadModule(m) {
         };
         sandbox.exports = sandbox.module.exports;
         vm.createContext(sandbox);
-        vm.runInContext(m.code, sandbox, { "filename": m.name });
+        d.run(() => {
+            vm.runInContext(m.code, sandbox, { "filename": m.name });
+        });
         m.cached = sandbox.module.exports;
         if (m.address) {
             m.cached.init(m.address, m.port);
@@ -190,10 +196,6 @@ function loadModule(m) {
 
 class UserScript {
     constructor() {
-        this.d = domain.create();
-        this.d.on("error", function (error) {
-            console.log(error);
-        });
         this.context = vm.createContext(getSandbox());
         this.require.register = registerModule;
         this.require.registerZip = registerZip;
@@ -211,7 +213,7 @@ class UserScript {
             console.log(e);
         }
         //Binding function to domain for handling async errors
-        return this.d.bind(fn);
+        return d.bind(fn);
     }
 
     run(fn) {
