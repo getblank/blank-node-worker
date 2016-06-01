@@ -129,7 +129,9 @@ function userRequire(basePath, moduleName) {
         loadModule(m);
         return m.cached;
     }
-    throw new Error(`Cannot find module ${moduleName}`);
+    let errMessage = `Cannot find module ${moduleName}`;
+    console.log(errMessage);
+    throw new Error(errMessage);
 }
 
 function ensureModule(basePath, waitFor, cb) {
