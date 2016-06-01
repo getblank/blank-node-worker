@@ -64,6 +64,10 @@ function getSandbox(requireBasePath = ".") {
     return res;
 }
 
+function unregister() {
+    externalModules = {};
+}
+
 function registerModule(name, code, address, port, dontCheckWaiting) {
     externalModules[name] = Object.assign({}, externalModules[name], { "address": address, "port": port, "code": code, "name": name });
     if (!dontCheckWaiting) {
@@ -81,9 +85,10 @@ function registerZip(buf, cb) {
                         try {
                             let p = JSON.parse(r);
                             if (p.main) {
-                                let mainPath = path.join(relativePath, p);
-                                console.log("Extracted package.json:", relativePath, "Main path:", mainPath);
-                                registerModule(relativePath, `module.exports = require(${mainPath})`, null, null, true);
+                                let moduleName = path.dirname(relativePath);
+                                let mainPath = path.join(moduleName, p.main);
+                                console.log(`Extracted package.json: ${relativePath}. Module: ${moduleName}. Main path: ${mainPath}`);
+                                registerModule(moduleName, `module.exports = require("${mainPath}")`, null, null, true);
                             }
                         }
                         catch (e) {
@@ -175,7 +180,7 @@ function loadModule(m) {
         };
         sandbox.exports = sandbox.module.exports;
         vm.createContext(sandbox);
-        vm.runInContext(m.code, sandbox);
+        vm.runInContext(m.code, sandbox, { "filename": m.name });
         m.cached = sandbox.module.exports;
         if (m.address) {
             m.cached.init(m.address, m.port);
@@ -192,6 +197,7 @@ class UserScript {
         this.context = vm.createContext(getSandbox());
         this.require.register = registerModule;
         this.require.registerZip = registerZip;
+        this.require.unregister = unregister;
     }
 
     create(code, scriptName, args) {

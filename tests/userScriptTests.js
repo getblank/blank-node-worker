@@ -2,6 +2,8 @@
 
 let assert = require("assert");
 let userScript = require("../lib/userScript");
+let JSZip = require("jszip");
+var zip = new JSZip();
 
 describe("UserScript", function () {
     describe("#require.register", function () {
@@ -22,6 +24,27 @@ describe("UserScript", function () {
                 "42");
             let testModule = userScript.require("testModuleWithAddress");
             assert.equal(testModule.fn(), "localhost:42");
+        });
+    });
+    describe("#require.registerZip", function () {
+        before(function () {
+            userScript.require.unregister();
+
+            zip.file("one.js", "module.exports = \"one\"");
+            let folder = zip.folder("two");
+            folder.file("package.json", "{ \"main\": \"./two.js\" }");
+            folder.file("two.js", "module.exports = \"two\"");
+        });
+        it("should register all modules from zip file", function (done) {
+            zip.generateAsync({ type: "nodebuffer" }).then((buf) => {
+                userScript.require.registerZip(buf, () => {
+                    let one = userScript.require("one");
+                    assert.equal(one, "one");
+                    let two = userScript.require("two");
+                    assert.equal(two, "two");
+                    done();
+                });
+            });
         });
     });
     describe("#require.ensure", function () {
