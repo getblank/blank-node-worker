@@ -9,8 +9,16 @@ exports.send = function (message, cb) {
             if (e || emailSettings === null) {
                 return cb(new Error("Not found emailSettings in db"));
             }
-
-            var transporter = nodemailer.createTransport(`smtps://${emailSettings.user}:${emailSettings.password}@${emailSettings.host}`);
+            var smtpConfig = {
+                host: emailSettings.host,
+                port: emailSettings.port,
+                secure: true, // use SSL
+                auth: {
+                    user: emailSettings.username,
+                    pass: emailSettings.password,
+                },
+            };
+            var transporter = nodemailer.createTransport(smtpConfig);
 
             var mailOptions = {
                 from: emailSettings.from,
@@ -39,6 +47,5 @@ exports.send = function (message, cb) {
         return cb(new Error("WRONG MESSAGE"));
     }
 };
-
 
 
