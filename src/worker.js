@@ -105,29 +105,15 @@ function loadLibs() {
             return;
         }
         var data = [], dataLen = 0;
-        // don't set the encoding, it will break everything !
-        // or, if you must, set it to null. In that case the chunk will be a string.
         res.on("data", function (chunk) {
             data.push(chunk);
             dataLen += chunk.length;
         });
         res.on("end", function () {
             var buf = Buffer.concat(data);
-            JSZip.loadAsync(buf).then(function (zip) {
-                let promises = [];
-                zip.forEach(function (relativePath, file) {
-                    if (!file.dir && path.extname(relativePath) === ".js") {
-                        promises.push(file.async("string").then((r) => {
-                            console.log("Extracted: ", relativePath, " Code:", r.slice(0, 10).replace(/(\r?\n)/g), "...");
-                            userScript.require.register(relativePath, r);
-                        }));
-                    }
-                });
-                Promise.all(promises).then(() => {
-                    console.log(`Libs loaded: ${promises.length}`);
-                    _libsReady = true;
-                    setupModules();
-                });
+            userScript.require.registerZip(buf, (err) => {
+                _libsReady = true;
+                setupModules();
             });
         });
     }).on("error", (e) => {
