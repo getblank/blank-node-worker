@@ -1,9 +1,9 @@
 "use strict";
 
-import taskqClient from "../taskqClient";
-import $db from "./index";
-import sessions from "../sessions";
-import sift from "sift";
+let taskqClient = require("../taskqClient");
+let $db = require( "./index");
+let sessions = require( "../sessions");
+let sift = require( "sift");
 
 $db.on("create", (store, item) => {
     setTimeout(() => {
