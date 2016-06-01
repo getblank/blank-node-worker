@@ -45,6 +45,7 @@ let externalModules = {};
 let internalModules = {
     "hash": "./hash",
     "i18n": "./i18n",
+    "email": "./email",
 };
 
 function getSandbox(requireBasePath = ".") {
