@@ -31,5 +31,3 @@ describe("Mutext", function () {
         });
     });
 });
-
-// describe("userScript")
