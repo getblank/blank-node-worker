@@ -6,7 +6,9 @@ var configStore = require("../lib/configStore");
 configStore.setup(testConfig);
 var db = require("../lib/db/rawDb");
 var $db = require("../lib/db/index");
-
+var mutex = require("../lib/mutex");
+var mutexMock = require("./mutexMock");
+mutex.setup(mutexMock.lock, mutexMock.unlock);
 
 describe("$db", function () {
     before(function (done) {
@@ -181,14 +183,12 @@ describe("$db", function () {
             });
             assert.ok(mayBePromise instanceof Promise);
         });
-        it("should retry to set with version", function (done) {
-            let _id = "newId";
+        it("should sync concurrent operations", function (done) {
+            let _id = "newId", promises = [];
             for (let i = 0; i < 50; i++) {
-                $db.set({ "_id": _id, prop: i }, "users", (err, data) => {
-                    assert.equal(err, null);
-                });
+                promises.push($db.set({ "_id": _id, prop: i }, "users"));
             }
-            setTimeout(() => {
+            Promise.all(promises).then(() => {
                 $db.get(_id, "users", (err, res) => {
                     assert.equal(err, null);
                     assert.equal(res.__v, 50);
@@ -196,7 +196,7 @@ describe("$db", function () {
                     assert.ok(res.prop < 50);
                     done();
                 });
-            }, 1000);
+            });
         });
     });
     describe("#insert", function () {
@@ -227,7 +227,7 @@ describe("$db", function () {
                 done();
             });
         });
-        it("should return modify item when willCreate called", function (done) {
+        it("should return modified item when willCreate called", function (done) {
             $db.insert({ "name": "test", "testProp": "notError" }, "users", function (err, item) {
                 assert.equal(err, null);
                 assert.equal(item.testProp, "42");

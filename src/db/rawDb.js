@@ -92,20 +92,28 @@ class Db extends EventEmitter {
     }
 
     rawFindOneAndUpdate(query, update, storeName, cb) {
-        if (!this.connected) {
-            return cb(new Error("Not connected"), null);
-        }
-        this.db.collection(storeName, { strict: false }, (err, collection) => {
-            collection.findOneAndUpdate(query, update, { returnOriginal: false, upsert: true }, (err, res) => {
-                if (err) {
-                    return cb(err, null);
-                }
-                if (res.ok) {
-                    return cb(null, res.value);
-                }
-                return cb(new Error(res.lastErrorObject.MongoError || res.lastErrorObject), null);
+        let defer;
+        if (typeof cb !== "function") {
+            defer = new Promise((resolve, reject) => {
+                cb = (e, r) => { (e == null) ? resolve(r) : reject(e) };
             });
-        });
+        }
+        if (!this.connected) {
+            cb(new Error("Not connected"), null);
+        } else {
+            this.db.collection(storeName, { strict: false }, (err, collection) => {
+                collection.findOneAndUpdate(query, update, { returnOriginal: false, upsert: true }, (err, res) => {
+                    if (err) {
+                        return cb(err, null);
+                    }
+                    if (res.ok) {
+                        return cb(null, res.value);
+                    }
+                    return cb(new Error(res.lastErrorObject.MongoError || res.lastErrorObject), null);
+                });
+            });
+        }
+        return defer;
     }
 
     rawFindAll(query, store, cb) {

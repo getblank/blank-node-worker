@@ -15,6 +15,7 @@
 
 import db from "./rawDb";
 import configStore from "../configStore";
+import mutex from "../mutex";
 import uuid from "node-uuid";
 import EventEmitter from "events";
 import auth from "../auth";
@@ -141,13 +142,13 @@ class Db extends EventEmitter {
                 if (err && err.message === "Not found") {
                     return db.get(_id, `${storeName}_deleted`, (err, item) => {
                         if (err == null) {
-                            return this._populateAndVirtualing(item, storeName, storeDesc, user, options, cb);
+                            return this._populateAndLoadVirtual(item, storeName, storeDesc, user, options, cb);
                         }
                         return cb(err, item);
                     });
                 }
                 if (err == null) {
-                    return this._populateAndVirtualing(item, storeName, storeDesc, user, options, cb);
+                    return this._populateAndLoadVirtual(item, storeName, storeDesc, user, options, cb);
                 }
                 cb(err, item);
             });
@@ -271,95 +272,76 @@ class Db extends EventEmitter {
         if (!item._id) {
             return cb(new Error("No _id provided"), null);
         }
-        this.getUser(options.user || options.userId || "system", (err, user) => {
-            if (err) {
-                return cb(err, null);
-            }
-            options.user = user;
-            let config = configStore.getConfig(options.user);
-            let storeDesc = config[storeName];
+        let user, storeDesc, unlock, newItem = null, prevItem = null, insert = false;
+        this.getUser(options.user || options.userId || "system").then((_user) => {
+            user = _user;
+            storeDesc = configStore.getStoreDesc(storeName, user);
             if (!storeDesc) {
-                return cb(new Error("Store not found"), null);
+                throw new Error("Store not found");
             }
             if (storeDesc.type === "single" && item._id !== storeName) {
-                return cb(new Error("Invalid _id for single store"), null);
+                throw new Error("Invalid _id for single store");
             }
             if (!options.noCheckPermissions && !auth.hasUpdateAccess(storeDesc.access, user)) {
-                return cb(new Error("Unauthorized"), null);
+                throw new Error("Unauthorized");
             }
-            let originalItemJSON = JSON.stringify(item);
-            let currentAttempt = 0;
-            options.maxAttempts = options.maxAttempts || 3;
-
-            let setAttempt = () => {
-                item = JSON.parse(originalItemJSON);
-                db.get(item._id, storeName, (err, data) => {
-                    var newItem = false;
-                    if (!data) {
-                        data = {};
-                        newItem = true;
-                    }
-                    let version = newItem ? 0 : data.__v || null;
-                    let prevItem = JSON.parse(JSON.stringify(data));
-                    err = db._mergeItems(data, item);
-                    if (err) {
-                        return cb(err, null);
-                    }
-                    if (newItem) {
-                        data.createdAt = new Date().toISOString();
-                        data.createdBy = user._id;
-                        data._ownerId = data._ownerId || user._id;
-                    } else {
-                        data.updatedAt = new Date().toISOString();
-                        data.updatedBy = user._id;
-                    }
-                    let willHook = configStore.getItemEventHandler(storeName, newItem ? "willCreate" : "willSave") || emptyHook;
-                    let willHookResult = willHook(user, data, prevItem);
-                    if (typeof willHookResult === "string") {
-                        return cb(new Error(willHookResult), null);
-                    }
-
-                    let willHookDefer = (willHookResult instanceof Promise ? willHookResult : Promise.resolve());
-                    willHookDefer.then(() => {
-                        let query = { _id: item._id };
-                        if (version !== 0) {
-                            query.__v = version;
-                        }
-                        if (!newItem) {
-                            delete data._id;
-                        }
-                        delete data.__v;
-                        data = {
-                            "$set": data,
-                            "$inc": { __v: 1 },
-                        };
-
-                        currentAttempt++;
-                        db.rawFindOneAndUpdate(query, data, storeName, (err, res) => {
-                            if (err) {
-                                if (currentAttempt === options.maxAttempts) {
-                                    console.warn("Max set attempts reached", options.maxAttempts);
-                                    return cb(err, null);
-                                }
-                                console.debug("Set attempt failed. Will retry. Attempts remaining", options.maxAttempts - currentAttempt);
-                                return setAttempt();
-                            }
-                            data = res;
-                            this._populateAndVirtualing(data, storeName, storeDesc, user, options, (err, item) => {
-                                if (!options.noEmitUpdate) {
-                                    this.emit("update", storeName, data, null);
-                                }
-                                cb(null, data);
-                                let didHook = configStore.getItemEventHandler(storeName, newItem ? "didCreate" : "didSave") || emptyHook;
-                                didHook(user, data, prevItem);
-                            });
-                        });
-                    }, (err) => {
-                        cb(err, null);
-                    });
+            return mutex.lock(item._id);
+        }).then((_unlock) => {
+            options.debug && console.log("Mutex entered!");
+            unlock = _unlock;
+            return new Promise((resolve) => {
+                db.get(item._id, storeName, (err, res) => {
+                    resolve(res);
                 });
+            });
+        }).then((_prevItem) => {
+            options.debug && console.log("Prev item loaded:", _prevItem);
+            prevItem = _prevItem;
+            insert = !prevItem;
+            newItem = JSON.parse(JSON.stringify(prevItem || {}));
+            let err = db._mergeItems(newItem, item);
+            if (err) {
+                throw err;
+            }
+            return this._runHook(storeName, insert ? "willCreate" : "willSave", user, newItem, prevItem);
+        }).then(() => {
+            options.debug && console.debug("Hook completed, ready to save");
+            let version = insert ? 0 : (newItem.__v || null);
+            delete newItem.__v;
+            if (insert) {
+                newItem.createdAt = new Date();
+                newItem.createdBy = user._id;
+                newItem._ownerId = newItem._ownerId || user._id;
+            } else {
+                newItem.updatedAt = new Date();
+                newItem.updatedBy = user._id;
+                delete newItem._id;
+            }
+            let findQuery = { _id: item._id };
+            if (version !== 0) {
+                findQuery.__v = version;
+            }
+            let updateQuery = {
+                "$set": newItem,
+                "$inc": { __v: 1 },
             };
-            setAttempt();
+            return db.rawFindOneAndUpdate(findQuery, updateQuery, storeName);
+        }).then((savedItem) => {
+            options.debug && console.log("Item saved in DB! Result:", savedItem);
+            this._populateAndLoadVirtual(savedItem, storeName, storeDesc, user, options, (err, item) => {
+                if (!options.noEmitUpdate) {
+                    this.emit("update", storeName, savedItem, null);
+                }
+                cb(null, savedItem);
+                unlock();
+                this._runHook(storeName, insert ? "didCreate" : "didSave", user, savedItem, prevItem);
+            });
+        }).catch((e) => {
+            options.debug && console.log("$db.set error:", e);
+            if (typeof unlock === "function") {
+                unlock();
+            }
+            cb(e, null);
         });
     }
 
@@ -369,44 +351,58 @@ class Db extends EventEmitter {
     }
 
     getUser(userId, cb) {
+        let defer;
+        if (typeof cb !== "function") {
+            defer = new Promise((resolve, reject) => {
+                cb = (e, r) => { (e == null) ? resolve(r) : reject(e) };
+            });
+        }
         if (typeof userId === "object") {
             return cb(null, userId);
         }
-        setTimeout(() => {
-            switch (userId) {
-                case "system":
-                    cb(null, {
-                        "_id": userId,
-                        "roles": ["system"],
-                    });
-                    break;
-                case "root":
-                    cb(null, {
-                        "_id": userId,
-                        "roles": ["root"],
-                    });
-                    break;
-                case "guest":
-                    cb(null, {
-                        "_id": userId,
-                        "roles": ["guest"],
-                    });
-                    break;
-                default:
-                    if (process.env.NODE_ENV === "test") {
-                        if (userId === "UNKNOWN") {
-                            return cb(null, null);
-                        } else {
-                            return cb(null, {
-                                "_id": userId,
-                                "roles": ["root"],
-                            });
-                        }
+        switch (userId) {
+            case "system":
+                cb(null, {
+                    "_id": userId,
+                    "roles": ["system"],
+                });
+                break;
+            case "root":
+                cb(null, {
+                    "_id": userId,
+                    "roles": ["root"],
+                });
+                break;
+            case "guest":
+                cb(null, {
+                    "_id": userId,
+                    "roles": ["guest"],
+                });
+                break;
+            default:
+                if (process.env.NODE_ENV === "test") {
+                    if (userId === "UNKNOWN") {
+                        return cb(null, null);
+                    } else {
+                        return cb(null, {
+                            "_id": userId,
+                            "roles": ["root"],
+                        });
                     }
-                    db.get(userId, "users", cb);
-                    break;
-            }
-        });
+                }
+                db.get(userId, "users", cb);
+                break;
+        }
+        return defer;
+    }
+
+    _runHook(storeName, hookName, arg1, arg2, arg3) {
+        let hookFn = configStore.getItemEventHandler(storeName, hookName) || emptyHook;
+        let hookResult = hookFn(arg1, arg2, arg3);
+        if (typeof hookResult === "string") {
+            throw new Error(hookResult);
+        }
+        return (hookResult instanceof Promise ? hookResult : Promise.resolve());
     }
 
     _populateAll(item, store, $user, cb = () => { }) {
@@ -456,7 +452,7 @@ class Db extends EventEmitter {
         return defer;
     }
 
-    _populateAndVirtualing(item, storeName, storeDesc, user, options, cb) {
+    _populateAndLoadVirtual(item, storeName, storeDesc, user, options, cb) {
         if (options.populate) {
             this.populateAll(item, storeName, user, (err, item) => {
                 if (err) {
