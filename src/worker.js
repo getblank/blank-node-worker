@@ -50,6 +50,7 @@ wampClient.open(srUri);
 
 function subscribeToSR() {
     var updateRegistry = function (data) {
+        console.log("SR update:", data);
         serviceRegistry.update(data);
         setupModules();
     };
@@ -116,6 +117,7 @@ function loadLibs() {
         res.on("end", function () {
             var buf = Buffer.concat(data);
             userScript.require.registerZip(buf, (err) => {
+                console.log("Libs loaded cb!");
                 _libsReady = true;
                 setupModules();
             });
@@ -139,6 +141,7 @@ function setupModules() {
     }
     if (configStore.isReady() && _libsReady) {
         let firstTQ = serviceRegistry.getTaskQueueAddress();
+        console.log("!!!!!!!!!!!!!!!!!!!", firstTQ);
         taskqClient.setup(firstTQ);
     } else {
         taskqClient.setup(null);

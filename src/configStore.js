@@ -202,6 +202,26 @@ class ConfigStore {
         return res;
     }
 
+    getStoreRefs(storeName) {
+        let storeDesc = this._config[storeName];
+        if (storeDesc == null) {
+            return {};
+        }
+        let refs = {};
+        for (let propName of Object.keys(storeDesc.props || {})) {
+            let propDesc = storeDesc.props[propName];
+            if ((propDesc.type === "ref" || propDesc.type === "refList") && !propDesc.disableRefSync && propDesc.store) {
+                refs[propDesc.store] = refs[propDesc.store] || [];
+                refs[propDesc.store].push({
+                    "prop": propName,
+                    "type": propDesc.type,
+                    "oppositeProp": propDesc.prop || null,
+                });
+            }
+        }
+        return refs;
+    }
+
     getVirtualPropsLoaders(storeName) {
         let storeDesc = this._config[storeName];
         if (storeDesc == null) {

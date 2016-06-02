@@ -277,6 +277,19 @@ module.exports = {
             },
         },
     },
+    "storeWithRefs": {
+        "props": {
+            "ref": {
+                "type": "ref",
+                "store": "otherStore",
+            },
+            "refListWithProp": {
+                "type": "refList",
+                "store": "otherStore",
+                "prop": "otherProp",
+            },
+        },
+    },
     "storeWithTask": {
         "tasks": [
             {
