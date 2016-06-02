@@ -133,7 +133,8 @@ function loadLibs() {
 function setupModules() {
     console.log("Modules setup started");
     configStore.setup(_config);
-    db.setup("mongodb://localhost:27017/blank");
+    let mongoUri = "mongodb://" + (process.env.MONGO_PORT_27017_TCP_ADDR ? `${process.env.MONGO_PORT_27017_TCP_ADDR}:${process.env.MONGO_PORT_27017_TCP_PORT}` : "localhost:27017") + "/blank";
+    db.setup(mongoUri);
     if (serviceRegistry.getPBX()) {
         let firstPBX = serviceRegistry.getPBX();
         userScript.require.register("pbx", firstPBX.commonJS, firstPBX.address, firstPBX.port);
