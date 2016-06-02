@@ -222,17 +222,6 @@ class ConfigStore {
         return refs;
     }
 
-    getVirtualPropsLoaders(storeName) {
-        let storeDesc = this._config[storeName];
-        if (storeDesc == null) {
-            throw new Error("Store not found");
-        }
-        if (!storeDesc._virtualPropsLoadersCache) {
-            storeDesc._virtualPropsLoadersCache = this.__getVirtualPropsLoaders(storeDesc.props || {});
-        }
-        return storeDesc._virtualPropsLoadersCache;
-    }
-
     getTaskDesc(storeName, taskIndex) {
         let storeDesc = this._config[storeName];
         if (storeDesc == null || !Array.isArray(storeDesc.tasks) || taskIndex > (storeDesc.tasks.length - 1)) {
@@ -374,23 +363,6 @@ class ConfigStore {
             }
             if (propDesc.props) {
                 propDesc.props = this.__getUserProps(propDesc.props, user);
-            }
-        }
-        return res;
-    }
-
-    __getVirtualPropsLoaders(props) {
-        let res = {};
-        for (let propName of Object.keys(props)) {
-            let propDesc = props[propName];
-            if (propDesc.props) {
-                res[propName] = this.__getVirtualPropsLoaders(propDesc.props);
-                if (Object.keys(res[propName]).length < 1) {
-                    delete res[propName];
-                }
-            }
-            if (propDesc.type === "virtual") {
-                res[propName] = propDesc.load;
             }
         }
         return res;
