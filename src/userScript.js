@@ -5,6 +5,7 @@ let domain = require("domain");
 let path = require("path");
 let JSZip = require("jszip");
 let db = require("./db");
+let mutex = require("./mutex");
 
 let d = domain.create();
 d.on("error", function (error) {
@@ -53,6 +54,7 @@ let internalModules = {
     "hash": "./hash",
     "i18n": "./i18n",
     "email": "./email",
+    "handlebars": "handlebars",
 };
 
 function getSandbox(requireBasePath = ".") {
@@ -64,6 +66,7 @@ function getSandbox(requireBasePath = ".") {
         setInterval: setInterval,
         require: userRequire.bind(this, requireBasePath),
         $db: db,
+        mutex: mutex,
     };
     res.require.ensure = ensureModule.bind(this, requireBasePath);
     return res;
