@@ -274,6 +274,7 @@ class Db extends EventEmitter {
         }
         let user, storeDesc, unlock, newItem = null, prevItem = null, insert = false;
         this.getUser(options.user || options.userId || "system").then((_user) => {
+            options.debug && console.log("User loaded:", _user);
             user = _user;
             storeDesc = configStore.getStoreDesc(storeName, user);
             if (!storeDesc) {
@@ -369,7 +370,8 @@ class Db extends EventEmitter {
             });
         }
         if (typeof userId === "object") {
-            return cb(null, userId);
+            cb(null, userId);
+            return defer;
         }
         switch (userId) {
             case "system":
@@ -393,15 +395,16 @@ class Db extends EventEmitter {
             default:
                 if (process.env.NODE_ENV === "test") {
                     if (userId === "UNKNOWN") {
-                        return cb(null, null);
+                        cb(null, null);
                     } else {
-                        return cb(null, {
+                        cb(null, {
                             "_id": userId,
                             "roles": ["root"],
                         });
                     }
+                } else {
+                    db.get(userId, "users", cb);
                 }
-                db.get(userId, "users", cb);
                 break;
         }
         return defer;
@@ -424,17 +427,17 @@ class Db extends EventEmitter {
     }
 
     _syncRefToRef(item, prevItem, propName, oppositeStoreName, oppositePropName) {
-        if (prevItem[propName] === item[propName]) {
+        if (prevItem && (prevItem[propName] === item[propName])) {
             return;
         }
-        if (prevItem[propName]) {
+        if (prevItem && prevItem[propName]) {
             let prevOpposite = { "_id": prevItem[propName] };
             prevOpposite[oppositePropName] = null;
-            this.set(prevOpposite, oppositeStoreName, {"noRunHooks": true});
+            this.set(prevOpposite, oppositeStoreName, { "noRunHooks": true });
         }
         let opposite = { "_id": item[propName] };
         opposite[oppositePropName] = null;
-        this.set(opposite, oppositeStoreName, {"noRunHooks": true});
+        this.set(opposite, oppositeStoreName, { "noRunHooks": true });
     }
 
     _populateAll(item, store, $user, cb = () => { }) {
