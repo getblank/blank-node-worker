@@ -333,7 +333,7 @@ class Db extends EventEmitter {
         }).then((savedItem) => {
             options.debug && console.log("Item saved in DB! Result:", savedItem);
             unlock();
-            this._updateRefs(storeName, storeDesc, savedItem, prevItem);
+            this._updateRefs(storeName, savedItem, prevItem);
             return new Promise((resolve, reject) => {
                 this._populateAndLoadVirtual(savedItem, storeName, storeDesc, user, options, (err, item) => {
                     err == null ? resolve(item) : reject(err);
@@ -419,8 +419,9 @@ class Db extends EventEmitter {
         return (hookResult instanceof Promise ? hookResult : Promise.resolve());
     }
 
-    _updateRefs(storeName, storeDesc, item, prevItem) {
+    _updateRefs(storeName, item, prevItem) {
         let refPairs = configStore.getStoreRefPairs(storeName);
+        // console.log("_updateRefs", storeName, JSON.stringify(refPairs));
         for (let p of refPairs.ref_ref) {
             this._syncRefToRef(item, prevItem, p.ref.prop, p.oppositeStoreName, p.oppositeRef.prop);
         }
@@ -430,14 +431,29 @@ class Db extends EventEmitter {
         if (prevItem && (prevItem[propName] === item[propName])) {
             return;
         }
+        // console.log("_syncRefToRef");
         if (prevItem && prevItem[propName]) {
-            let prevOpposite = { "_id": prevItem[propName] };
-            prevOpposite[oppositePropName] = null;
-            this.set(prevOpposite, oppositeStoreName, { "noRunHooks": true });
+            this.get(prevItem[propName], oppositeStoreName, (e, d) => {
+                if (d != null && d[oppositePropName] === item._id) {
+                    // console.log("__________________clearing prev ref: ", oppositeStoreName, prevItem[propName]);
+                    let prevOpposite = { "_id": prevItem[propName] };
+                    prevOpposite[oppositePropName] = null;
+                    this.set(prevOpposite, oppositeStoreName, { "noRunHooks": true });
+                }
+            });
         }
-        let opposite = { "_id": item[propName] };
-        opposite[oppositePropName] = null;
-        this.set(opposite, oppositeStoreName, { "noRunHooks": true });
+        if (item[propName]) {
+            this.get(item[propName], oppositeStoreName, (e, d) => {
+                if (d != null && d[oppositePropName] !== item._id) {
+                    let opposite = { "_id": item[propName] };
+                    opposite[oppositePropName] = item._id;
+                    // console.log("____________________Syncing ref:", oppositeStoreName, opposite);
+                    this.set(opposite, oppositeStoreName, { "noRunHooks": true }, (e, r) => {
+                        // console.log("________________________Ref sync end, error:", e);
+                    });
+                }
+            });
+        }
     }
 
     _populateAll(item, store, $user, cb = () => { }) {
