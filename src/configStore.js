@@ -228,7 +228,7 @@ class ConfigStore {
                     if (oppositeRef) {
                         let pairList = storeDesc._refPairsCache[ref.type + "_" + oppositeRef.type];
                         if (pairList) {
-                            pairList.push({ "ref": ref, "oppositeRef": oppositeRef });
+                            pairList.push({ "ref": ref, "oppositeRef": oppositeRef, "oppositeStoreName": oppositeStoreName });
                         }
                     }
                 }

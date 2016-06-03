@@ -417,32 +417,13 @@ class Db extends EventEmitter {
     }
 
     _updateRefs(storeName, storeDesc, item, prevItem) {
-        // let refs = configStore.getStoreRefs(storeName);
-        // for (let oppositeStoreName of Object.keys(refs)) {
-        //     let storeRefs = refs[oppositeStoreName];
-        //     let oppositeStoreRefs = configStore.getStoreRefs(oppositeStoreName)[storeName] || [];
-        //     for (let ref of storeRefs) {
-        //         let oppositeRef;
-        //         if (storeRefs.length === 1 && oppositeStoreRefs.length === 1) {
-        //             oppositeRef = oppositeStoreRefs[0];
-        //         } else {
-        //             for (let oRef of oppositeStoreRefs) {
-        //                 if (ref.oppositeProp === oRef.prop && ref.prop === oRef.oppositeProp) {
-        //                     oppositeRef = oRef;
-        //                     break;
-        //                 }
-        //             }
-        //         }
-        //         if (oppositeRef) {
-        //             if (ref.type === "ref" && oppositeRef.type === "ref") {
-        //                 this._syncRefToRef(ref.prop, item, prevItem, oppositeStoreName, oppositeRef.prop);
-        //             }
-        //         }
-        //     }
-        // }
+        let refPairs = configStore.getStoreRefPairs(storeName);
+        for (let p of refPairs.ref_ref) {
+            this._syncRefToRef(item, prevItem, p.ref.prop, p.oppositeStoreName, p.oppositeRef.prop);
+        }
     }
 
-    _syncRefToRef(propName, item, prevItem, oppositeStoreName, oppositePropName) {
+    _syncRefToRef(item, prevItem, propName, oppositeStoreName, oppositePropName) {
         if (prevItem[propName] === item[propName]) {
             return;
         }
