@@ -258,13 +258,31 @@ describe("configStore", function () {
             assert.strictEqual(action.disabled, sameAction.disabled);
         });
     });
-    describe("#getStoreRefs", function () {
+    describe("#__groupStoreRefsByStore", function () {
         it("should return ref types and opposite prop name if it specified", function () {
-            let refs = configStore.getStoreRefs("storeWithRefs");
+            let refs = configStore.__groupStoreRefsByStore("storeWithRefs");
             assert.equal(Object.keys(refs).length, 1);
             assert.equal(refs.otherStore.length, 2);
             assert.equal(refs.otherStore[1].type, "refList");
             assert.equal(refs.otherStore[1].oppositeProp, "otherProp");
+        });
+    });
+    describe("#getRefPairs", function () {
+        it("should not return pairs without oppositeProp when more then one refs beetwen stores", function () {
+            let refs = configStore.getStoreRefPairs("storeWithTwoAnonimousRefs");
+            assert.equal(Object.keys(refs.ref_ref).length, 0);
+        });
+        it("should return pairs when more then one refs beetwen stores and oppositeProp specified", function () {
+            let refs = configStore.getStoreRefPairs("storeWithTwoRefsOneNamed");
+            assert.equal(Object.keys(refs.ref_ref).length, 1);
+        });
+        it("should split refs by type", function () {
+            let refs = configStore.getStoreRefPairs("storeWithDifferentRefTypes");
+            console.log("11", JSON.stringify(refs));
+            assert.equal(Object.keys(refs.ref_ref).length, 1);
+            assert.equal(Object.keys(refs.ref_refList).length, 1);
+            assert.equal(Object.keys(refs.refList_ref).length, 1);
+            assert.equal(Object.keys(refs.refList_refList).length, 1);
         });
     });
 });

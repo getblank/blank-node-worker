@@ -202,24 +202,39 @@ class ConfigStore {
         return res;
     }
 
-    getStoreRefs(storeName) {
+    getStoreRefPairs(storeName) {
         let storeDesc = this._config[storeName];
         if (storeDesc == null) {
-            return {};
+            return null;
         }
-        let refs = {};
-        for (let propName of Object.keys(storeDesc.props || {})) {
-            let propDesc = storeDesc.props[propName];
-            if ((propDesc.type === "ref" || propDesc.type === "refList") && !propDesc.disableRefSync && propDesc.store) {
-                refs[propDesc.store] = refs[propDesc.store] || [];
-                refs[propDesc.store].push({
-                    "prop": propName,
-                    "type": propDesc.type,
-                    "oppositeProp": propDesc.prop || null,
-                });
+        if (storeDesc._refPairsCache == null) {
+            storeDesc._refPairsCache = { "ref_ref": [], "ref_refList": [], "refList_ref": [], "refList_refList": [] };
+            let refs = this.__groupStoreRefsByStore(storeName);
+            for (let oppositeStoreName of Object.keys(refs)) {
+                let storeRefs = refs[oppositeStoreName];
+                let oppositeStoreRefs = this.__groupStoreRefsByStore(oppositeStoreName)[storeName] || [];
+                for (let ref of storeRefs) {
+                    let oppositeRef;
+                    if (storeRefs.length === 1 && oppositeStoreRefs.length === 1) {
+                        oppositeRef = oppositeStoreRefs[0];
+                    } else {
+                        for (let oRef of oppositeStoreRefs) {
+                            if (ref.oppositeProp === oRef.prop && ref.prop === oRef.oppositeProp) {
+                                oppositeRef = oRef;
+                                break;
+                            }
+                        }
+                    }
+                    if (oppositeRef) {
+                        let pairList = storeDesc._refPairsCache[ref.type + "_" + oppositeRef.type];
+                        if (pairList) {
+                            pairList.push({ "ref": ref, "oppositeRef": oppositeRef });
+                        }
+                    }
+                }
             }
         }
-        return refs;
+        return storeDesc._refPairsCache;
     }
 
     getTaskDesc(storeName, taskIndex) {
@@ -302,6 +317,26 @@ class ConfigStore {
         return {
             "_commonSettings": cs,
         };
+    }
+
+    __groupStoreRefsByStore(storeName) {
+        let storeDesc = this._config[storeName];
+        if (storeDesc == null) {
+            return {};
+        }
+        let refs = {};
+        for (let propName of Object.keys(storeDesc.props || {})) {
+            let propDesc = storeDesc.props[propName];
+            if ((propDesc.type === "ref" || propDesc.type === "refList") && !propDesc.disableRefSync && propDesc.store) {
+                refs[propDesc.store] = refs[propDesc.store] || [];
+                refs[propDesc.store].push({
+                    "prop": propName,
+                    "type": propDesc.type,
+                    "oppositeProp": propDesc.oppositeProp || null,
+                });
+            }
+        }
+        return refs;
     }
 
     __getUserStoreDesc(storeName, user) {

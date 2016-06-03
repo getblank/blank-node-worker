@@ -286,8 +286,66 @@ module.exports = {
             "refListWithProp": {
                 "type": "refList",
                 "store": "otherStore",
-                "prop": "otherProp",
+                "oppositeProp": "otherProp",
             },
+        },
+    },
+    "storeWithTwoAnonimousRefs": {
+        "props": {
+            "ref1": {
+                "type": "ref",
+                "store": "storeWithTwoAnonimousRefsOpposite",
+            },
+            "ref2": {
+                "type": "ref",
+                "store": "storeWithTwoAnonimousRefsOpposite",
+            },
+        },
+    },
+    "storeWithTwoAnonimousRefsOpposite": {
+        "props": {
+            "ref": {
+                "type": "ref",
+                "store": "storeWithTwoAnonimousRefs",
+            },
+        },
+    },
+    "storeWithTwoRefsOneNamed": {
+        "props": {
+            "ref1": {
+                "type": "ref",
+                "store": "storeWithTwoRefsOneNamedOpposite",
+                "oppositeProp": "ref",
+            },
+            "ref2": {
+                "type": "ref",
+                "store": "storeWithTwoRefsOneNamedOpposite",
+            },
+        },
+    },
+    "storeWithTwoRefsOneNamedOpposite": {
+        "props": {
+            "ref": {
+                "type": "ref",
+                "store": "storeWithTwoRefsOneNamed",
+                "oppositeProp": "ref1",
+            },
+        },
+    },
+    "storeWithDifferentRefTypes": {
+        "props": {
+            "ref": { "type": "ref", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "ref"},
+            "refList": { "type": "refList", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "ref1"},
+            "ref1": { "type": "ref", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "refList"},
+            "refList1": { "type": "refList", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "refList1"},
+        },
+    },
+    "storeWithDifferentRefTypesOpposite": {
+        "props": {
+            "ref": { "type": "ref", "store": "storeWithDifferentRefTypes", "oppositeProp": "ref"},
+            "refList": { "type": "refList", "store": "storeWithDifferentRefTypes", "oppositeProp": "ref1"},
+            "ref1": { "type": "ref", "store": "storeWithDifferentRefTypes", "oppositeProp": "refList"},
+            "refList1": { "type": "refList", "store": "storeWithDifferentRefTypes", "oppositeProp": "refList1"},
         },
     },
     "storeWithTask": {
