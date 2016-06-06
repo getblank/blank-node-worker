@@ -55,6 +55,7 @@ let internalModules = {
     "i18n": "./i18n",
     "email": "./email",
     "handlebars": "handlebars",
+    "request": "request",
 };
 
 function getSandbox(requireBasePath = ".") {
