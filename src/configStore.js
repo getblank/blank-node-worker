@@ -208,7 +208,7 @@ class ConfigStore {
             return null;
         }
         if (storeDesc._refPairsCache == null) {
-            storeDesc._refPairsCache = { "ref_ref": [], "ref_refList": [], "refList_ref": [], "refList_refList": [] };
+            storeDesc._refPairsCache = [];
             let refs = this.__groupStoreRefsByStore(storeName);
             for (let oppositeStoreName of Object.keys(refs)) {
                 let storeRefs = refs[oppositeStoreName];
@@ -226,10 +226,11 @@ class ConfigStore {
                         }
                     }
                     if (oppositeRef) {
-                        let pairList = storeDesc._refPairsCache[ref.type + "_" + oppositeRef.type];
-                        if (pairList) {
-                            pairList.push({ "ref": ref, "oppositeRef": oppositeRef, "oppositeStoreName": oppositeStoreName });
-                        }
+                        storeDesc._refPairsCache.push({
+                            "ref": ref,
+                            "oppositeRef": oppositeRef,
+                            "oppositeStoreName": oppositeStoreName,
+                        });
                     }
                 }
             }
