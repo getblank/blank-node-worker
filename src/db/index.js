@@ -422,39 +422,105 @@ class Db extends EventEmitter {
     _updateRefs(storeName, item, prevItem) {
         let refPairs = configStore.getStoreRefPairs(storeName);
         // console.log("_updateRefs", storeName, JSON.stringify(refPairs));
-        for (let p of refPairs.ref_ref) {
-            this._syncRefToRef(item, prevItem, p.ref.prop, p.oppositeStoreName, p.oppositeRef.prop);
+        let pairs = refPairs.ref_ref.concat(refPairs.ref_refList, refPairs.refList_ref, refPairs.refList_refList);
+        for (let p of pairs) {
+            this._syncRefPair(item, prevItem, p.ref, p.oppositeStoreName, p.oppositeRef);
         }
     }
 
-    _syncRefToRef(item, prevItem, propName, oppositeStoreName, oppositePropName) {
-        if (prevItem && (prevItem[propName] === item[propName])) {
-            return;
+    _syncRefPair(item, prevItem, ref, oppositeStoreName, oppositeRef) {
+        let prevValue, value;
+        if (ref.type === "ref") {
+            prevValue = (prevItem && prevItem[ref.prop]) ? [prevItem[ref.prop]] : [];
+            value = item[ref.prop] ? [item[ref.prop]] : [];
+        } else {
+            prevValue = prevItem ? prevItem[ref.prop] || [] : [];
+            value = item[ref.prop] || [];
         }
-        // console.log("_syncRefToRef");
-        if (prevItem && prevItem[propName]) {
-            this.get(prevItem[propName], oppositeStoreName, (e, d) => {
-                if (d != null && d[oppositePropName] === item._id) {
-                    // console.log("__________________clearing prev ref: ", oppositeStoreName, prevItem[propName]);
-                    let prevOpposite = { "_id": prevItem[propName] };
-                    prevOpposite[oppositePropName] = null;
-                    this.set(prevOpposite, oppositeStoreName, { "noRunHooks": true });
-                }
-            });
+
+        let added = value.filter(v => prevValue.indexOf(v) < 0),
+            deleted = prevValue.filter(v => value.indexOf(v) < 0);
+        for (let id of deleted) {
+            this.__updateLinkRef(oppositeStoreName, oppositeRef, id, item._id, true);
         }
-        if (item[propName]) {
-            this.get(item[propName], oppositeStoreName, (e, d) => {
-                if (d != null && d[oppositePropName] !== item._id) {
-                    let opposite = { "_id": item[propName] };
-                    opposite[oppositePropName] = item._id;
-                    // console.log("____________________Syncing ref:", oppositeStoreName, opposite);
-                    this.set(opposite, oppositeStoreName, { "noRunHooks": true }, (e, r) => {
-                        // console.log("________________________Ref sync end, error:", e);
-                    });
-                }
-            });
+        for (let id of added) {
+            this.__updateLinkRef(oppositeStoreName, oppositeRef, id, item._id);
         }
     }
+
+    __updateLinkRef(storeName, ref, refItemId, linkId, remove) {
+        this.get(refItemId, storeName, (e, d) => {
+            if (d == null) {
+                return;
+            }
+            let data = remove ? this.__removeLinkFromRef(ref, d, linkId) : this.__addLinkToRef(ref, d, linkId);
+            if (data) {
+                this.set(data, storeName, { "noRunHooks": true }, (e, r) => {
+                    // console.log("________________________Ref sync end, error:", e);
+                });
+            }
+        });
+    }
+
+    __addLinkToRef(ref, refItem, addId) {
+        let data;
+        if (ref.type === "ref" && refItem[ref.prop] !== addId) {
+            data = { "_id": refItem._id };
+            data[ref.prop] = addId;
+        }
+        if (ref.type === "refList" && (refItem[ref.prop] || []).indexOf(addId) < 0) {
+            data = { "_id": refItem._id };
+            data[ref.prop] = refItem[ref.prop] || [];
+            data[ref.prop].push(addId);
+        }
+        return data;
+    }
+
+    __removeLinkFromRef(ref, refItem, removeId) {
+        let data;
+        if (ref.type === "ref" && refItem[ref.prop] === removeId) {
+            data = { "_id": refItem._id };
+            data[ref.prop] = null;
+        }
+        if (ref.type === "refList") {
+            let removeIdIndex = (refItem[ref.prop] || []).indexOf(removeId);
+            if (removeIdIndex >= 0) {
+                data = { "_id": refItem._id };
+                data[ref.prop] = refItem[ref.prop] || [];
+                data[ref.prop].splice(removeIdIndex, 1);
+            }
+        }
+        return data;
+    }
+
+    // _syncRefToRef(item, prevItem, propName, oppositeStoreName, oppositePropName) {
+    //     if (prevItem && (prevItem[propName] === item[propName])) {
+    //         return;
+    //     }
+    //     // console.log("_syncRefToRef");
+    //     if (prevItem && prevItem[propName]) {
+    //         this.get(prevItem[propName], oppositeStoreName, (e, d) => {
+    //             if (d != null && d[oppositePropName] === item._id) {
+    //                 // console.log("__________________clearing prev ref: ", oppositeStoreName, prevItem[propName]);
+    //                 let prevOpposite = { "_id": prevItem[propName] };
+    //                 prevOpposite[oppositePropName] = null;
+    //                 this.set(prevOpposite, oppositeStoreName, { "noRunHooks": true });
+    //             }
+    //         });
+    //     }
+    //     if (item[propName]) {
+    //         this.get(item[propName], oppositeStoreName, (e, d) => {
+    //             if (d != null && d[oppositePropName] !== item._id) {
+    //                 let opposite = { "_id": item[propName] };
+    //                 opposite[oppositePropName] = item._id;
+    //                 // console.log("____________________Syncing ref:", oppositeStoreName, opposite);
+    //                 this.set(opposite, oppositeStoreName, { "noRunHooks": true }, (e, r) => {
+    //                     // console.log("________________________Ref sync end, error:", e);
+    //                 });
+    //             }
+    //         });
+    //     }
+    // }
 
     _populateAll(item, store, $user, cb = () => { }) {
         let defer = new Promise((resolve, reject) => {
