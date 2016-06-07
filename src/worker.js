@@ -11,6 +11,7 @@ let sessions = require("./sessions");
 let userScript = require("./userScript");
 let serviceRegistry = require("./serviceRegistry");
 let mutex = require("./mutex");
+let localStorage = require("./localStorage");
 require("./taskRunner");
 require("./db/events");
 consoleHandler.setup("debug");
@@ -34,11 +35,13 @@ wampClient.onopen = function () {
         (id, cb) => { wampClient.call("mutex.lock", cb, id) },
         (id, cb) => { wampClient.call("mutex.unlock", cb, id) }
     );
+    localStorage.setup(wampClient);
 };
 wampClient.onclose = function () {
     console.info("Connection closed.");
     _connected = false;
     mutex.setup(null, null);
+    localStorage.setup(null);
 };
 let argv = minimist(process.argv.slice(2));
 let srUri = argv.sr || argv._[0] || process.env.BLANK_SERVICE_REGISTRY;
