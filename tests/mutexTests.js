@@ -29,5 +29,16 @@ describe("Mutext", function () {
                 }
             );
         });
+        it("shuold throws an error when unlock called more then one time", function(done){
+            mutex.setup(
+                (id, cb) => { cb() },
+                (id, cb) => { cb() }
+            );
+            mutex.lock("2", (unlock) => {
+                unlock();
+                assert.throws(unlock, /Attempt to unlock no locked mutex/);
+                done();
+            });
+        });
     });
 });
