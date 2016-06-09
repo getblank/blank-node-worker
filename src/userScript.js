@@ -6,6 +6,7 @@ let path = require("path");
 let JSZip = require("jszip");
 let db = require("./db");
 let mutex = require("./mutex");
+let localStorage = require("./localStorage");
 
 let d = domain.create();
 d.on("error", function (error) {
@@ -69,6 +70,7 @@ function getSandbox(requireBasePath = ".") {
         require: userRequire.bind(this, requireBasePath),
         $db: db,
         mutex: mutex,
+        localStorage: localStorage,
     };
     res.require.ensure = ensureModule.bind(this, requireBasePath);
     return res;

@@ -270,19 +270,15 @@ describe("configStore", function () {
     describe("#getRefPairs", function () {
         it("should not return pairs without oppositeProp when more then one refs beetwen stores", function () {
             let refs = configStore.getStoreRefPairs("storeWithTwoAnonimousRefs");
-            assert.equal(Object.keys(refs.ref_ref).length, 0);
+            assert.equal(refs.length, 0);
         });
         it("should return pairs when more then one refs beetwen stores and oppositeProp specified", function () {
             let refs = configStore.getStoreRefPairs("storeWithTwoRefsOneNamed");
-            assert.equal(Object.keys(refs.ref_ref).length, 1);
+            assert.equal(refs.length, 1);
         });
-        it("should split refs by type", function () {
+        it("should return refs with different types", function () {
             let refs = configStore.getStoreRefPairs("storeWithDifferentRefTypes");
-            console.log("11", JSON.stringify(refs));
-            assert.equal(Object.keys(refs.ref_ref).length, 1);
-            assert.equal(Object.keys(refs.ref_refList).length, 1);
-            assert.equal(Object.keys(refs.refList_ref).length, 1);
-            assert.equal(Object.keys(refs.refList_refList).length, 1);
+            assert.equal(refs.length, 4);
         });
     });
 });
