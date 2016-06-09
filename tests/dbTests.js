@@ -71,6 +71,13 @@ describe("$db", function () {
                 done();
             });
         });
+        it("should return a Promise", function (done) {
+            let mayBePromise = $db.get("AAAAAAAA-0000-0000-0000-000000000000", "users").then((res) => {
+                assert.ok(res != null);
+                done();
+            });
+            assert.ok(mayBePromise instanceof Promise);
+        });
     });
     describe("#find", function () {
         it("should return matched documents", function (done) {
@@ -155,7 +162,7 @@ describe("$db", function () {
                 done();
             });
         });
-        it("should limit number of returned fields", function(done) {
+        it("should limit number of returned fields", function (done) {
             $db.find({
                 query: {},
                 orderBy: "-testProp",
@@ -172,6 +179,13 @@ describe("$db", function () {
                 });
                 done();
             });
+        });
+        it("should return a Promise", function (done) {
+            let mayBePromise = $db.find({ query: { "testProp": { "$in": ["40", "44"] } } }, "users").then((res) => {
+                assert.ok(res != null);
+                done();
+            });
+            assert.ok(mayBePromise instanceof Promise);
         });
     });
     describe("#set", function () {
@@ -316,7 +330,7 @@ describe("$db", function () {
                 });
             });
         });
-        it("should return return error if willDelete hook return Promise that rejected", function (done) {
+        it("should return error if willDelete hook return Promise that rejected", function (done) {
             $db.delete("AAAAAAAA-0000-0000-0000-000000000044", "users", (err) => {
                 assert.notEqual(err, null);
                 assert.equal(err.message, "NO_DELETE");
@@ -326,6 +340,12 @@ describe("$db", function () {
                     done();
                 });
             });
+        });
+        it("should return a Promise", function (done) {
+            let mayBePromise = $db.delete("UNKNOWN", "users").then((res) => {
+                done();
+            });
+            assert.ok(mayBePromise instanceof Promise);
         });
     });
     describe("#nextSequence", function () {
