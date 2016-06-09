@@ -286,7 +286,8 @@ class Db extends EventEmitter {
         let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
 
         if (!item._id) {
-            return cb(new Error("No _id provided"), null);
+            cb(new Error("No _id provided"), null);
+            return d;
         }
         let user, storeDesc, unlock, newItem = null, prevItem = null, insert = false;
         this.getUser(options.user || options.userId || "system").then((_user) => {
