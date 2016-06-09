@@ -22,10 +22,7 @@ module.exports.setup = function (lockFn, unlockFn) {
 };
 
 module.exports.lock = function (id, cb) {
-    let d;
-    if (typeof cb !== "function") {
-        d = new Promise(resolve => (cb = resolve));
-    }
+    let d = (typeof cb !== "function") ? new Promise(resolve => (cb = resolve)) : null;
     _defer.then(() => {
         _lock(id, () => {
             cb(unlock.bind(global, id));

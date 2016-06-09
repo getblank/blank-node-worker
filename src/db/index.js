@@ -10,7 +10,6 @@
 //      noEmitUpdate: bool – if true, will not emit db event
 //      populate: bool
 //      loadVirtualProps: bool
-//      maxAttempts: 3 – number of attempts to save document with version control
 // }
 
 import db from "./rawDb";
@@ -25,26 +24,11 @@ class Db extends EventEmitter {
         super();
         this.del = this.delete.bind(this);
         this.setup = db.setup.bind(db);
-        let _set = this.set.bind(this);
-        this.set = function (item, storeName, options = {}, cb = () => { }) {
-            if (typeof options === "function") {
-                cb = options;
-                options = {};
-            }
-            return new Promise((resolve, reject) => {
-                _set(item, storeName, options, (e, d) => {
-                    if (e != null) {
-                        reject(e);
-                    } else {
-                        resolve(d);
-                    }
-                    cb(e, d);
-                });
-            });
-        };
     }
 
-    delete(_id, storeName, cb = () => { }) {
+    delete(_id, storeName, cb) {
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
+
         this.getUser("system", (err, user) => {
             if (err) {
                 return cb(err, null);
@@ -96,12 +80,17 @@ class Db extends EventEmitter {
                 del();
             });
         });
+
+        return d;
     }
 
-    find(request, storeName, options = {}, cb = () => { }) {
+    find(request, storeName, options = {}, cb) {
         if (typeof options === "function") {
             cb = options;
+            options = {};
         }
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
+
         let storeDesc = configStore.getStoreDesc(storeName);
         if (!storeDesc) {
             return cb("Store not found");
@@ -119,15 +108,18 @@ class Db extends EventEmitter {
             request.query.$and.push(calculatedQuery);
             delete request.query[_queryName];
         }
-
         db.find(request, storeName, cb);
+
+        return d;
     }
 
-    get(_id, storeName, options = {}, cb = () => { }) {
+    get(_id, storeName, options = {}, cb) {
         if (typeof options === "function") {
             cb = options;
             options = {};
         }
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
+
         this.getUser(options.user || options.userId || "system", (err, user) => {
             let config = configStore.getConfig(options.user);
             let storeDesc = config[storeName];
@@ -153,6 +145,8 @@ class Db extends EventEmitter {
                 cb(err, item);
             });
         });
+
+        return d;
     }
 
     insert(item, storeName, options = {}, cb = () => { }) {
@@ -160,16 +154,20 @@ class Db extends EventEmitter {
             cb = options;
             options = {};
         }
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
+
         item._id = this.newId();
         options.noEmitUpdate = true;
 
-        return this.set(item, storeName, options, (err, $item) => {
+        this.set(item, storeName, options, (err, $item) => {
             if (err) {
                 return cb(err, null);
             }
             this.emit("create", storeName, item, null);
             cb(null, $item);
         });
+
+        return d;
     }
 
     loadVirtualProps(item, storeName, storeDesc) {
@@ -202,6 +200,8 @@ class Db extends EventEmitter {
     }
 
     nextSequence(storeName, cb) {
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
+
         if (!configStore.isStore(storeName)) {
             return cb(new Error("Store not found"), null);
         }
@@ -211,13 +211,17 @@ class Db extends EventEmitter {
             }
             cb(null, res.sequence);
         });
+
+        return d;
     }
 
     nextSequenceString(storeName, stringLength, cb) {
-        cb = cb || stringLength;
         if (typeof stringLength === "function") {
+            cb = stringLength;
             stringLength = 6;
         }
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
+
         this.nextSequence(storeName, (err, res) => {
             if (err) {
                 return cb(err, res);
@@ -227,9 +231,13 @@ class Db extends EventEmitter {
             res = zeros.slice(0, stringLength - res.length) + res;
             cb(null, res);
         });
+
+        return d;
     }
 
-    notify(receivers, storeName, message, cb = () => { }) {
+    notify(receivers, storeName, message, cb) {
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
+
         if (typeof message === "string") {
             message = {
                 "event": "notification",
@@ -252,9 +260,11 @@ class Db extends EventEmitter {
             all.push(this.set(m, storeName));
         }
         Promise.all(all).then(res => cb(null)).catch(e => cb(e));
+
+        return d;
     }
 
-    populateAll(item, storeName, user, cb = () => { }) {
+    populateAll(item, storeName, user, cb) {
         var store;
         if (typeof storeName === "string") {
             let config = configStore.getConfig(user);
@@ -268,7 +278,13 @@ class Db extends EventEmitter {
         return this._populateAll(item, store, user, cb);
     }
 
-    set(item, storeName, options, cb) {
+    set(item, storeName, options = {}, cb) {
+        if (typeof options === "function") {
+            cb = options;
+            options = {};
+        }
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
+
         if (!item._id) {
             return cb(new Error("No _id provided"), null);
         }
@@ -333,6 +349,7 @@ class Db extends EventEmitter {
         }).then((savedItem) => {
             options.debug && console.log("Item saved in DB! Result:", savedItem);
             unlock();
+            unlock = null;
             this._updateRefs(storeName, savedItem, prevItem);
             return new Promise((resolve, reject) => {
                 this._populateAndLoadVirtual(savedItem, storeName, storeDesc, user, options, (err, item) => {
@@ -355,6 +372,8 @@ class Db extends EventEmitter {
             }
             cb(e, null);
         });
+
+        return d;
     }
 
     setDangerously(item, storeName, cb = () => { }) {
@@ -363,15 +382,10 @@ class Db extends EventEmitter {
     }
 
     getUser(userId, cb) {
-        let defer;
-        if (typeof cb !== "function") {
-            defer = new Promise((resolve, reject) => {
-                cb = (e, r) => { (e == null) ? resolve(r) : reject(e) };
-            });
-        }
+        let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
         if (typeof userId === "object") {
             cb(null, userId);
-            return defer;
+            return d;
         }
         switch (userId) {
             case "system":
@@ -407,7 +421,7 @@ class Db extends EventEmitter {
                 }
                 break;
         }
-        return defer;
+        return d;
     }
 
     _runHook(storeName, hookName, arg1, arg2, arg3) {
