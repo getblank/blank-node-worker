@@ -149,7 +149,7 @@ class Db extends EventEmitter {
         return d;
     }
 
-    insert(item, storeName, options = {}, cb = () => { }) {
+    insert(item, storeName, options = {}, cb) {
         if (typeof options === "function") {
             cb = options;
             options = {};

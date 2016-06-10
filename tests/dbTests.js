@@ -255,6 +255,14 @@ describe("$db", function () {
                 done();
             });
         });
+        it("should return a Promise", function (done) {
+            let mayBePromise = $db.insert({ "name": "test" }, "anyStore").then((res) => {
+            }, (err) => {
+                assert.ok(err != null);
+                done();
+            });
+            assert.ok(mayBePromise instanceof Promise);
+        });
     });
     describe("#_mergeItems", function () {
         it("should merge all props in two items", function () {
