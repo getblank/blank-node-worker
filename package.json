@@ -4,6 +4,7 @@
   "description": "JavaScript task runner for Blank platform",
   "main": "lib/worker.js",
   "dependencies": {
+    "async": "^2.0.0-rc.6",
     "handlebars": "^4.0.5",
     "jszip": "^3.0.0",
     "minimist": "latest",

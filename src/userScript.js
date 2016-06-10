@@ -50,14 +50,15 @@ let coreModules = [
 ];
 let externalModules = {};
 let internalModules = {
-    "utils/find": "utils/find",
-    "wamp": "wamp",
-    "hash": "./hash",
-    "i18n": "./i18n",
+    "async": "async",
     "email": "./email",
     "handlebars": "handlebars",
+    "hash": "./hash",
+    "i18n": "./i18n",
     "request": "request",
     "serviceRegistry": "./serviceRegistry",
+    "utils/find": "utils/find",
+    "wamp": "wamp",
 };
 
 function getSandbox(requireBasePath = ".") {
