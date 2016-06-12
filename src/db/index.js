@@ -157,13 +157,16 @@ class Db extends EventEmitter {
         let d = (typeof cb !== "function") ? new Promise((f, r) => (cb = (e, d) => e != null ? r(e) : f(d))) : null;
 
         item._id = this.newId();
+        let noEmitUpdate = options.noEmitUpdate;
         options.noEmitUpdate = true;
 
         this.set(item, storeName, options, (err, $item) => {
             if (err) {
                 return cb(err, null);
             }
-            this.emit("create", storeName, item, null);
+            if (!noEmitUpdate) {
+                this.emit("create", storeName, item, null);
+            }
             cb(null, $item);
         });
 
