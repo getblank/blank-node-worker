@@ -55,6 +55,7 @@ let internalModules = {
     "handlebars": "handlebars",
     "hash": "./hash",
     "i18n": "./i18n",
+    "moment": "moment",
     "request": "request",
     "serviceRegistry": "./serviceRegistry",
     "utils/find": "utils/find",
