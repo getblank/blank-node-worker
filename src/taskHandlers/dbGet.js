@@ -19,7 +19,7 @@ class DbGet extends TaskHandlerBase {
                 "_ownerId": user._id,
             };
         }
-        this.db.get(query, storeName, {loadVirtualProps: true, user: user}, (err, res) => {
+        this.db.get(query, storeName, {loadVirtualProps: true, user: user, populate: true}, (err, res) => {
             if (err) {
                 if (singleView && (err.message === dbErrors.itemNotFound || err.message === dbErrors.storeNotFound)) {
                     res = configStore.getBaseItem(storeName, user);
