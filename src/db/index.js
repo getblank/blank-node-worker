@@ -103,7 +103,15 @@ class Db extends EventEmitter {
             if (!filter || !filter.query) {
                 continue;
             }
-            let calculatedQuery = db._compileQuery(filter.query, request.query[_queryName]);
+            if (typeof filter.query === "function") {
+                try {
+                    var calculatedQuery = filter.query(request.query[_queryName]);
+                } catch (err) {
+                    console.error("Error when calculating", err);
+                }
+            } else {
+                calculatedQuery = db._compileQuery(filter.query, request.query[_queryName]);
+            }
             request.query.$and = request.query.$and || [];
             request.query.$and.push(calculatedQuery);
             delete request.query[_queryName];

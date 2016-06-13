@@ -364,12 +364,26 @@ class ConfigStore {
         res.props = this.__getUserProps(storeDesc.props, user, wsStoreDesc);
         res.actions = this.__getUserActions(storeDesc.actions, user);
         res.storeActions = this.__getUserActions(storeDesc.storeActions, user);
+        res.filters = this.__getComputedFilters(storeDesc.filters, storeName);
         res.i18n = this.__getI18N(storeDesc.i18n, user.lang);
         res.groupAccess = res.ownerAccess = auth.computeAccess(storeDesc.access, user);
         if (res.display === "single" || res.type === "single") {
             res.headerProperty = null;
         }
         return res;
+    }
+
+    __getComputedFilters(filters, storeName) {
+        if (!filters) {
+            return filters;
+        }
+        for (let i in filters) {
+            let filter = filters[i];
+            if (filter.query && typeof filter.query === "string") {
+                filter.query = userScript.create(filter.query, `${storeName}_filters_${i}`, ["$value"]);
+            }
+        }
+        return filters;
     }
 
     __getUserWorkspace(user, storeName) {
