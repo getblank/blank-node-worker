@@ -565,6 +565,7 @@ class Db extends EventEmitter {
                 }
                 return cb(null, item);
             });
+            return;
         }
         if (options.loadVirtualProps) {
             this.loadVirtualProps(item, storeName, storeDesc);
