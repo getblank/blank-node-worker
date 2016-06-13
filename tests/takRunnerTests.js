@@ -69,7 +69,10 @@ describe("taskRunner", function () {
     describe("#runTask", function () {
         before(function () {
             dbGet.test.setDb({
-                "get": function (id, store, cb) {
+                "get": function (id, store, options, cb) {
+                    if (typeof cb !== "function") {
+                        cb = options;
+                    }
                     setTimeout(function () {
                         cb(null, { "_id": id });
                     });

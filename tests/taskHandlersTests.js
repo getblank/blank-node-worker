@@ -17,7 +17,10 @@ var authentication = require("../lib/taskHandlers/authentication");
 var userConfig = require("../lib/taskHandlers/userConfig");
 var dbErrors = require("../lib/const").dbErrors;
 let dbMock = {
-    "get": function (query, store, cb) {
+    "get": function (query, store, options = {}, cb = () => { }) {
+        if (typeof cb !== "function") {
+            cb = options;
+        }
         setTimeout(function () {
             cb(null, { "_id": (typeof query === "object" ? query._id : query) });
         });
