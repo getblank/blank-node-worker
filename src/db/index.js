@@ -290,6 +290,7 @@ class Db extends EventEmitter {
     }
 
     set(item, storeName, options = {}, cb) {
+        options.debug = true;
         if (typeof options === "function") {
             cb = options;
             options = {};
