@@ -1,8 +1,8 @@
 "use strict";
 
-import {MongoClient} from "mongodb";
-import EventEmitter from "events";
-import configStore from "../configStore";
+var {MongoClient} = require("mongodb");
+var EventEmitter = require("events");
+var configStore = require("../configStore");
 
 
 class Db extends EventEmitter {
@@ -331,5 +331,4 @@ class Db extends EventEmitter {
 }
 
 let db = new Db();
-// export default db;
 module.exports = db;

@@ -1,6 +1,6 @@
 "use strict";
 
-import scrypt from "scrypt";
+var scrypt = require("scrypt");
 
 module.exports.calc = function (passwordBuffer, salt, cb) {
     scrypt.hash(passwordBuffer, { "N": 16384, "r": 8, "p": 1 }, 32, salt, function (e, d) {

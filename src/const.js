@@ -1,22 +1,22 @@
 "use strict";
 
-import Enum from "utils/enum";
+var Enum = require("utils/enum");
 
-export const ipAddressRegex = new RegExp("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9‌​]{2}|2[0-4][0-9]|25[0-5])(:\d{1,5})?$");
-export const hostnameRegex = new RegExp("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
+module.exports.ipAddressRegex = new RegExp("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9‌​]{2}|2[0-4][0-9]|25[0-5])(:\d{1,5})?$");
+module.exports.hostnameRegex = new RegExp("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$");
 
-export const taskUris = Enum(
+module.exports.taskUris = Enum(
     "get",
     "done",
     "error"
 );
 
-export const dbErrors = {
+module.exports.dbErrors = {
     "storeNotFound": "Store not found",
     "itemNotFound": "Not found",
 };
 
-export const taskTypes = Enum(
+module.exports.taskTypes = Enum(
     "authentication",
     "userConfig",
     "dbGet",
@@ -29,7 +29,7 @@ export const taskTypes = Enum(
     "storeLifeCycle"
 );
 
-export const clientStoreDef = {
+module.exports.clientStoreDef = {
     "type": {},
     "display": { "ws": true, "default": "list" },
     "access": {},

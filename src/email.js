@@ -1,7 +1,7 @@
 "use strict";
 
-import nodemailer from "nodemailer";
-import db from "./db";
+var nodemailer = require("nodemailer");
+var db = require("./db");
 
 exports.send = function (message, cb) {
     if (message && typeof message === "object") {

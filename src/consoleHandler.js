@@ -1,7 +1,7 @@
 "use strict";
 
-import util from "util";
-import winston from "winston";
+var util = require("util");
+var winston = require("winston");
 let logger = new winston.Logger();
 
 function formatArgs(args) {

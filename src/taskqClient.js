@@ -1,6 +1,6 @@
 "use strict";
 
-import WampClient from "wamp";
+var WampClient = require("wamp");
 
 let wampClient = new WampClient(true, true),
     _uri = null,

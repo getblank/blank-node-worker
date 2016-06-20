@@ -1,7 +1,7 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
-import hash from "../hash";
+var TaskHandlerBase = require("./TaskHandlerBase");
+var hash = require("../hash");
 
 class Authentication extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -29,5 +29,4 @@ class Authentication extends TaskHandlerBase {
     }
 }
 let authentication = new Authentication();
-export default authentication;
 module.exports = authentication;

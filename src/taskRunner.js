@@ -1,11 +1,11 @@
 "use strict";
 
-import taskqClient from "./taskqClient";
-import EventEmitter from "events";
-import configStore from "./configStore";
-import authUtils from "./auth";
-import $db from "./db";
-import {taskTypes, taskUris} from "./const";
+var taskqClient = require("./taskqClient");
+var EventEmitter = require("events");
+var configStore = require("./configStore");
+var authUtils = require("./auth");
+var $db = require("./db");
+var {taskTypes, taskUris} = require("./const");
 
 let wampClient = taskqClient.wampClient;
 

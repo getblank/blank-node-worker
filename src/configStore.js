@@ -1,10 +1,10 @@
 "use strict";
 
-import auth from "./auth";
-import {clientStoreDef} from "./const";
-import find from "utils/find";
-import configProcessor from "configProcessor";
-import userScript from "./userScript";
+var auth = require("./auth");
+var {clientStoreDef} = require("./const");
+var find = require("utils/find");
+var configProcessor = require("configProcessor");
+var userScript = require("./userScript");
 
 let _defaultStore = {
     "display": "none",
@@ -475,5 +475,4 @@ class ConfigStore {
 }
 
 let store = new ConfigStore();
-export default store;
 module.exports = store;

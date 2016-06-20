@@ -1,8 +1,8 @@
 "use strict";
 
-import db from "../db";
+var db = require("../db");
 
-export default class TaskHandlerBase {
+module.exports = class TaskHandlerBase {
     constructor() {
         this.db = db;
         this.test = {

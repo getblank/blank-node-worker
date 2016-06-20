@@ -1,6 +1,6 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
+var TaskHandlerBase = require("./TaskHandlerBase");
 
 class DbSet extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -26,5 +26,4 @@ class DbSet extends TaskHandlerBase {
     }
 }
 let dbSet = new DbSet();
-export default dbSet;
 module.exports = dbSet;

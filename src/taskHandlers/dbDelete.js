@@ -1,6 +1,6 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
+var TaskHandlerBase = require("./TaskHandlerBase");
 
 class DbDelete extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -11,5 +11,4 @@ class DbDelete extends TaskHandlerBase {
     }
 }
 let dbDelete = new DbDelete();
-export default dbDelete;
 module.exports = dbDelete;
