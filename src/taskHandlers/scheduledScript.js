@@ -1,7 +1,7 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
-import configStore from "../configStore";
+var TaskHandlerBase = require("./TaskHandlerBase");
+var configStore = require("../configStore");
 
 class ScheduledScript extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -17,5 +17,4 @@ class ScheduledScript extends TaskHandlerBase {
     }
 }
 let scheduledScript = new ScheduledScript();
-export default scheduledScript;
 module.exports = scheduledScript;

@@ -1,7 +1,7 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
-import configStore from "../configStore";
+var TaskHandlerBase = require("./TaskHandlerBase");
+var configStore = require("../configStore");
 
 class HTTPHook extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -21,5 +21,4 @@ class HTTPHook extends TaskHandlerBase {
     }
 }
 let httpHook = new HTTPHook();
-export default httpHook;
 module.exports = httpHook;

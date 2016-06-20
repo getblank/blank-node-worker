@@ -146,5 +146,4 @@ class Auth {
 
 let auth = new Auth();
 
-export default auth;
 module.exports = auth;

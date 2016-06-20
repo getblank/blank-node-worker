@@ -12,12 +12,12 @@
 //      loadVirtualProps: bool
 // }
 
-import db from "./rawDb";
-import configStore from "../configStore";
-import mutex from "../mutex";
-import uuid from "node-uuid";
-import EventEmitter from "events";
-import auth from "../auth";
+var db = require("./rawDb");
+var configStore = require("../configStore");
+var mutex = require("../mutex");
+var uuid = require("node-uuid");
+var EventEmitter = require("events");
+var auth = require("../auth");
 
 class Db extends EventEmitter {
     constructor() {

@@ -1,8 +1,8 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
-import configStore from "../configStore";
-import {dbErrors} from "../const";
+var TaskHandlerBase = require("./TaskHandlerBase");
+var configStore = require("../configStore");
+var {dbErrors} = require("../const");
 
 class PerformAction extends TaskHandlerBase {
     __run(cb, actionDesc, user, data, item) {
@@ -60,5 +60,4 @@ class PerformAction extends TaskHandlerBase {
     }
 }
 let performAction = new PerformAction();
-export default performAction;
 module.exports = performAction;

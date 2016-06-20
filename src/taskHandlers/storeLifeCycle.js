@@ -1,7 +1,7 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
-import configStore from "../configStore";
+var TaskHandlerBase = require("./TaskHandlerBase");
+var configStore = require("../configStore");
 
 class StoreLifeCycle extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -21,5 +21,4 @@ class StoreLifeCycle extends TaskHandlerBase {
     }
 }
 let storeLifeCycle = new StoreLifeCycle();
-export default storeLifeCycle;
 module.exports = storeLifeCycle;

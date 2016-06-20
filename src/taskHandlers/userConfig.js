@@ -1,7 +1,7 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
-import configStore from "../configStore";
+var TaskHandlerBase = require("./TaskHandlerBase");
+var configStore = require("../configStore");
 
 class UserConfig extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -13,5 +13,4 @@ class UserConfig extends TaskHandlerBase {
     }
 }
 let userConfig = new UserConfig();
-export default userConfig;
 module.exports = userConfig;

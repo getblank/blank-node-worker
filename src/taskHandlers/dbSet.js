@@ -1,7 +1,7 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
-import configStore from "../configStore";
+var TaskHandlerBase = require("./TaskHandlerBase");
+var configStore = require("../configStore");
 
 class DbSet extends TaskHandlerBase {
     __checkItemId(storeName, user, item, cb) {
@@ -29,5 +29,4 @@ class DbSet extends TaskHandlerBase {
     }
 }
 let dbSet = new DbSet();
-export default dbSet;
 module.exports = dbSet;

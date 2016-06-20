@@ -1,8 +1,8 @@
 "use strict";
 
-import TaskHandlerBase from "./TaskHandlerBase";
-import configStore from "../configStore";
-import {dbErrors} from "../const";
+var TaskHandlerBase = require("./TaskHandlerBase");
+var configStore = require("../configStore");
+var {dbErrors} = require("../const");
 
 class DbGet extends TaskHandlerBase {
     run(storeName, user, args, cb) {
@@ -41,5 +41,4 @@ class DbGet extends TaskHandlerBase {
     }
 }
 let dbGet = new DbGet();
-export default dbGet;
 module.exports = dbGet;

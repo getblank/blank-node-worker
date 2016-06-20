@@ -3,6 +3,29 @@
   "version": "0.0.2",
   "description": "JavaScript task runner for Blank platform",
   "main": "lib/worker.js",
+  "scripts": {
+    "startHelper": "SR=\"ws://localhost:1234\" npm start",
+    "prestart": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js src -d lib",
+    "start": "NODE_PATH='./local:./lib/blank-js-core' node ./lib/worker.js $SR",
+    "pretest": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js src -d lib",
+    "test": "NODE_PATH='./local:./lib/blank-js-core' NODE_ENV='test' mocha -t 5000 ./tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/getblank/blank-node-worker.git"
+  },
+  "keywords": [
+    "Blank"
+  ],
+  "author": {
+    "email": "info@getblank.net",
+    "name": "Evgeniy Kuvshinov & Evgeniy Ivakha"
+  },
+  "homepage": "http://getblank.net",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/getblank/blank-node-worker/issues"
+  },
   "dependencies": {
     "async": "^2.0.0-rc.6",
     "handlebars": "^4.0.5",
@@ -21,24 +44,9 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0",
     "mocha": "latest"
   },
-  "scripts": {
-    "startHelper": "SR=\"ws://localhost:1234\" npm start",
-    "prestart": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js src -d lib",
-    "start": "NODE_PATH='./local:./lib/blank-js-core' node ./lib/worker.js $SR",
-    "pretest": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js src -d lib",
-    "test": "NODE_PATH='./local:./lib/blank-js-core' NODE_ENV='test' mocha -t 5000 ./tests"
-  },
   "babel": {
     "plugins": [
       "transform-es2015-modules-commonjs"
     ]
-  },
-  "keywords": [
-    "Blank"
-  ],
-  "author": {
-    "email": "info@getblank.net",
-    "name": "Evgeniy Kuvshinov & Evgeniy Ivakha"
-  },
-  "license": "GPL-3.0"
+  }
 }
