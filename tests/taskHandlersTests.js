@@ -5,7 +5,6 @@ var testConfig = require("./config");
 var db = require("../lib/db");
 // var taskTypes = require("../lib/const").taskTypes;
 var configStore = require("../lib/configStore");
-configStore.setup(testConfig);
 var dbGet = require("../lib/taskHandlers/dbGet");
 var dbSet = require("../lib/taskHandlers/dbSet");
 var dbDelete = require("../lib/taskHandlers/dbDelete");
@@ -16,6 +15,18 @@ var storeLifeCycle = require("../lib/taskHandlers/storeLifeCycle");
 var authentication = require("../lib/taskHandlers/authentication");
 var userConfig = require("../lib/taskHandlers/userConfig");
 var dbErrors = require("../lib/const").dbErrors;
+
+let userScript = require("../lib/userScript");
+var localStorage = require("../lib/localStorage");
+let mutex = require("../lib/mutex");
+userScript.setup({
+    "mutex": mutex,
+    "localStorage": localStorage,
+    "$db": db,
+});
+
+configStore.setup(testConfig);
+
 let dbMock = {
     "get": function (query, store, options = {}, cb = () => { }) {
         if (typeof cb !== "function") {

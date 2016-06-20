@@ -38,13 +38,6 @@
     "ws": "latest"
   },
   "devDependencies": {
-    "babel-cli": "^6.8.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0",
     "mocha": "latest"
-  },
-  "babel": {
-    "plugins": [
-      "transform-es2015-modules-commonjs"
-    ]
   }
 }
