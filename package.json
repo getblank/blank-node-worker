@@ -4,10 +4,8 @@
   "description": "JavaScript task runner for Blank platform",
   "main": "lib/worker.js",
   "scripts": {
-    "startHelper": "SR=\"ws://localhost:1234\" npm start",
-    "prestart": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js src -d lib",
-    "start": "NODE_PATH='./local:./lib/blank-js-core' node ./lib/worker.js $SR",
-    "pretest": "rm -rf ./lib && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js src -d lib",
+    "buildCore": "rm -rf ./lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core",
+    "start": "NODE_PATH='./local:./lib/blank-js-core' node ./lib/worker.js",
     "test": "NODE_PATH='./local:./lib/blank-js-core' NODE_ENV='test' mocha -t 5000 ./tests"
   },
   "repository": {
