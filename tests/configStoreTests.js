@@ -261,7 +261,7 @@ describe("configStore", function () {
     describe("#__groupStoreRefsByStore", function () {
         it("should return ref types and opposite prop name if it specified", function () {
             let refs = configStore.__groupStoreRefsByStore("storeWithRefs");
-            assert.equal(Object.keys(refs).length, 1);
+            assert.equal(Object.keys(refs).length, 2);
             assert.equal(refs.otherStore.length, 2);
             assert.equal(refs.otherStore[1].type, "refList");
             assert.equal(refs.otherStore[1].oppositeProp, "otherProp");

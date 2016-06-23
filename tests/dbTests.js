@@ -200,14 +200,14 @@ describe("$db", function () {
         it("should sync concurrent operations", function (done) {
             let _id = "newId", promises = [];
             for (let i = 0; i < 50; i++) {
-                promises.push($db.set({ "_id": _id, prop: i }, "users"));
+                promises.push($db.set({ "_id": _id, intProp: i }, "users"));
             }
             Promise.all(promises).then(() => {
                 $db.get(_id, "users", (err, res) => {
                     assert.equal(err, null);
                     assert.equal(res.__v, 50);
-                    assert.ok(res.prop >= 0);
-                    assert.ok(res.prop < 50);
+                    assert.ok(res.intProp >= 0);
+                    assert.ok(res.intProp < 50);
                     done();
                 });
             });

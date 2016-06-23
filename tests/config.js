@@ -7,10 +7,18 @@ module.exports = {
         "navOrder": 0,
         "label": "{{$i18n.storeLabel}}",
         "labels": [],
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "testProp": {
                 "type": "string",
                 "display": "textInput",
+            },
+            "intProp": {
+                "type": "int",
+                "display": "numberInput",
+            },
+            "floatProp": {
+                "type": "float",
+                "display": "numberInput",
             },
             "virtualProp": {
                 "type": "virtual",
@@ -58,7 +66,7 @@ module.exports = {
 
                 },
             },
-        },
+        }),
         "actions": [
             {
                 "_id": "return_item_test_property",
@@ -140,12 +148,12 @@ module.exports = {
         "navOrder": 0,
         "label": "{{$i18n.storeLabel}}",
         "labels": [],
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "defaultProp": {
                 "type": "string",
                 "display": "textInput",
             },
-        },
+        }),
         "actions": [],
         "objectLifeCycle": {},
         "storeLifeCycle": {},
@@ -175,7 +183,7 @@ module.exports = {
                 "prop": "tableColumnProp2",
             },
         ],
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "_id": {},
             "_state": {},
             "name": {},
@@ -187,7 +195,7 @@ module.exports = {
             "orderByProp": {},
             "tableColumnProp1": {},
             "tableColumnProp2": {},
-        },
+        }),
         "labels": [
             {
                 "text": "!!!!!!!!!!!!!{{$item.labelTextProp}}",
@@ -199,29 +207,29 @@ module.exports = {
     },
     "partialTestsNotificationStore": {
         "type": "notification",
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "_id": {},
             "prop1": {},
             "prop2": {},
-        },
+        }),
     },
     "partialTestsProcessStoreWithHeaderTemplate": {
         "type": "process",
         "headerTemplate": "{{$item.hTemplateProp1}} {{$item.hTemplateProp2}}",
         "headerProperty": "hProp",
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "_id": {},
             "_state": {},
             "hProp": {},
             "hTemplateProp1": {},
             "hTemplateProp2": {},
-        },
+        }),
     },
     "allowedStore": {
         "access": [
             { "role": "test", "permissions": "crud" },
         ],
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "_id": {},
             "name": {},
             "labelTextProp": {},
@@ -230,7 +238,7 @@ module.exports = {
             "allowedProp": { "access": [{ "role": "test", "permissions": "crud" }] },
             "deniedProp1": { "access": [{ "role": "test", "permissions": "-r" }] },
             "deniedProp2": { "access": [{ "role": "noTest", "permissions": "r" }] },
-        },
+        }),
         "actions": [
             { "_id": "allowedAction", "access": [{ "role": "test", "permissions": "crud" }] },
             { "_id": "deniedAction", "access": [{ "role": "test", "permissions": "-r" }] },
@@ -252,14 +260,14 @@ module.exports = {
         },
     },
     "storeForPopulating": {
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "userId": {
                 "type": "ref",
                 "display": "none",
                 "store": "users",
                 "populateIn": "user",
             },
-        },
+        }),
     },
     "singleStore": {
         "type": "single",
@@ -268,17 +276,17 @@ module.exports = {
     "displaySingleStore": {
         "display": "single",
         "headerProperty": "testProp",
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "testProp": {
                 "type": "string",
                 "display": "textInput",
                 "label": "test",
                 "default": "42",
             },
-        },
+        }),
     },
     "storeWithRefs": {
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "ref": {
                 "type": "ref",
                 "store": "otherStore",
@@ -288,10 +296,10 @@ module.exports = {
                 "store": "otherStore",
                 "oppositeProp": "otherProp",
             },
-        },
+        }),
     },
     "storeWithTwoAnonimousRefs": {
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "ref1": {
                 "type": "ref",
                 "store": "storeWithTwoAnonimousRefsOpposite",
@@ -300,18 +308,18 @@ module.exports = {
                 "type": "ref",
                 "store": "storeWithTwoAnonimousRefsOpposite",
             },
-        },
+        }),
     },
     "storeWithTwoAnonimousRefsOpposite": {
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "ref": {
                 "type": "ref",
                 "store": "storeWithTwoAnonimousRefs",
             },
-        },
+        }),
     },
     "storeWithTwoRefsOneNamed": {
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "ref1": {
                 "type": "ref",
                 "store": "storeWithTwoRefsOneNamedOpposite",
@@ -321,32 +329,32 @@ module.exports = {
                 "type": "ref",
                 "store": "storeWithTwoRefsOneNamedOpposite",
             },
-        },
+        }),
     },
     "storeWithTwoRefsOneNamedOpposite": {
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "ref": {
                 "type": "ref",
                 "store": "storeWithTwoRefsOneNamed",
                 "oppositeProp": "ref1",
             },
-        },
+        }),
     },
     "storeWithDifferentRefTypes": {
-        "props": {
-            "ref": { "type": "ref", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "ref"},
-            "refList": { "type": "refList", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "ref1"},
-            "ref1": { "type": "ref", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "refList"},
-            "refList1": { "type": "refList", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "refList1"},
-        },
+        "props": require("./defaultConfig").mergeProps({
+            "ref": { "type": "ref", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "ref" },
+            "refList": { "type": "refList", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "ref1" },
+            "ref1": { "type": "ref", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "refList" },
+            "refList1": { "type": "refList", "store": "storeWithDifferentRefTypesOpposite", "oppositeProp": "refList1" },
+        }),
     },
     "storeWithDifferentRefTypesOpposite": {
-        "props": {
-            "ref": { "type": "ref", "store": "storeWithDifferentRefTypes", "oppositeProp": "ref"},
-            "refList": { "type": "refList", "store": "storeWithDifferentRefTypes", "oppositeProp": "ref1"},
-            "ref1": { "type": "ref", "store": "storeWithDifferentRefTypes", "oppositeProp": "refList"},
-            "refList1": { "type": "refList", "store": "storeWithDifferentRefTypes", "oppositeProp": "refList1"},
-        },
+        "props": require("./defaultConfig").mergeProps({
+            "ref": { "type": "ref", "store": "storeWithDifferentRefTypes", "oppositeProp": "ref" },
+            "refList": { "type": "refList", "store": "storeWithDifferentRefTypes", "oppositeProp": "ref1" },
+            "ref1": { "type": "ref", "store": "storeWithDifferentRefTypes", "oppositeProp": "refList" },
+            "refList1": { "type": "refList", "store": "storeWithDifferentRefTypes", "oppositeProp": "refList1" },
+        }),
     },
     "storeWithTask": {
         "tasks": [
@@ -367,7 +375,7 @@ module.exports = {
         },
     },
     "storeWithVirtualProps": {
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "v1": {
                 "type": "virtual",
                 "display": "text",
@@ -384,20 +392,20 @@ module.exports = {
                     },
                 },
             },
-        },
+        }),
     },
     "storeWithHttpHook": {
         "display": "list",
         "navOrder": 0,
         "label": "{{$i18n.storeLabel}}",
         "labels": [],
-        "props": {
+        "props": require("./defaultConfig").mergeProps({
             "defaultProp": {
                 "type": "string",
                 "formOrder": 10,
                 "display": "textInput",
             },
-        },
+        }),
         "actions": [],
         "objectLifeCycle": {},
         "storeLifeCycle": {},
