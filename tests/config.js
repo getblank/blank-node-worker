@@ -298,6 +298,20 @@ module.exports = {
             },
         }),
     },
+    "storeWithSelfRefs": {
+        "props": {
+            "ref1": {
+                "type": "ref",
+                "store": "storeWithSelfRefs",
+                "oppositeProp": "ref2",
+            },
+            "ref2": {
+                "type": "ref",
+                "store": "storeWithSelfRefs",
+                "oppositeProp": "ref1",
+            },
+        },
+    },
     "storeWithTwoAnonimousRefs": {
         "props": require("./defaultConfig").mergeProps({
             "ref1": {
