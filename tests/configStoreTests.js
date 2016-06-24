@@ -266,6 +266,10 @@ describe("configStore", function () {
             assert.equal(refs.otherStore[1].type, "refList");
             assert.equal(refs.otherStore[1].oppositeProp, "otherProp");
         });
+        it("should not return self store refs", function () {
+            let refs = configStore.__groupStoreRefsByStore("storeWithSelfRefs");
+            assert.equal(Object.keys(refs).length, 0);
+        });
     });
     describe("#getRefPairs", function () {
         it("should not return pairs without oppositeProp when more then one refs beetwen stores", function () {
