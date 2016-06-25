@@ -77,8 +77,10 @@ describe("taskHandler/authentication", function () {
                     cb(null, {
                         "_id": "42",
                         "name": "Test user",
-                        "hashedPassword": "MxRqmuKK+KK96rhbezMbqx87Dnn7RwNRJcU6outfanA=",
-                        "salt": "1",
+                        "password": {
+                            "key": "MxRqmuKK+KK96rhbezMbqx87Dnn7RwNRJcU6outfanA=",
+                            "salt": "1",
+                        },
                         "activationToken": "ololo",
                         "passwordResetToken": "ololo",
                     });
