@@ -114,7 +114,7 @@ module.exports = {
             },
         ],
         "objectLifeCycle": {
-            "willCreate": "if ($item.testProp === 'Error') {return 'Error'}; $item.testProp = '42'",
+            "willCreate": "if ($item.testProp === 'Error') {throw new Error('Error')}; $item.testProp = '42'",
             "willRemove": `
                 return new Promise((resolve, reject) => {
                     if ($item.testProp === "toDelete3") {

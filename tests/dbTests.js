@@ -350,9 +350,7 @@ describe("$db", function () {
             });
         });
         it("should return a Promise", function (done) {
-            let mayBePromise = $db.delete("UNKNOWN", "users").then((res) => {
-                done();
-            });
+            let mayBePromise = $db.delete("UNKNOWN", "users").then((res) => { }, err => done());
             assert.ok(mayBePromise instanceof Promise);
         });
     });
