@@ -1,0 +1,207 @@
+[
+    {
+        "description": "\u0412\u044b\u0434\u0430\u043d",
+        "email": "ELENA.MOTYLEWA@GMAIL.RU",
+        "firstName": "\u0415\u041b\u0415\u041d\u0410",
+        "foreignKey": "130189",
+        "foreignUrl": "http:\/\/old.cr911.ru\/manage\/orders\/order\/283735",
+        "lastName": "\u041c\u041e\u0422\u042b\u041b\u0415\u0412\u0410",
+        "middleName": "\u041b\u0415\u041e\u041d\u0418\u0414\u041e\u0412\u041d\u0410",
+        "order": "283735",
+        "paymentDelayDate": "2016-07-07",
+        "calls": [],
+        "doNotCallUntil": "",
+        "contacts": [
+            {
+                "_id": ""
+            }
+        ],
+        "phones": [
+            {
+                "phoneNumber": "79856842039",
+                "phoneType": "mobile"
+            },
+            {
+                "phoneNumber": "",
+                "phoneType": "home"
+            }
+        ],
+        "passport": {
+            "date": "2002-03-26",
+            "number": "4601840129",
+            "issuing": "3 \u041e\u041c \u041c\u041e\u0416\u0410\u0419\u0421\u041a\u041e\u0413\u041e \u041e\u0412\u0414 \u041c\u041e\u0421\u041a\u041e\u0412\u0421\u041a\u041e\u0419 \u041e\u0411\u041b."
+        },
+        "address": {
+            "street": "\u041d\u041e\u0412\u0410\u042f",
+            "city": "\u041c\u041e\u0421\u041a\u041e\u0412\u0421\u041a\u0410\u042f \u041e\u0411\u041b., \u041a\u0420\u0410\u0421\u041d\u041e\u0413\u041e\u0420\u0421\u041a\u0418\u0419 \u0420-\u041d, \u041f\u041e\u0421. \u041d\u0410\u0425\u0410\u0411\u0418\u041d\u041e ",
+            "state": "",
+            "postalCode": null,
+            "country": ""
+        },
+        "fullName": "\u041c\u041e\u0422\u042b\u041b\u0415\u0412\u0410 \u0415\u041b\u0415\u041d\u0410 \u041b\u0415\u041e\u041d\u0418\u0414\u041e\u0412\u041d\u0410"
+    },
+    {
+        "description": "\u0412\u044b\u0434\u0430\u043d",
+        "email": "79850449300@CR911.RU",
+        "firstName": "\u0420\u0410\u0418\u0421\u0410 ",
+        "foreignKey": "130188",
+        "foreignUrl": "http:\/\/old.cr911.ru\/manage\/orders\/order\/283732",
+        "lastName": "\u0421\u0410\u041c\u041e\u0419\u041b\u041e\u0412\u0410",
+        "middleName": "\u0420\u0423\u0414\u041e\u041b\u042c\u0424\u041e\u0412\u041d\u0410",
+        "order": "283732",
+        "paymentDelayDate": "2016-06-23",
+        "calls": [],
+        "doNotCallUntil": "",
+        "contacts": [
+            {
+                "_id": ""
+            }
+        ],
+        "phones": [
+            {
+                "phoneNumber": "79850449300",
+                "phoneType": "mobile"
+            },
+            {
+                "phoneNumber": "",
+                "phoneType": "home"
+            }
+        ],
+        "passport": {
+            "date": "2002-11-22",
+            "number": "4504381672",
+            "issuing": "\u041e\u0412\u0414 \u0412\u041e\u0419\u041a\u041e\u0412\u0421\u041a\u0418\u0419 \u0413\u041e\u0420. \u041c\u041e\u0421\u041a\u0412\u042b"
+        },
+        "address": {
+            "street": "\u0410\u0414\u041c\u0418\u0420\u0410\u041b\u0410 \u041c\u0410\u041a\u0410\u0420\u041e\u0412\u0410 ",
+            "city": "\u041c\u041e\u0421\u041a\u0412\u0410 ",
+            "state": "",
+            "postalCode": null,
+            "country": ""
+        },
+        "fullName": "\u0421\u0410\u041c\u041e\u0419\u041b\u041e\u0412\u0410 \u0420\u0410\u0418\u0421\u0410  \u0420\u0423\u0414\u041e\u041b\u042c\u0424\u041e\u0412\u041d\u0410"
+    },
+    {
+        "description": "\u0412\u044b\u0434\u0430\u043d",
+        "email": "79099456662@CR911.RU",
+        "firstName": "\u0422\u0410\u041c\u0410\u0420\u0410",
+        "foreignKey": "130175",
+        "foreignUrl": "http:\/\/old.cr911.ru\/manage\/orders\/order\/283703",
+        "lastName": "\u041b\u0418\u0422\u0412\u0418\u041d\u041e\u0412\u0410",
+        "middleName": "\u042f\u041a\u041e\u0412\u041b\u0415\u0412\u041d\u0410",
+        "order": "283703",
+        "paymentDelayDate": "2016-06-23",
+        "calls": [],
+        "doNotCallUntil": "",
+        "contacts": [
+            {
+                "_id": ""
+            }
+        ],
+        "phones": [
+            {
+                "phoneNumber": "79099456662",
+                "phoneType": "mobile"
+            },
+            {
+                "phoneNumber": "",
+                "phoneType": "home"
+            }
+        ],
+        "passport": {
+            "date": "2001-08-08",
+            "number": "1701259624",
+            "issuing": "\u041e\u0422\u0414\u0415\u041b\u041e\u041c  \u0412\u041d\u0423\u0422\u0420\u0415\u041d\u041d\u0418\u0425 \u0414\u0415\u041b \u0413\u041e\u0420\u041e\u0414\u0410 \u0421\u041e\u0411\u0418\u041d\u041a\u0418 \u0412\u041b\u0410\u0414\u0418\u041c\u0418\u0420\u0421\u041a\u041e\u0419 \u041e\u0411\u041b\u0410\u0421\u0422\u0418"
+        },
+        "address": {
+            "street": "\u0421\u041f\u041e\u0420\u0422\u0418\u0412\u041d\u0410\u042f",
+            "city": "\u041c\u041e\u0421\u041a\u041e\u0412\u0421\u041a\u0410\u042f \u041e\u0411\u041b. \u0413\u041e\u0420. \u041d\u041e\u0413\u0418\u041d\u0421\u041a-9",
+            "state": "",
+            "postalCode": null,
+            "country": ""
+        },
+        "fullName": "\u041b\u0418\u0422\u0412\u0418\u041d\u041e\u0412\u0410 \u0422\u0410\u041c\u0410\u0420\u0410 \u042f\u041a\u041e\u0412\u041b\u0415\u0412\u041d\u0410"
+    },
+    {
+        "description": "\u0412\u044b\u0434\u0430\u043d",
+        "email": "79611674269@CR911.RU",
+        "firstName": "\u0412\u0418\u0422\u0410\u041b\u0418\u0419 ",
+        "foreignKey": "130164",
+        "foreignUrl": "http:\/\/old.cr911.ru\/manage\/orders\/order\/283676",
+        "lastName": "\u0420\u042f\u0411\u041e\u0412",
+        "middleName": "\u0412\u041b\u0410\u0414\u0418\u041c\u0418\u0420\u041e\u0412\u0418\u0427",
+        "order": "283676",
+        "paymentDelayDate": "2016-07-07",
+        "calls": [],
+        "doNotCallUntil": "2016-06-10",
+        "contacts": [
+            {
+                "_id": ""
+            }
+        ],
+        "phones": [
+            {
+                "phoneNumber": "79611674269",
+                "phoneType": "mobile"
+            },
+            {
+                "phoneNumber": "",
+                "phoneType": "home"
+            }
+        ],
+        "passport": {
+            "date": "2006-11-23",
+            "number": "1805856977",
+            "issuing": "\u041b\u0415\u041d\u0418\u041d\u0421\u041a\u0418\u041c \u0420\u041e\u0412\u0414 \u0412\u041e\u041b\u0413\u041e\u0413\u0420\u0410\u0414\u0421\u041a\u041e\u0419 \u041e\u0411\u041b\u0410\u0421\u0422\u0418 "
+        },
+        "address": {
+            "street": "\u041d\u0415\u0414\u041e\u0420\u0423\u0411\u041e\u0412\u0410 ",
+            "city": "\u041c\u041e\u0421\u041a\u0412\u0410",
+            "state": "",
+            "postalCode": null,
+            "country": ""
+        },
+        "fullName": "\u0420\u042f\u0411\u041e\u0412 \u0412\u0418\u0422\u0410\u041b\u0418\u0419  \u0412\u041b\u0410\u0414\u0418\u041c\u0418\u0420\u041e\u0412\u0418\u0427"
+    },
+    {
+        "description": "\u0412\u044b\u0434\u0430\u043d",
+        "email": "GURA7530@YANDEX.RU",
+        "firstName": "\u0410\u041b\u0415\u041d\u0410 ",
+        "foreignKey": "130092",
+        "foreignUrl": "http:\/\/old.cr911.ru\/manage\/orders\/order\/283542",
+        "lastName": "\u0413\u0423\u0420\u0410",
+        "middleName": "\u0421\u0415\u0420\u0413\u0415\u0415\u0412\u041d\u0410",
+        "order": "283542",
+        "paymentDelayDate": "2016-07-07",
+        "calls": [],
+        "doNotCallUntil": "2016-06-10",
+        "contacts": [
+            {
+                "_id": ""
+            }
+        ],
+        "phones": [
+            {
+                "phoneNumber": "79161462395",
+                "phoneType": "mobile"
+            },
+            {
+                "phoneNumber": "74956876632",
+                "phoneType": "home"
+            }
+        ],
+        "passport": {
+            "date": "2015-04-24",
+            "number": "4515139396",
+            "issuing": "\u041e\u0422\u0414\u0415\u041b\u041e\u041c \u0423\u0424\u041c\u0421 \u0420\u041e\u0421\u0421\u0418\u0418 \u041f\u041e \u0413\u041e\u0420. \u041c\u041e\u0421\u041a\u0412\u0415 \u041f\u041e \u0420\u0410\u0419\u041e\u041d\u0423 \u0410\u041b\u0415\u041a\u0421\u0415\u0415\u0412\u0421\u041a\u0418\u0419 "
+        },
+        "address": {
+            "street": "\u041a\u0423\u0427\u0418\u041d \u041f\u0415\u0420\u0415\u0423\u041b\u041e\u041a",
+            "city": "\u041c\u041e\u0421\u041a\u0412\u0410 ",
+            "state": "",
+            "postalCode": null,
+            "country": ""
+        },
+        "fullName": "\u0413\u0423\u0420\u0410 \u0410\u041b\u0415\u041d\u0410  \u0421\u0415\u0420\u0413\u0415\u0415\u0412\u041d\u0410"
+    }
+]
