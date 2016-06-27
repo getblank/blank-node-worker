@@ -104,6 +104,17 @@ describe("auth", function () {
             });
             console.log(JSON.stringify(query));
         });
+        it("should append owner check for singleView store", function () {
+            var rule = { "role": "sclif", "permissions": "r", "condition": { "prop": 3 } };
+            let query = auth.computeMongoQuery([rule], testUser, true);
+            assert.deepEqual(query, {
+                "$and": [
+                    { "prop": 3 },
+                    { "_ownerId": 1 },
+                ],
+            });
+            console.log(JSON.stringify(query));
+        });
         it("should include -r rules with $not operator", function () {
             let query = auth.computeMongoQuery([allowRule, denyRuleWithCondition], testUser);
             assert.deepEqual(query, {
