@@ -28,15 +28,13 @@ userScript.setup({
 configStore.setup(testConfig);
 
 let dbMock = {
-    "get": function (query, store, options = {}, cb = () => { }) {
-        if (typeof cb !== "function") {
-            cb = options;
-        }
+    "get": function (query, store, options = {}, cb) {
+        cb = cb || options;
         setTimeout(function () {
             cb(null, { "_id": (typeof query === "object" ? query._id : query) });
         });
     },
-    "set": function (item, store, options = {}, cb = () => { }) {
+    "set": function (item, store, options = {}, cb) {
         cb = cb || options;
         setTimeout(function () {
             cb(null, Object.assign({ "_id": item.id }, item.item));
@@ -49,7 +47,8 @@ let dbMock = {
     },
 };
 let dbGetMock = {
-    "get": function (id, store, cb) {
+    "get": function (id, store, options, cb) {
+        cb = cb || options;
         setTimeout(function () {
             if (!id || id === "UNKNOWN") {
                 cb(new Error(), null);
@@ -69,7 +68,8 @@ let storeName = "users",
 describe("taskHandler/authentication", function () {
     before(function () {
         authentication.test.setDb({
-            "get": function (query, store, cb) {
+            "get": function (query, store, options, cb) {
+                cb = cb || options;
                 setTimeout(function () {
                     if (query.login !== "1") {
                         return cb(new Error("UNKNOWN_ITEM"), null);
