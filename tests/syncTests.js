@@ -11,29 +11,32 @@ describe("SyncTest", function () {
                 assert.equal(_async, true);
                 done();
             });
-            sync.setup(
-                (id, cb) => { cb() },
-                (id, cb) => { cb() }
-            );
+            sync.setup({
+                "call": (m, cb, id) => cb(),
+            });
             _async = true;
         });
         it("should return unlock function", function (done) {
             sync.lock("1", (unlock) => {
                 unlock();
             });
-            sync.setup(
-                (id, cb) => { cb() },
-                (id, cb) => {
-                    assert.equal(id, "1");
-                    done();
-                }
-            );
+            sync.setup({
+                "call": (m, cb, id) => {
+                    switch (m) {
+                        case "sync.lock":
+                            return cb();
+                        case "sync.unlock":
+                            assert.equal(id, "1");
+                            done();
+                            break;
+                    }
+                },
+            });
         });
-        it("shuold throws an error when unlock called more then one time", function(done){
-            sync.setup(
-                (id, cb) => { cb() },
-                (id, cb) => { cb() }
-            );
+        it("shuold throws an error when unlock called more then one time", function (done) {
+            sync.setup({
+                "call": (m, cb, id) => cb(),
+            });
             sync.lock("2", (unlock) => {
                 unlock();
                 assert.throws(unlock, /Attempt to unlock no locked mutex/);
