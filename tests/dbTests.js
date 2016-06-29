@@ -6,9 +6,9 @@ var configStore = require("../lib/configStore");
 configStore.setup(testConfig);
 var db = require("../lib/db/rawDb");
 var $db = require("../lib/db/index");
-var mutex = require("../lib/mutex");
-var mutexMock = require("./mutexMock");
-mutex.setup(mutexMock.lock, mutexMock.unlock);
+var sync = require("../lib/sync");
+var syncMock = require("./syncMock");
+sync.setup(syncMock.lock, syncMock.unlock);
 
 describe("$db", function () {
     before(function (done) {

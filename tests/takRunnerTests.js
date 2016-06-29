@@ -39,7 +39,7 @@ describe("taskRunner", function () {
             }, /Invalid task/);
             assert.throws(function () {
                 taskRunner.test.validateTask(getTask({ "type": "UNKNOWN" }));
-            }, /Task type not supported/);
+            }, /Task type 'UNKNOWN' not supported/);
         });
         it("should insert guest userId when it empty", function () {
             let task = { "id": 0, "type": "dbGet", "store": "users" };
