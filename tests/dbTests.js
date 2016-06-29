@@ -8,7 +8,18 @@ var db = require("../lib/db/rawDb");
 var $db = require("../lib/db/index");
 var sync = require("../lib/sync");
 var syncMock = require("./syncMock");
-sync.setup(syncMock.lock, syncMock.unlock);
+sync.setup({
+    "call": (m, cb, id) => {
+        switch (m) {
+            case "sync.lock":
+                syncMock.lock(id, cb);
+                break;
+            case "sync.unlock":
+                syncMock.unlock(id, cb);
+                break;
+        }
+    },
+});
 
 describe("$db", function () {
     before(function (done) {
