@@ -25,7 +25,7 @@ describe("Sessions", function () {
         let returnedSession = sessions.get(session.apiKey);
         assert.equal(session.apiKey, returnedSession.apiKey);
     });
-    it("should delete stored session by provided apiKey", function () {
+    it("should delete stored session by session apiKey", function () {
         let session = {
             apiKey: 4,
             userId: 5,
@@ -33,7 +33,7 @@ describe("Sessions", function () {
             lastRequest: new Date().toISOString(),
         };
         sessions.update(session);
-        sessions.delete(session.apiKey);
+        sessions.delete(session);
         assert.equal(sessions.get(session.apiKey), undefined);
     });
     it("should return connections on provided topic", function () {
