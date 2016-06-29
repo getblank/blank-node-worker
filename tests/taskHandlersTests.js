@@ -18,9 +18,10 @@ var dbErrors = require("../lib/const").dbErrors;
 
 let userScript = require("../lib/userScript");
 var localStorage = require("../lib/localStorage");
-let mutex = require("../lib/mutex");
+let sync = require("../lib/sync");
 userScript.setup({
-    "mutex": mutex,
+    "mutex": sync,
+    "sync": sync,
     "localStorage": localStorage,
     "$db": db,
 });

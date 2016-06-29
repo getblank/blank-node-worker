@@ -1,27 +1,27 @@
 "use strict";
 
 let assert = require("assert");
-let mutex = require("../lib/mutex");
+let sync = require("../lib/sync");
 
-describe("Mutext", function () {
+describe("SyncTest", function () {
     describe("#lock", function () {
         it("should call cb after module setup", function (done) {
             let _async = false;
-            mutex.lock("1", () => {
+            sync.lock("1", () => {
                 assert.equal(_async, true);
                 done();
             });
-            mutex.setup(
+            sync.setup(
                 (id, cb) => { cb() },
                 (id, cb) => { cb() }
             );
             _async = true;
         });
         it("should return unlock function", function (done) {
-            mutex.lock("1", (unlock) => {
+            sync.lock("1", (unlock) => {
                 unlock();
             });
-            mutex.setup(
+            sync.setup(
                 (id, cb) => { cb() },
                 (id, cb) => {
                     assert.equal(id, "1");
@@ -30,11 +30,11 @@ describe("Mutext", function () {
             );
         });
         it("shuold throws an error when unlock called more then one time", function(done){
-            mutex.setup(
+            sync.setup(
                 (id, cb) => { cb() },
                 (id, cb) => { cb() }
             );
-            mutex.lock("2", (unlock) => {
+            sync.lock("2", (unlock) => {
                 unlock();
                 assert.throws(unlock, /Attempt to unlock no locked mutex/);
                 done();
