@@ -33,12 +33,13 @@
     "minimist": "latest",
     "moment": "^2.13.0",
     "mongodb": "^2.1.18",
+    "node-uuid": "latest",
     "nodemailer": "^2.4.2",
+    "request": "^2.72.0",
     "scrypt": "^6.0.3",
     "sift": "^3.2.1",
     "winston": "^2.2.0",
-    "ws": "latest",
-    "node-uuid": "latest"
+    "ws": "latest"
   },
   "devDependencies": {
     "mocha": "latest"
