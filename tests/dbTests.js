@@ -199,6 +199,36 @@ describe("$db", function () {
             assert.ok(mayBePromise instanceof Promise);
         });
     });
+    describe("#forEach", function () {
+        before(function (done) {
+            db._insertMany([
+                { "_id": "1", "name": "testName" },
+                { "_id": "2", "name": "testName" },
+                { "_id": "3", "name": "testName" },
+            ],
+                "forEachTestStore",
+                done);
+        });
+        it("should iterate over all items", function (done) {
+            let id = 0;
+            $db.forEach("forEachTestStore", (item) => {
+                id++;
+                assert.equal(id, item._id);
+            }, () => {
+                assert.equal(id, 3);
+                done();
+            });
+        });
+        it("should wait if itemCb returns promise", function (done) {
+            let count = 0;
+            $db.forEach("forEachTestStore", (item) => {
+                return new Promise(r => setTimeout(() => { count++; r() }, 10));
+            }, () => {
+                assert.equal(count, 3);
+                done();
+            });
+        });
+    });
     describe("#set", function () {
         it("should return a Promise", function (done) {
             let mayBePromise = $db.set({ "name": "test" }, "anyStore").then((res) => {
@@ -439,6 +469,7 @@ describe("$db", function () {
     after(function () {
         db._dropCollection("users");
         db._dropCollection("users_deleted");
+        db._dropCollection("forEachTestStore");
         db._dropCollection("partialTestsNotificationStore");
     });
 });

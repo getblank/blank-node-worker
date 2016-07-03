@@ -140,6 +140,12 @@ module.exports = {
             "storeLabel": "testStore",
         },
     },
+    "forEachTestStore": {
+        "access": [
+            { "role": "root", "permissions": "crud" },
+        ],
+        "props": require("./defaultConfig").mergeProps({}),
+    },
     "deniedStore1": {
         "access": [
             { "role": "root", "permissions": "-" },
