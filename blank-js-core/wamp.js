@@ -251,9 +251,8 @@
                 break;
             case msgTypes.CALLERROR:
                 var err = {
-                    url: msgData,
-                    desc: msg[3],
-                    details: msg.length > 4 ? msg[4] : null,
+                    desc: msgData,
+                    details: msg.length > 3 ? msg[3] : null,
                 };
                 if (typeof this._callResponseHandlers[msgId] === "function") {
                     this._callResponseHandlers[msgId](null, err);

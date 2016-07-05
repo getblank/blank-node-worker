@@ -1,6 +1,6 @@
 {
   "name": "blank-node-worker",
-  "version": "0.0.58",
+  "version": "0.0.60",
   "description": "JavaScript task runner for Blank platform",
   "main": "lib/worker.js",
   "scripts": {
@@ -43,6 +43,13 @@
     "ws": "latest"
   },
   "devDependencies": {
-    "mocha": "latest"
+    "mocha": "latest",
+    "babel-cli": "^6.8.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0"
+  },
+  "babel": {
+    "plugins": [
+      "transform-es2015-modules-commonjs"
+    ]
   }
 }
