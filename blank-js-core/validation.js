@@ -4,7 +4,7 @@
 
 "use strict";
 
-import {validityErrors, baseValidators, propertyTypes, iso8601, uploadStates} from "constants";
+import {validityErrors, baseValidators, propertyTypes, iso8601, uploadStates} from "./constants";
 import Mask from "mask";
 import template from "template";
 import moment from "moment";
@@ -88,7 +88,7 @@ function validateType(type, value, propName) {
             typeError = typeof (value) !== "string";
             break;
         case propertyTypes.date:
-            typeError = typeof (value) !== "string" || !value.match(iso8601);
+            typeError = (typeof (value) !== "string" || !value.match(iso8601)) && !(value instanceof Date);
             break;
         case propertyTypes.ref:
             typeError = typeof (value) !== "string";
