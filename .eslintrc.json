@@ -54,7 +54,8 @@
             "error",
             "always-multiline"
         ],
-        "no-unused-vars": ["error", { "vars": "all", "args": "none" }]
+        "no-unused-vars": ["error", { "vars": "all", "args": "none" }],
+        "callback-return": "error"
     },
     "globals": {
     }
