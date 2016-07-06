@@ -285,4 +285,12 @@ describe("configStore", function () {
             assert.equal(refs.length, 4);
         });
     });
+    describe("#getStoreProxies", function () {
+        it("should  return base store and other proxies", function () {
+            let proxies = configStore.getStoreProxies("proxyStore1");
+            assert.equal(proxies.length, 2);
+            assert.equal(proxies.indexOf("baseProxyStore") >= 0, true);
+            assert.equal(proxies.indexOf("proxyStore2") >= 0, true);
+        });
+    });
 });
