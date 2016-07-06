@@ -17,10 +17,10 @@ class Validator {
 }
 
 let valueComparableTypes = [
-        propertyTypes.int,
-        propertyTypes.float,
-        propertyTypes.date,
-    ],
+    propertyTypes.int,
+    propertyTypes.float,
+    propertyTypes.date,
+],
     lengthComparableTypes = [
         propertyTypes.string,
         propertyTypes.password,
@@ -84,8 +84,10 @@ function validateType(type, value, propName) {
             typeError = typeof (value) !== "boolean";
             break;
         case propertyTypes.string:
-        case propertyTypes.password:
             typeError = typeof (value) !== "string";
+            break;
+        case propertyTypes.password:
+            typeError = typeof (value) !== "string" && typeof value !== "object" && (!value.key || !value.salt);
             break;
         case propertyTypes.date:
             typeError = (typeof (value) !== "string" || !value.match(iso8601)) && !(value instanceof Date);
