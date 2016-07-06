@@ -146,6 +146,13 @@ module.exports = {
         ],
         "props": require("./defaultConfig").mergeProps({}),
     },
+    "baseProxyStore": {},
+    "proxyStore1": {
+        "baseStore": "baseProxyStore",
+    },
+    "proxyStore2": {
+        "baseStore": "baseProxyStore",
+    },
     "deniedStore1": {
         "access": [
             { "role": "root", "permissions": "-" },
