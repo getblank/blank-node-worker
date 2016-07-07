@@ -177,7 +177,7 @@ function validateProperty(propsDesc, item, propName, baseItem, user) {
         let validator = propDesc.required;
         if (validator.getValue(user, item, baseItem) &&
             (value == null || value === "" || (propDesc.type === propertyTypes.refList && value.length < 1))) {
-            errors.push(getValidationError(validator.type, validator.message));
+            errors.push(getValidationError(validator.type, validator.message, null, value));
         }
     }
 
