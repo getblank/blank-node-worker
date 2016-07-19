@@ -146,6 +146,19 @@ module.exports = {
         ],
         "props": require("./defaultConfig").mergeProps({}),
     },
+    "storeWithWidget": {
+        "widgets": [
+            {
+                "_id": "testWidget",
+                "load": `
+                    return new Promise(f => {
+                        setTimeout(() => {
+                            f("WidgetData");
+                        }, 10);
+                    });`,
+            },
+        ],
+    },
     "baseProxyStore": {},
     "proxyStore1": {
         "baseStore": "baseProxyStore",

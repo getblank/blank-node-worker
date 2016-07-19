@@ -9,6 +9,7 @@ var dbGet = require("../lib/taskHandlers/dbGet");
 var dbSet = require("../lib/taskHandlers/dbSet");
 var dbDelete = require("../lib/taskHandlers/dbDelete");
 var action = require("../lib/taskHandlers/action");
+var widgetData = require("../lib/taskHandlers/widgetData");
 var scheduledScript = require("../lib/taskHandlers/scheduledScript");
 var httpHook = require("../lib/taskHandlers/httpHook");
 var storeLifeCycle = require("../lib/taskHandlers/storeLifeCycle");
@@ -181,6 +182,15 @@ describe("taskHandler/action", function () {
         action.run(storeName, user, { "actionId": "availability_test", "itemId": "0" }, (e, d) => {
             assert.equal(e, null);
             assert.equal(d, "ok");
+            done();
+        });
+    });
+});
+
+describe("taskHandler/widgetData", function () {
+    it("should return data from widget 'load' function", function (done) {
+        widgetData.run("storeWithWidget", user, { "widgetId": "testWidget" }, (e, d) => {
+            assert.equal(d, "WidgetData");
             done();
         });
     });
