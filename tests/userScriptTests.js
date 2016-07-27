@@ -50,20 +50,38 @@ describe("UserScript", function () {
     describe("#require.ensure", function () {
         it("should wait for module registration", function (done) {
             let _warn = console.warn,
-                _end = false;
+                _info = console.info,
+                _end = false,
+                doneCount = 0;
+            let d = () => {
+                doneCount++;
+                if (doneCount == 2) {
+                    done();
+                }
+            };
             console.warn = function (test) {
                 assert.equal(test, "42");
                 assert.equal(_end, true);
                 console.warn = _warn;
-                done();
+                d();
+            };
+            console.info = function (test) {
+                assert.equal(test, "24");
+                assert.equal(_end, true);
+                console.info = _info;
+                d();
             };
             userScript.require.register("moduleOne",
                 `require.ensure("moduleTwo", () => {
                     console.warn(require("moduleTwo"));
                 });
+                require.ensure("moduleThree").then(() => {
+                    console.info(require("moduleThree"));
+                });
                 module.exports.hello = "world"`);
             setTimeout(() => {
                 userScript.require.register("moduleTwo", "module.exports = \"42\";");
+                userScript.require.register("moduleThree", "module.exports = \"24\";");
             });
             userScript.require("moduleOne");
             _end = true;
