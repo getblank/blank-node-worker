@@ -42,7 +42,8 @@
     "sift": "^3.2.1",
     "unstream": "^2.0.0",
     "winston": "^2.2.0",
-    "ws": "latest"
+    "ws": "latest",
+    "winston-graylog2": "latest"
   },
   "devDependencies": {
     "mocha": "latest",
