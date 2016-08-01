@@ -25,6 +25,10 @@ describe("$db", function () {
     before(function (done) {
         $db.setup("mongodb://127.0.0.1:27017/blankTest");
         db.on("connected", () => {
+            db._dropCollection("users");
+            db._dropCollection("users_deleted");
+            db._dropCollection("forEachTestStore");
+            db._dropCollection("partialTestsNotificationStore");
             db._insertMany([
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000000", "testProp": "40", "name": "testName" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000001", "testProp": "41", "name": "testName" },
@@ -202,9 +206,9 @@ describe("$db", function () {
     describe("#forEach", function () {
         before(function (done) {
             db._insertMany([
-                { "_id": "1", "name": "testName" },
-                { "_id": "2", "name": "testName" },
-                { "_id": "3", "name": "testName" },
+                { "_id": "1", "name": "testName1" },
+                { "_id": "2", "name": "testName2", "_ownerId": "user" },
+                { "_id": "3", "name": "testName3", "_ownerId": "user" },
             ],
                 "forEachTestStore",
                 done);
@@ -216,6 +220,37 @@ describe("$db", function () {
                 assert.equal(id, item._id);
             }, () => {
                 assert.equal(id, 3);
+                done();
+            });
+        });
+        it("should iterate over only items matched query", function (done) {
+            let id = 0;
+            $db.forEach({ "name": "testName2" }, "forEachTestStore", (item) => {
+                assert.equal("2", item._id);
+                id++;
+            }, () => {
+                assert.equal(id, 1);
+                done();
+            });
+        });
+        it("should iterate over only items user has access to", function (done) {
+            let id = 1;
+            $db.forEach("forEachTestStore", { "user": { _id: "user", roles: ["anyUser"] } }, (item) => {
+                console.debug(item);
+                id++;
+                assert.equal(id, item._id);
+            }, () => {
+                assert.equal(id, 3);
+                done();
+            });
+        });
+        it("should iterate over only items user has access to and only items matched query", function (done) {
+            let id = 0;
+            $db.forEach({ "$or": [{ "name": "testName2" }, { "name": "testName1" }] }, "forEachTestStore", { "user": { _id: "user", roles: ["anyUser"] } }, (item) => {
+                assert.equal("2", item._id);
+                id++;
+            }, () => {
+                assert.equal(id, 1);
                 done();
             });
         });

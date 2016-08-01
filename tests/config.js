@@ -143,6 +143,15 @@ module.exports = {
     "forEachTestStore": {
         "access": [
             { "role": "root", "permissions": "crud" },
+            {
+                "role": "anyUser",
+                "permissions": "crud",
+                "condition": {
+                    "_ownerId": {
+                        "$expression": "$user._id",
+                    },
+                },
+            },
         ],
         "props": require("./defaultConfig").mergeProps({}),
     },
