@@ -7,13 +7,14 @@ var message = {
     to: "test@test.com",
     subject: "Test",
     body: "Test test",
+    test: true,
 };
 
 describe("email", function () {
     it("should callback with error when first params no object", function (done) {
         email.send("test", (e) => {
             assert.notEqual(e, null);
-            assert.equal(e.message, "WRONG MESSAGE");
+            assert.equal(e.message, "message must be an object");
             done();
         });
     });

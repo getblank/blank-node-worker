@@ -8,6 +8,21 @@ module.exports = {
         "label": "{{$i18n.storeLabel}}",
         "labels": [],
         "props": require("./defaultConfig").mergeProps({
+            "password": {
+                "type": "password",
+            },
+            "email": {
+                "type": "string",
+            },
+            "login": {
+                "type": "string",
+            },
+            "_activationToken": {
+                "type": "string",
+            },
+            "_activationExpires": {
+                "type": "date",
+            },
             "testProp": {
                 "type": "string",
                 "display": "textInput",

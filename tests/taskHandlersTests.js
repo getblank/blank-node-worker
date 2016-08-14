@@ -14,6 +14,7 @@ var scheduledScript = require("../lib/taskHandlers/scheduledScript");
 var httpHook = require("../lib/taskHandlers/httpHook");
 var storeLifeCycle = require("../lib/taskHandlers/storeLifeCycle");
 var authentication = require("../lib/taskHandlers/authentication");
+var signup = require("../lib/taskHandlers/signup");
 var userConfig = require("../lib/taskHandlers/userConfig");
 var dbErrors = require("../lib/const").dbErrors;
 
@@ -118,6 +119,37 @@ describe("taskHandler/authentication", function () {
             assert.ok(d.activationToken == null);
             assert.ok(d.passwordResetToken == null);
             done();
+        });
+    });
+});
+
+describe("taskHandler/signup", function () {
+    let rootId;
+    before(function () {
+        return db.insert({"email": "r@r.r", "login": "root", "password": "1"}, "users").then(res => {
+            rootId = res._id;
+        });
+    });
+    it("should callback 'user exists' error if user with the same login already exists", function (done) {
+        signup.run(storeName, user, { "email": "root", "password": "42" }, function (e, d) {
+            assert.equal(e.message, "user exists");
+            done();
+        });
+    });
+    it("should callback 'user exists' error if user with the same email already exists", function (done) {
+        signup.run(storeName, user, { "email": "r@r.r", "password": "42" }, function (e, d) {
+            assert.equal(e.message, "user exists");
+            done();
+        });
+    });
+    it("should callback with no error if this is a new user", function (done) {
+        signup.run(storeName, user, { "email": "q@q.q", "password": "q" }, function (e, d) {
+            assert.equal(e, null);
+            db.get({email: "q@q.q"}, "users", (err, user) => {
+                assert.equal(err, null);
+                assert.equal(user.email, "q@q.q");
+                done();
+            });
         });
     });
 });
