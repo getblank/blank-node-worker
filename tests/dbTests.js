@@ -38,6 +38,7 @@ describe("$db", function () {
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000042", "testProp": "toDelete" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000043", "testProp": "toDelete2" },
                 { "_id": "AAAAAAAA-0000-0000-0000-000000000044", "testProp": "toDelete3" },
+                { "_id": "AAAAAAAA-0000-0000-0000-000000000046", "testProp": "toDelete4" },
                 {
                     "_id": "AAAAAAAA-0000-0000-0000-000000000045",
                     "testProp": "toLoadVirtual",
@@ -429,6 +430,15 @@ describe("$db", function () {
             let mayBePromise = $db.delete("UNKNOWN", "users").then((res) => { }, err => done());
             assert.ok(mayBePromise instanceof Promise);
         });
+        it("should completly deleted item by _id when 'drop' options provided", function (done) {
+            $db.delete("AAAAAAAA-0000-0000-0000-000000000045", "users", { drop: true }, (err) => {
+                $db.get("AAAAAAAA-0000-0000-0000-000000000045", "users", (err, item) => {
+                    assert.equal(err.message, "Not found");
+                    done();
+                });
+            });
+        });
+
     });
     describe("#nextSequence", function () {
         before(function (done) {
