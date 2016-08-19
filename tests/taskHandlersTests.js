@@ -74,7 +74,7 @@ describe("taskHandler/authentication", function () {
             "get": function (query, store, options, cb) {
                 cb = cb || options;
                 setTimeout(function () {
-                    if (query.login !== "1") {
+                    if (query.$or[0].login !== "1") {
                         return cb(new Error("UNKNOWN_ITEM"), null);
                     }
                     cb(null, {
