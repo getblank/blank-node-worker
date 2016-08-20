@@ -86,6 +86,7 @@ describe("taskHandler/authentication", function () {
                         },
                         "activationToken": "ololo",
                         "passwordResetToken": "ololo",
+                        "isActive": true,
                     });
                 });
             },
