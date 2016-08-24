@@ -81,6 +81,10 @@ module.exports = {
 
                 },
             },
+            "propWithDefault": {
+                "type": "string",
+                "default": "defaultValue",
+            },
         }),
         "actions": [
             {

@@ -340,6 +340,16 @@ describe("$db", function () {
             });
             assert.ok(mayBePromise instanceof Promise);
         });
+        it("should fill default prop's values if they is not exists", function(){
+            return  $db.insert({ "name": "testWithDefault"}, "users").then(res => {
+                assert(res.propWithDefault, "defaultValue");
+            });
+        });
+        it("should keep passed prop's values if they exists", function(){
+            return  $db.insert({ "name": "testWithDefault", "propWithDefault": "anotherValue"}, "users").then(res => {
+                assert(res.propWithDefault, "anotherValue");
+            });
+        });
     });
     describe("#_mergeItems", function () {
         it("should merge all props in two items", function () {
