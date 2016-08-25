@@ -8,6 +8,7 @@ var db = require("../lib/db/rawDb");
 var $db = require("../lib/db/index");
 var sync = require("../lib/sync");
 var syncMock = require("./syncMock");
+require("../lib/promiseSeries");
 sync.setup({
     "call": (m, cb, id) => {
         switch (m) {
