@@ -289,6 +289,12 @@ describe("$db", function () {
                 });
             });
         });
+        it("should return error when new document saved with upsert = false option", function () {
+            return $db.set({ "_id": "1111", "name": "NAME" }, "users", { upsert: false }).then(res => {
+            }, err => {
+                assert.ok(err != null);
+            });
+        });
     });
     describe("#insert", function () {
         it("should return item with generated '_id'", function (done) {
@@ -340,13 +346,13 @@ describe("$db", function () {
             });
             assert.ok(mayBePromise instanceof Promise);
         });
-        it("should fill default prop's values if they is not exists", function(){
-            return  $db.insert({ "name": "testWithDefault"}, "users").then(res => {
+        it("should fill default prop's values if they is not exists", function () {
+            return $db.insert({ "name": "testWithDefault" }, "users").then(res => {
                 assert(res.propWithDefault, "defaultValue");
             });
         });
-        it("should keep passed prop's values if they exists", function(){
-            return  $db.insert({ "name": "testWithDefault", "propWithDefault": "anotherValue"}, "users").then(res => {
+        it("should keep passed prop's values if they exists", function () {
+            return $db.insert({ "name": "testWithDefault", "propWithDefault": "anotherValue" }, "users").then(res => {
                 assert(res.propWithDefault, "anotherValue");
             });
         });
