@@ -281,7 +281,7 @@ module.exports = {
     },
     "allowedStore": {
         "access": [
-            { "role": "test", "permissions": "crud" },
+            { "role": "test", "permissions": "vcrud" },
         ],
         "props": require("./defaultConfig").mergeProps({
             "_id": {},
