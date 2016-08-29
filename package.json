@@ -32,6 +32,7 @@
     "exceljs": "^0.2.9",
     "handlebars": "^4.0.5",
     "jszip": "^3.0.0",
+    "lodash.clonedeep": "^4.5.0",
     "minimist": "latest",
     "moment": "^2.13.0",
     "mongodb": "^2.1.18",
@@ -42,8 +43,8 @@
     "sift": "^3.2.1",
     "unstream": "^2.0.0",
     "winston": "^2.2.0",
-    "ws": "latest",
-    "winston-graylog2": "latest"
+    "winston-graylog2": "latest",
+    "ws": "latest"
   },
   "devDependencies": {
     "mocha": "latest",
