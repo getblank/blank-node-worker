@@ -1,7 +1,7 @@
 module.exports = {
     "users": {
         "access": [
-            { "role": "root", "permissions": "crud" },
+            { "role": "root", "permissions": "vcrudx" },
         ],
         "display": "list",
         "navOrder": 0,
@@ -161,10 +161,10 @@ module.exports = {
     },
     "forEachTestStore": {
         "access": [
-            { "role": "root", "permissions": "crud" },
+            { "role": "root", "permissions": "vcrudx" },
             {
                 "role": "anyUser",
-                "permissions": "crud",
+                "permissions": "vcrudx",
                 "condition": {
                     "_ownerId": {
                         "$expression": "$user._id",
@@ -225,7 +225,7 @@ module.exports = {
     },
     "deniedStore3": {
         "access": [
-            { "role": "noTest", "permissions": "crud" },
+            { "role": "noTest", "permissions": "vcrudx" },
         ],
     },
     "partialTestsStore": {
@@ -281,7 +281,7 @@ module.exports = {
     },
     "allowedStore": {
         "access": [
-            { "role": "test", "permissions": "vcrud" },
+            { "role": "test", "permissions": "vcrudx" },
         ],
         "props": require("./defaultConfig").mergeProps({
             "_id": {},
@@ -289,16 +289,16 @@ module.exports = {
             "labelTextProp": {},
             "labelIconProp": {},
             "propWithEmptyAccess": {},
-            "allowedProp": { "access": [{ "role": "test", "permissions": "crud" }] },
+            "allowedProp": { "access": [{ "role": "test", "permissions": "vcrudx" }] },
             "deniedProp1": { "access": [{ "role": "test", "permissions": "-r" }] },
             "deniedProp2": { "access": [{ "role": "noTest", "permissions": "r" }] },
         }),
         "actions": [
-            { "_id": "allowedAction", "access": [{ "role": "test", "permissions": "crud" }] },
+            { "_id": "allowedAction", "access": [{ "role": "test", "permissions": "vcrudx" }] },
             { "_id": "deniedAction", "access": [{ "role": "test", "permissions": "-r" }] },
         ],
         "storeActions": [
-            { "_id": "allowedAction", "access": [{ "role": "test", "permissions": "crud" }] },
+            { "_id": "allowedAction", "access": [{ "role": "test", "permissions": "vcrudx" }] },
             { "_id": "deniedAction", "access": [{ "role": "test", "permissions": "-r" }] },
         ],
         "labels": [
@@ -523,8 +523,8 @@ module.exports = {
     "_commonSettings": {
         "type": "map",
         "access": [
-            { "role": "all", "permissions": "crud" },
-            { "role": "guest", "permissions": "crud" },
+            { "role": "all", "permissions": "vcrudx" },
+            { "role": "guest", "permissions": "vcrudx" },
         ],
         "entries": {
             "title": "Default title",

@@ -82,8 +82,8 @@ describe("configStore", function () {
         it("should calculate groupAccess and ownerAccess property", function () {
             let c = configStore.getConfig(testUser),
                 storeDesc = c.allowedStore;
-            assert.equal(storeDesc.groupAccess, "vcrud");
-            assert.equal(storeDesc.ownerAccess, "vcrud");
+            assert.equal(storeDesc.groupAccess, "vcrudx");
+            assert.equal(storeDesc.ownerAccess, "vcrudx");
         });
     });
     describe("#getProps", function () {
