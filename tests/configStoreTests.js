@@ -15,11 +15,15 @@ let testUser = {
 
 describe("configStore", function () {
     describe("#getConfig", function () {
-        it("should return only _commonSettings for guest user", function () {
+        it("should return only allowed stores for guest user", function () {
             let c = configStore.getConfig({ "_id": "guest", "roles": ["guest"] });
             let stores = Object.keys(c);
-            assert.equal(stores.length, 1);
-            assert.equal(stores[0], "_commonSettings");
+            for (let i = 0; i < stores.length; i++) {
+                assert(stores[i] !== "users", true);
+                assert(stores[i] !== "forEachTestStore", true);
+                assert(stores[i] !== "deniedStore1", true);
+                assert(stores[i] !== "deniedStore2", true);
+            }
         });
         it("should not return _serverSettings store when user provided", function () {
             let c = configStore.getConfig(testUser);
