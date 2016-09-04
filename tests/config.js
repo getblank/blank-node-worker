@@ -85,6 +85,10 @@ module.exports = {
                 "type": "string",
                 "default": "defaultValue",
             },
+            "propWithDefaultExpression": {
+                "type": "int",
+                "default": {"$expression": "return 42"},
+            },
         }),
         "actions": [
             {
