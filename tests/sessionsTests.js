@@ -11,7 +11,7 @@ describe("Sessions", function () {
             connections: [],
             lastRequest: new Date().toISOString(),
         };
-        sessions.update(session);
+        sessions._updated(session);
         assert.equal(Object.keys(sessions.sessions).length, 1);
     });
     it("should return stored session by provided apiKey", function () {
@@ -21,7 +21,7 @@ describe("Sessions", function () {
             connections: [],
             lastRequest: new Date().toISOString(),
         };
-        sessions.update(session);
+        sessions._updated(session);
         let returnedSession = sessions.get(session.apiKey);
         assert.equal(session.apiKey, returnedSession.apiKey);
     });
@@ -32,8 +32,8 @@ describe("Sessions", function () {
             connections: [],
             lastRequest: new Date().toISOString(),
         };
-        sessions.update(session);
-        sessions.delete(session);
+        sessions._updated(session);
+        sessions._deleted(session);
         assert.equal(sessions.get(session.apiKey), undefined);
     });
     it("should return connections on provided topic", function () {
@@ -46,7 +46,7 @@ describe("Sessions", function () {
             ],
             lastRequest: new Date().toISOString(),
         };
-        sessions.update(session);
+        sessions._updated(session);
         session = {
             apiKey: 5,
             userId: 6,
@@ -56,7 +56,7 @@ describe("Sessions", function () {
             ],
             lastRequest: new Date().toISOString(),
         };
-        sessions.update(session);
+        sessions._updated(session);
         let subscribers = sessions.getSubscribers("config");
         assert.notEqual(subscribers, null, "returned null");
         assert.equal(subscribers.length, 2, "subscribers length mismatched");
