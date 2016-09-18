@@ -31,26 +31,26 @@ userScript.setup({
 configStore.setup(testConfig);
 
 let dbMock = {
-    "get": function (query, store, options = {}, cb) {
+    "get": function (store, query, options = {}, cb) {
         cb = cb || options;
         setTimeout(function () {
             cb(null, { "_id": (typeof query === "object" ? query._id : query) });
         });
     },
-    "set": function (item, store, options = {}, cb) {
+    "set": function (store, item, options = {}, cb) {
         cb = cb || options;
         setTimeout(function () {
             cb(null, Object.assign({ "_id": item.id }, item.item));
         });
     },
-    "delete": function (id, store, cb) {
+    "delete": function (store, id, cb) {
         setTimeout(function () {
             cb(null, null);
         });
     },
 };
 let dbGetMock = {
-    "get": function (id, store, options, cb) {
+    "get": function (store, id, options, cb) {
         cb = cb || options;
         setTimeout(function () {
             if (!id || id === "UNKNOWN") {
@@ -71,7 +71,7 @@ let storeName = "users",
 describe("taskHandler/authentication", function () {
     before(function () {
         authentication.test.setDb({
-            "get": function (query, store, options, cb) {
+            "get": function (store, query, options, cb) {
                 cb = cb || options;
                 setTimeout(function () {
                     if (query.$or[0].login !== "1") {
@@ -125,11 +125,8 @@ describe("taskHandler/authentication", function () {
 });
 
 describe("taskHandler/signup", function () {
-    let rootId;
     before(function () {
-        return db.insert({"email": "r@r.r", "login": "root", "password": "1"}, "users").then(res => {
-            rootId = res._id;
-        });
+        return db.insert("users", {"email": "r@r.r", "login": "root", "password": "1"});
     });
     it("should callback 'user exists' error if user with the same login already exists", function (done) {
         signup.run(storeName, user, { "email": "root", "password": "42" }, function (e, d) {
@@ -146,7 +143,7 @@ describe("taskHandler/signup", function () {
     it("should callback with no error if this is a new user", function (done) {
         signup.run(storeName, user, { "email": "q@q.q", "password": "q" }, function (e, d) {
             assert.equal(e, null);
-            db.get({email: "q@q.q"}, "users", (err, user) => {
+            db.get("users", {email: "q@q.q"}, (err, user) => {
                 assert.equal(err, null);
                 assert.equal(user.email, "q@q.q");
                 done();
@@ -340,7 +337,7 @@ describe("taskHandlers/db", function () {
         });
         it("should modify query when store.display is 'single'", function (done) {
             dbGet.test.setDb({
-                "get": function (query, store) {
+                "get": function (store, query) {
                     assert.deepEqual(query, {
                         "_ownerId": user._id,
                     });
@@ -391,11 +388,11 @@ describe("taskHandlers/db", function () {
         });
         it("should find and replace '_id' when store.display is 'single'", function (done) {
             dbSet.test.setDb({
-                "get": function (query, store, cb) {
+                "get": function (store, query, cb) {
                     assert.deepEqual(query, { "_ownerId": user._id });
                     cb(null, { "_id": "1234" });
                 },
-                "set": function (item, store, options = {}, cb = () => { }) {
+                "set": function (store, item, options = {}, cb = () => { }) {
                     assert.equal(item._id, "1234");
                     done();
                 },
@@ -405,10 +402,10 @@ describe("taskHandlers/db", function () {
         it("should create new '_id' when store.display is 'single'", function (done) {
             dbSet.test.setDb({
                 "newId": () => "42",
-                "get": function (query, store, cb) {
+                "get": function (store, query, cb) {
                     cb(new Error(dbErrors.itemNotFound), null);
                 },
-                "set": function (item, store, options = {}, cb = () => { }) {
+                "set": function (store, item, options = {}, cb = () => { }) {
                     assert.equal(item._id, "42");
                     done();
                 },
