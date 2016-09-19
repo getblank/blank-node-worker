@@ -297,4 +297,56 @@ describe("configStore", function () {
             assert.equal(proxies.indexOf("proxyStore2") >= 0, true);
         });
     });
+    describe("#__computeQuery", function () {
+        it("should compute $expression to function in query", function () {
+            let query = {
+                _id: {
+                    $expression: "$item._id",
+                },
+                _ownerId: {
+                    $expression: "$user._id",
+                },
+            };
+            let res = configStore.__computeQuery(query);
+            assert.equal(typeof res._id, "function");
+            assert.equal(typeof res._ownerId, "function");
+        });
+    });
+    describe("#__execQuery", function () {
+        it("should return prepared query", function () {
+            let query = {
+                _id: {
+                    $expression: "$item._id",
+                },
+                _ownerId: {
+                    $expression: "$user._id",
+                },
+            };
+            let item = { _id: "itemId" };
+            let user = { _id: "userId" };
+            query = configStore.__computeQuery(query);
+            let res = configStore.__execQuery(query, item, user);
+            assert.equal(res._id, "itemId");
+            assert.equal(res._ownerId, "userId");
+        });
+    });
+    describe("#__prepareQuery", function () {
+        it("should return query function that returns prepared query", function () {
+            let query = {
+                _id: {
+                    $expression: "$item._id",
+                },
+                _ownerId: {
+                    $expression: "$user._id",
+                },
+            };
+            let item = { _id: "itemId" };
+            let user = { _id: "userId" };
+            query = configStore.__prepareQuery(query);
+            assert.equal(typeof query, "function");
+            let res = query(item, user);
+            assert.equal(res._id, "itemId");
+            assert.equal(res._ownerId, "userId");
+        });
+    });
 });
