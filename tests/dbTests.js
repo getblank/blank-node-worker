@@ -464,6 +464,17 @@ describe("$db", function () {
                 });
             });
         });
+        it("should populate user with map function correctly and execute callback", function (done) {
+            let item = { userId: "AAAAAAAA-0000-0000-0000-000000000004" };
+            $db.getUser("system", (err, user) => {
+                $db.populateAll("storeForPopulatingMap", item, user, (err, res) => {
+                    assert.equal(err, null);
+                    assert.ok(res.userTestProp);
+                    assert.equal(res.userTestProp, "44");
+                    done();
+                });
+            });
+        });
     });
     describe("#delete", function () {
         it("should mark item as deleted and move to ${storeName}_deleted bucket", function (done) {

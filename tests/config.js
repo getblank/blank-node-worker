@@ -327,6 +327,19 @@ module.exports = {
             },
         }),
     },
+    "storeForPopulatingMap": {
+        "props": require("./defaultConfig").mergeProps({
+            "userId": {
+                "type": "ref",
+                "display": "none",
+                "store": "users",
+                "populateIn": {
+                    "prop": "userTestProp",
+                    "map": "return $item.testProp",
+                },
+            },
+        }),
+    },
     "singleStore": {
         "type": "single",
         "headerProperty": "testProp",
