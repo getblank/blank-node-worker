@@ -350,6 +350,16 @@ describe("$db", function () {
                 assert.ok(err != null);
             });
         });
+        it("should remove properties in db when it's values equals null", function () {
+            return $db.set("users", { _id: "22222", name: "22222", email: "login@domain.com" })
+                .then(res => {
+                    assert.equal(res.email, "login@domain.com");
+                    return $db.set("users", { _id: "22222", email: null }, { debug: true });
+                })
+                .then(res => {
+                    assert.equal(res.email, null);
+                });
+        });
     });
     describe("#insert", function () {
         it("should return item with generated '_id'", function (done) {
