@@ -1,9 +1,9 @@
 let queue = {}, locks = {};
 
-let checkWaters = function () {
+let checkWaiters = function () {
     for (let lockId of Object.keys(queue)) {
         let lockCallbacks = queue[lockId];
-        if (!locks[lockId]) {
+        if (!locks[lockId] && lockCallbacks.length > 0) {
             locks[lockId] = true;
             let cb = lockCallbacks.shift();
             cb();
@@ -19,12 +19,12 @@ module.exports.lock = function (id, cb) {
         queue[id] = [];
     }
     queue[id].push(cb);
-    setTimeout(checkWaters);
+    setTimeout(checkWaiters);
 };
 
 module.exports.unlock = function (id, cb) {
     delete locks[id];
-    checkWaters();
+    checkWaiters();
     if (typeof cb === "function") {
         setTimeout(() => {
             cb();
