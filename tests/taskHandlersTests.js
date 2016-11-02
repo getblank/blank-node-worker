@@ -21,6 +21,7 @@ var dbErrors = require("../lib/const").dbErrors;
 let userScript = require("../lib/userScript");
 var localStorage = require("../lib/localStorage");
 let sync = require("../lib/sync");
+var syncMock = require("./syncMock");
 userScript.setup({
     "mutex": sync,
     "sync": sync,
@@ -126,7 +127,7 @@ describe("taskHandler/authentication", function () {
 
 describe("taskHandler/signup", function () {
     before(function () {
-        return db.insert("users", {"email": "r@r.r", "login": "root", "password": "1"});
+        return db.insert("users", { "email": "r@r.r", "login": "root", "password": "1" });
     });
     it("should callback 'user exists' error if user with the same login already exists", function (done) {
         signup.run(storeName, user, { "email": "root", "password": "42" }, function (e, d) {
@@ -143,7 +144,7 @@ describe("taskHandler/signup", function () {
     it("should callback with no error if this is a new user", function (done) {
         signup.run(storeName, user, { "email": "q@q.q", "password": "q" }, function (e, d) {
             assert.equal(e, null);
-            db.get("users", {email: "q@q.q"}, (err, user) => {
+            db.get("users", { email: "q@q.q" }, (err, user) => {
                 assert.equal(err, null);
                 assert.equal(user.email, "q@q.q");
                 done();
@@ -212,6 +213,29 @@ describe("taskHandler/action", function () {
         action.run(storeName, user, { "actionId": "availability_test", "itemId": "0" }, (e, d) => {
             assert.equal(e, null);
             assert.equal(d, "ok");
+            done();
+        });
+    });
+    it("should limit concurrent running actions when concurentCallsLimit === 1", function (done) {
+        let now = Date.now();
+        sync.setup({
+            "call": (m, cb, id) => {
+                switch (m) {
+                    case "sync.lock":
+                        syncMock.lock(id, cb);
+                        break;
+                    case "sync.unlock":
+                        syncMock.unlock(id, cb);
+                        break;
+                }
+            },
+        });
+        action.run(storeName, user, { "actionId": "concurrent_test", "itemId": "0" }, (e, d) => {
+            assert.equal(e, null);
+        });
+        action.run(storeName, user, { "actionId": "concurrent_test", "itemId": "0" }, (e, d) => {
+            assert.equal(e, null);
+            assert.ok((Date.now() - now) >= 1000);
             done();
         });
     });

@@ -87,7 +87,7 @@ module.exports = {
             },
             "propWithDefaultExpression": {
                 "type": "int",
-                "default": {"$expression": "return 42"},
+                "default": { "$expression": "return 42" },
             },
         }),
         "actions": [
@@ -118,6 +118,11 @@ module.exports = {
             {
                 "_id": "availability_test",
                 "script": "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {return 'ok';} else {return 'fail';}",
+            },
+            {
+                "_id": "concurrent_test",
+                "concurentCallsLimit": 1,
+                "script": "return new Promise(resolve => {setTimeout(() => resolve(Date.now()), 500)})",
             },
             {
                 "_id": "promise_test",
