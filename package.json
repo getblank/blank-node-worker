@@ -45,6 +45,7 @@
     "unstream": "^2.0.0",
     "winston": "^2.2.0",
     "winston-graylog2": "latest",
+    "winston-logzio": "^1.0.1",
     "ws": "latest"
   },
   "devDependencies": {
