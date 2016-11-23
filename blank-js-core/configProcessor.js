@@ -1,6 +1,6 @@
 import {storeTypes, storeDisplayTypes} from 'constants';
 import template from 'template';
-import uuid from 'node-uuid';
+import uuid from 'uuid';
 
 export default class configProcessor {
     static getBaseItem(storeDesc, currentI18n, currentUser, item) {
