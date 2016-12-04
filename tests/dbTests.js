@@ -124,6 +124,13 @@ describe("$db", function () {
                 done();
             });
         });
+        it("should callback without error when not found and options.returnNull is true", function (done) {
+            $db.get("users", "UNKNOWN_ID", { returnNull: true }, (e, d) => {
+                assert.equal(e, null);
+                assert.equal(d, null);
+                done();
+            });
+        });
         it("should return item if it exists", function (done) {
             $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000", (e, d) => {
                 assert.equal(e, null);
