@@ -473,3 +473,5 @@ describe("taskHandler/userConfig", function () {
         });
     });
 });
+
+// TODO: add DbLoadRefs tests
