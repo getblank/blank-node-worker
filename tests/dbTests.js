@@ -336,19 +336,19 @@ describe("$db", function () {
             });
             assert.ok(mayBePromise instanceof Promise);
         });
-        it("should sync concurrent operations", function (done) {
+        it("should sync concurrent operations", function () {
             let _id = "newId", promises = [];
             for (let i = 0; i < 50; i++) {
                 promises.push($db.set("users", { "_id": _id, intProp: i }));
             }
-            Promise.all(promises).then(() => {
-                $db.get("users", _id, (err, res) => {
-                    assert.equal(err, null);
-                    assert.equal(res.__v, 50);
-                    assert.ok(res.intProp >= 0);
-                    assert.ok(res.intProp < 50);
-                    done();
-                });
+            return Promise.all(promises).then(() => {
+                return $db.get("users", _id);
+            }).then(res => {
+                assert.equal(res.__v, 50);
+                assert.ok(res.intProp >= 0);
+                assert.ok(res.intProp < 50);
+            }).catch(err => {
+                assert.equal(err, null);
             });
         });
         it("should return error when new document saved with upsert = false option", function () {
@@ -366,6 +366,39 @@ describe("$db", function () {
                 .then(res => {
                     assert.equal(res.email, null);
                 });
+        });
+        it("should log changes if logging options enabled in storeDesc", function () {
+            const storeName = "storeWithLogging";
+            let _id, updatedAt, updatedBy;
+            const originalItem = { loggedProp: "initial value" };
+            return $db.insert(storeName, originalItem).then(res => {
+                _id = res._id;
+                const updatedItem = { _id, loggedProp: "updated value" };
+
+                return $db.set(storeName, updatedItem);
+            }).then(res => {
+                updatedAt = res.updatedAt;
+                updatedBy = res.updatedBy;
+
+                return db.get(`${storeName}_log`, { itemId: _id });
+            }).then(res => {
+                assert.equal(res.createdAt.getTime(), updatedAt.getTime());
+                assert.equal(res.createdBy, updatedBy);
+                assert.equal(res.ver, 2);
+                assert.equal(res.prevVer, 1);
+
+                return $db.set(storeName, { _id, loggedProp: "last value" });
+            }).then(res => {
+                assert.equal(res.loggedProp, "last value");
+
+                return $db.get(storeName, { _id, __v: 1 });
+            }).then(res => {
+                assert.equal(res.loggedProp, originalItem.loggedProp);
+
+                return $db.get(storeName, { _id, __v: 2 });
+            }).then(res => {
+                assert.equal(res.loggedProp, "updated value");
+            });
         });
     });
     describe("#insert", function () {
@@ -616,5 +649,7 @@ describe("$db", function () {
         db._dropCollection("users_deleted");
         db._dropCollection("forEachTestStore");
         db._dropCollection("partialTestsNotificationStore");
+        db._dropCollection("storeWithLogging");
+        db._dropCollection("storeWithLogging_log");
     });
 });

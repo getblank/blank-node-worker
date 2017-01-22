@@ -484,6 +484,15 @@ module.exports = {
             },
         }),
     },
+    "storeWithLogging": {
+        "logging": true,
+        "props": require("./defaultConfig").mergeProps({
+            loggedProp: {
+                type: "string",
+                display: "none",
+            },
+        }),
+    },
     "storeWithHttpHook": {
         "display": "list",
         "navOrder": 0,
