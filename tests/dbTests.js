@@ -190,7 +190,7 @@ describe("$db", function () {
                 done();
             });
         });
-        it("should sort matched documents correctly", function (done) {
+        it("should sort matched documents correctly with string orderBy", function (done) {
             $db.find("users", {
                 query: {
                     "testProp": {
@@ -198,6 +198,22 @@ describe("$db", function () {
                     },
                 },
                 orderBy: "-testProp",
+            }, (e, res) => {
+                assert.equal(e, null);
+                assert.notEqual(res, null);
+                assert.notEqual(res.items, null);
+                assert.equal(res.items[0].testProp, "44");
+                done();
+            });
+        });
+        it("should sort matched documents correctly with object orderBy", function (done) {
+            $db.find("users", {
+                query: {
+                    "testProp": {
+                        "$in": ["40", "44"],
+                    },
+                },
+                orderBy: { testProp: -1 },
             }, (e, res) => {
                 assert.equal(e, null);
                 assert.notEqual(res, null);
