@@ -511,6 +511,14 @@ describe("$db", function () {
             assert.deepEqual(prevItem.prop3, [2]);
             assert.deepEqual(prevItem.newProp, [1, 2]);
         });
+        it("should push all values from provided array to array property", function () {
+            let prevItem = { prop1: "prop1", prop2: "prop2", newProp: [1] };
+            let item = { prop3: { $push: [2, 6] }, newProp: { $push: [2, 3, 4] } };
+            let err = db._mergeItems(prevItem, item);
+            assert.equal(err, null);
+            assert.deepEqual(prevItem.prop3, [2, 6]);
+            assert.deepEqual(prevItem.newProp, [1, 2, 3, 4]);
+        });
         it("should return error when pushed property value was not an array", function () {
             let prevItem = { prop1: "prop1", prop2: "prop2", newProp: 2 };
             let item = { prop2: { $push: 2 } };
