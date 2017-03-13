@@ -7,6 +7,7 @@
         "eslint:recommended",
         "plugin:react/recommended"
     ],
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
@@ -21,7 +22,9 @@
         "indent": [
             "error",
             4,
-            {"SwitchCase": 1}
+            {
+                "SwitchCase": 1
+            }
         ],
         "linebreak-style": [
             "error",
@@ -54,9 +57,14 @@
             "error",
             "always-multiline"
         ],
-        "no-unused-vars": ["error", { "vars": "all", "args": "none" }],
+        "no-unused-vars": [
+            "error",
+            {
+                "vars": "all",
+                "args": "none"
+            }
+        ],
         "callback-return": "error"
     },
-    "globals": {
-    }
+    "globals": {}
 }
