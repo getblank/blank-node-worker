@@ -1,0 +1,41 @@
+syntax = "proto3";
+package proxy;
+
+service Proxy {
+  rpc Ping (PingRequest) returns (PingResponse) {}
+  rpc AmiStream (Event) returns (stream Event) {}
+  rpc Action (Event) returns (Event) {}
+  rpc QueueStatus(SimpleRequest) returns (QueueStat) {}
+}
+
+message Event {
+  map<string, string> data = 1;
+}
+
+message SimpleRequest {
+  string data = 1;
+}
+
+message QueueStat {
+  string name = 1;
+  int64 loggedIn = 2;
+  int64 online = 3;
+  int64 free = 4;
+  int64 paused = 5;
+  int64 callers = 6;
+}
+
+message PingRequest {
+  uint64 num = 1;
+}
+
+message PingResponse {
+  uint64 num = 1;
+}
+
+message File {
+  string name = 1;
+  string path = 2;
+  bytes content = 10;
+  string error = 11;
+}
