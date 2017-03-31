@@ -493,6 +493,22 @@ module.exports = {
             },
         }),
     },
+    storeWithCustomStringId: {
+        props: Object.assign({}, require("./defaultConfig").props, {
+            _id: {
+                type: "string",
+                load: "return $db.nextSequenceString(\"storeWithCustomStringId\", 1)",
+            },
+        }),
+    },
+    storeWithCustomIntId: {
+        props: Object.assign({}, require("./defaultConfig").props, {
+            _id: {
+                type: "int",
+                load: "return $db.nextSequence(\"storeWithCustomIntId\")",
+            },
+        }),
+    },
     storeWithHttpHook: {
         display: "list",
         navOrder: 0,

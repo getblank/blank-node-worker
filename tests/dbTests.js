@@ -10,7 +10,7 @@ var sync = require("../lib/sync");
 var syncMock = require("./syncMock");
 require("../lib/promiseSeries");
 sync.setup({
-    "call": (m, cb, id) => {
+    call: (m, cb, id) => {
         switch (m) {
             case "sync.lock":
                 syncMock.lock(id, cb);
@@ -37,27 +37,33 @@ describe("$db", function () {
                     return db._dropCollection("partialTestsNotificationStore");
                 })
                 .then(() => {
+                    return db._dropCollection("storeWithCustomStringId");
+                })
+                .then(() => {
+                    return db._dropCollection("storeWithCustomIntId");
+                })
+                .then(() => {
                     return db._insertMany(
                         "users",
                         [
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000000", "testProp": "40", "name": "testName" },
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000001", "testProp": "41", "name": "testName" },
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000002", "testProp": "42", "name": "testName" },
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000003", "testProp": "43", "name": "name" },
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000004", "testProp": "44" },
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000042", "testProp": "toDelete" },
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000043", "testProp": "toDelete2" },
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000044", "testProp": "toDelete3" },
-                            { "_id": "AAAAAAAA-0000-0000-0000-000000000046", "testProp": "toDelete4" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000000", testProp: "40", name: "testName" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000001", testProp: "41", name: "testName" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000002", testProp: "42", name: "testName" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000003", testProp: "43", name: "name" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000004", testProp: "44" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000042", testProp: "toDelete" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000043", testProp: "toDelete2" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000044", testProp: "toDelete3" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000046", testProp: "toDelete4" },
                             {
-                                "_id": "AAAAAAAA-0000-0000-0000-000000000045",
-                                "testProp": "toLoadVirtual",
-                                "objectOfVirtuals": {
-                                    "nestedProp": "NESTED_PROP",
+                                _id: "AAAAAAAA-0000-0000-0000-000000000045",
+                                testProp: "toLoadVirtual",
+                                objectOfVirtuals: {
+                                    nestedProp: "NESTED_PROP",
                                 },
-                                "objectListOfVirtuals": [
-                                    { "nestedProp": "NESTED_LIST_PROP1" },
-                                    { "nestedProp": "NESTED_LIST_PROP2" },
+                                objectListOfVirtuals: [
+                                    { nestedProp: "NESTED_LIST_PROP1" },
+                                    { nestedProp: "NESTED_LIST_PROP2" },
                                 ],
                             },
                         ],
@@ -160,8 +166,8 @@ describe("$db", function () {
         it("should return matched documents", function (done) {
             $db.find("users", {
                 query: {
-                    "testProp": {
-                        "$in": ["40", "44"],
+                    testProp: {
+                        $in: ["40", "44"],
                     },
                 },
             }, (e, res) => {
@@ -176,8 +182,8 @@ describe("$db", function () {
         it("should count matched documents", function (done) {
             $db.find("users", {
                 query: {
-                    "testProp": {
-                        "$in": ["40", "44"],
+                    testProp: {
+                        $in: ["40", "44"],
                     },
                 },
                 take: 1,
@@ -193,8 +199,8 @@ describe("$db", function () {
         it("should sort matched documents correctly with string orderBy", function (done) {
             $db.find("users", {
                 query: {
-                    "testProp": {
-                        "$in": ["40", "44"],
+                    testProp: {
+                        $in: ["40", "44"],
                     },
                 },
                 orderBy: "-testProp",
@@ -209,8 +215,8 @@ describe("$db", function () {
         it("should sort matched documents correctly with object orderBy", function (done) {
             $db.find("users", {
                 query: {
-                    "testProp": {
-                        "$in": ["40", "44"],
+                    testProp: {
+                        $in: ["40", "44"],
                     },
                 },
                 orderBy: { testProp: -1 },
@@ -225,8 +231,8 @@ describe("$db", function () {
         it("should skip matched documents correctly", function (done) {
             $db.find("users", {
                 query: {
-                    "testProp": {
-                        "$in": ["40", "41", "42", "43", "44"],
+                    testProp: {
+                        $in: ["40", "41", "42", "43", "44"],
                     },
                 },
                 orderBy: "-_id",
@@ -274,7 +280,7 @@ describe("$db", function () {
             });
         });
         it("should return a Promise", function (done) {
-            let mayBePromise = $db.find("users", { query: { "testProp": { "$in": ["40", "44"] } } }).then((res) => {
+            let mayBePromise = $db.find("users", { query: { testProp: { $in: ["40", "44"] } } }).then((res) => {
                 assert.ok(res != null);
                 done();
             });
@@ -286,9 +292,9 @@ describe("$db", function () {
             db._insertMany(
                 "forEachTestStore",
                 [
-                    { "_id": "1", "name": "testName1" },
-                    { "_id": "2", "name": "testName2", "_ownerId": "user" },
-                    { "_id": "3", "name": "testName3", "_ownerId": "user" },
+                    { _id: "1", name: "testName1" },
+                    { _id: "2", name: "testName2", _ownerId: "user" },
+                    { _id: "3", name: "testName3", _ownerId: "user" },
                 ],
                 done);
         });
@@ -304,7 +310,7 @@ describe("$db", function () {
         });
         it("should iterate over only items matched query", function (done) {
             let id = 0;
-            $db.forEach("forEachTestStore", { "name": "testName2" }, (item) => {
+            $db.forEach("forEachTestStore", { name: "testName2" }, (item) => {
                 assert.equal("2", item._id);
                 id++;
             }, () => {
@@ -314,7 +320,7 @@ describe("$db", function () {
         });
         it("should iterate over only items user has access to", function (done) {
             let id = 1;
-            $db.forEach("forEachTestStore", {}, { "user": { _id: "user", roles: ["anyUser"] } }, (item) => {
+            $db.forEach("forEachTestStore", {}, { user: { _id: "user", roles: ["anyUser"] } }, (item) => {
                 console.debug(item);
                 id++;
                 assert.equal(id, item._id);
@@ -325,7 +331,7 @@ describe("$db", function () {
         });
         it("should iterate over only items user has access to and only items matched query", function (done) {
             let id = 0;
-            $db.forEach("forEachTestStore", { "$or": [{ "name": "testName2" }, { "name": "testName1" }] }, { "user": { _id: "user", roles: ["anyUser"] } }, (item) => {
+            $db.forEach("forEachTestStore", { $or: [{ name: "testName2" }, { name: "testName1" }] }, { user: { _id: "user", roles: ["anyUser"] } }, (item) => {
                 assert.equal("2", item._id);
                 id++;
             }, () => {
@@ -345,7 +351,7 @@ describe("$db", function () {
     });
     describe("#set", function () {
         it("should return a Promise", function (done) {
-            let mayBePromise = $db.set("anyStore", { "name": "test" }).then((res) => {
+            let mayBePromise = $db.set("anyStore", { name: "test" }).then((res) => {
             }, (err) => {
                 assert.ok(err != null);
                 done();
@@ -355,7 +361,7 @@ describe("$db", function () {
         it("should sync concurrent operations", function () {
             let _id = "newId", promises = [];
             for (let i = 0; i < 50; i++) {
-                promises.push($db.set("users", { "_id": _id, intProp: i }));
+                promises.push($db.set("users", { _id: _id, intProp: i }));
             }
             return Promise.all(promises).then(() => {
                 return $db.get("users", _id);
@@ -368,7 +374,7 @@ describe("$db", function () {
             });
         });
         it("should return error when new document saved with upsert = false option", function () {
-            return $db.set("users", { "_id": "1111", "name": "NAME" }, { upsert: false }).then(res => {
+            return $db.set("users", { _id: "1111", name: "NAME" }, { upsert: false }).then(res => {
             }, err => {
                 assert.ok(err != null);
             });
@@ -419,14 +425,14 @@ describe("$db", function () {
     });
     describe("#insert", function () {
         it("should return item with generated '_id'", function (done) {
-            $db.insert("users", { "name": "test" }, function (err, item) {
+            $db.insert("users", { name: "test" }, function (err, item) {
                 assert.equal(err, null, "returned error");
                 assert.ok(item._id, "no '_id' in item");
                 done();
             });
         });
         it("should return created item from db", function (done) {
-            $db.insert("users", { "name": "test" }, function (err, item) {
+            $db.insert("users", { name: "test" }, function (err, item) {
                 assert.equal(err, null);
                 assert.ok(item._id, "no '_id' in item");
                 $db.get("users", item._id, (err, $item) => {
@@ -437,7 +443,7 @@ describe("$db", function () {
             });
         });
         it("should add correct _ownerId, createdBy and createdAt", function (done) {
-            $db.insert("users", { "name": "test" }, function (err, item) {
+            $db.insert("users", { name: "test" }, function (err, item) {
                 assert.equal(err, null, "returned error");
                 assert.equal(item._ownerId, "system");
                 assert.ok(item.createdBy);
@@ -446,21 +452,21 @@ describe("$db", function () {
             });
         });
         it("should return modified item when willCreate called", function (done) {
-            $db.insert("users", { "name": "test", "testProp": "notError" }, function (err, item) {
+            $db.insert("users", { name: "test", testProp: "notError" }, function (err, item) {
                 assert.equal(err, null);
                 assert.equal(item.testProp, "42");
                 done();
             });
         });
         it("should return error when willCreate returns error", function (done) {
-            $db.insert("users", { "name": "test", "testProp": "Error" }, function (err, item) {
+            $db.insert("users", { name: "test", testProp: "Error" }, function (err, item) {
                 assert.notEqual(err, null);
                 assert.equal(err.message, "Error");
                 done();
             });
         });
         it("should return a Promise", function (done) {
-            let mayBePromise = $db.insert("anyStore", { "name": "test" }).then((res) => {
+            const mayBePromise = $db.insert("anyStore", { name: "test" }).then((res) => {
             }, (err) => {
                 assert.ok(err != null);
                 done();
@@ -468,13 +474,13 @@ describe("$db", function () {
             assert.ok(mayBePromise instanceof Promise);
         });
         it("should fill default prop's values if they is not exists", function () {
-            return $db.insert("users", { "name": "testWithDefault" }).then(res => {
+            return $db.insert("users", { name: "testWithDefault" }).then(res => {
                 assert(res.propWithDefault, "defaultValue");
                 assert(res.propWithDefaultExpression, 42);
             });
         });
         it("should keep passed prop's values if they exists", function () {
-            return $db.insert("users", { "name": "testWithDefault", "propWithDefault": "anotherValue" }).then(res => {
+            return $db.insert("users", { name: "testWithDefault", propWithDefault: "anotherValue" }).then(res => {
                 assert(res.propWithDefault, "anotherValue");
             });
         });
@@ -627,6 +633,35 @@ describe("$db", function () {
                     done();
                 });
             });
+        });
+    });
+    describe("#customId", function () {
+        before(function (done) {
+            db._dropCollection("_sequences", done);
+        });
+        it("should return custom string _id for saving document", function () {
+            return $db.insert("storeWithCustomStringId", { name: "42" })
+                .then(res => {
+                    assert.equal(res.name, "42");
+                    assert.equal(res._id, "1");
+                    return $db.insert("storeWithCustomStringId", { name: "43" });
+                })
+                .then(res => {
+                    assert.equal(res.name, "43");
+                    assert.equal(res._id, "2");
+                });
+        });
+        it("should return custom int _id for saving document", function () {
+            return $db.insert("storeWithCustomIntId", { name: "42" })
+                .then(res => {
+                    assert.equal(res.name, "42");
+                    assert.equal(res._id, 1);
+                    return $db.insert("storeWithCustomIntId", { name: "43" });
+                })
+                .then(res => {
+                    assert.equal(res.name, "43");
+                    assert.equal(res._id, 2);
+                });
         });
     });
     describe("#notify", function () {
