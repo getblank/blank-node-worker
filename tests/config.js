@@ -374,8 +374,11 @@ module.exports = {
             },
         }),
     },
+    otherStore: {
+        props: require("./defaultConfig").mergeProps({}),
+    },
     storeWithSelfRefs: {
-        props: {
+        props: require("./defaultConfig").mergeProps({
             ref1: {
                 type: "ref",
                 store: "storeWithSelfRefs",
@@ -386,7 +389,7 @@ module.exports = {
                 store: "storeWithSelfRefs",
                 oppositeProp: "ref1",
             },
-        },
+        }),
     },
     storeWithTwoAnonimousRefs: {
         props: require("./defaultConfig").mergeProps({

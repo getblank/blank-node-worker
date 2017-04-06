@@ -3,20 +3,20 @@
 var assert = require("assert");
 var testConfig = require("./config");
 var configStore = require("../lib/configStore");
-var {clientStoreDef} = require("../lib/const");
+var { clientStoreDef } = require("../lib/const");
 configStore.setup(testConfig);
 
 let testUser = {
-    "_id": "root",
-    "roles": ["test"],
-    "lang": "it",
-    "workspace": "testWorkspace",
+    _id: "root",
+    roles: ["test"],
+    lang: "it",
+    workspace: "testWorkspace",
 };
 
 describe("configStore", function () {
     describe("#getConfig", function () {
         it("should return only allowed stores for guest user", function () {
-            let c = configStore.getConfig({ "_id": "guest", "roles": ["guest"] });
+            let c = configStore.getConfig({ _id: "guest", roles: ["guest"] });
             let stores = Object.keys(c);
             for (let i = 0; i < stores.length; i++) {
                 assert(stores[i] !== "users", true);
@@ -74,7 +74,7 @@ describe("configStore", function () {
         it("should assign i18n by user lang", function () {
             let c = configStore.getConfig(testUser),
                 i18n = c.allowedStore.i18n;
-            assert.deepEqual(i18n, { "hello": "world" });
+            assert.deepEqual(i18n, { hello: "world" });
         });
         it("should apply user workspace", function () {
             let c = configStore.getConfig(testUser),
@@ -158,7 +158,7 @@ describe("configStore", function () {
     describe("#getLocale", function () {
         it("should return default default locale if it present", function () {
             configStore.setup({
-                "_commonSettings": { "type": "map", "entries": { "defaultLocale": ["fr"] } },
+                _commonSettings: { type: "map", entries: { defaultLocale: ["fr"] } },
             });
             let lang = configStore.getLocale();
             configStore.setup(testConfig);
@@ -166,7 +166,7 @@ describe("configStore", function () {
         });
         it("should return first locale in 'locales' list if no default", function () {
             configStore.setup({
-                "_commonSettings": { "type": "map", "entries": { "locales": ["kz"] } },
+                _commonSettings: { type: "map", entries: { locales: ["kz"] } },
             });
             let lang = configStore.getLocale();
             configStore.setup(testConfig);
@@ -270,9 +270,9 @@ describe("configStore", function () {
             assert.equal(refs.otherStore[1].type, "refList");
             assert.equal(refs.otherStore[1].oppositeProp, "otherProp");
         });
-        it("should not return self store refs", function () {
+        it("should not return self store refs, only users refs", function () {
             let refs = configStore.__groupStoreRefsByStore("storeWithSelfRefs");
-            assert.equal(Object.keys(refs).length, 0);
+            assert.equal(Object.keys(refs).length, 1);
         });
     });
     describe("#getRefPairs", function () {
