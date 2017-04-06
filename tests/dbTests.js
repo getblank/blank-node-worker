@@ -651,6 +651,13 @@ describe("$db", function () {
                     assert.equal(res._id, "2");
                 });
         });
+        it("should return custom string _id for saving document based on document", function () {
+            return $db.insert("storeWithCustomStringIdBasedOnItem", { name: "42" })
+                .then(res => {
+                    assert.equal(res.name, "42");
+                    assert.equal(res._id, "42");
+                });
+        });
         it("should return custom int _id for saving document", function () {
             return $db.insert("storeWithCustomIntId", { name: "42" })
                 .then(res => {

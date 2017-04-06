@@ -504,6 +504,14 @@ module.exports = {
             },
         }),
     },
+    storeWithCustomStringIdBasedOnItem: {
+        props: Object.assign({}, require("./defaultConfig").props, {
+            _id: {
+                type: "string",
+                load: "return Promise.resolve($item.name)",
+            },
+        }),
+    },
     storeWithCustomIntId: {
         props: Object.assign({}, require("./defaultConfig").props, {
             _id: {
