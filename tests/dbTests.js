@@ -162,6 +162,27 @@ describe("$db", function () {
             assert.ok(mayBePromise instanceof Promise);
         });
     });
+    describe("#count", function () {
+        it("should return count of documents in store", function () {
+            let count;
+            const query = {
+                query: {
+                    testProp: {
+                        $in: ["40", "44"],
+                    },
+                },
+            };
+
+            return $db.find("users", query)
+                .then(res => {
+                    count = res.count;
+                    return $db.count("users", query.query);
+                })
+                .then(res => {
+                    assert.equal(res, count);
+                });
+        });
+    });
     describe("#find", function () {
         it("should return matched documents", function (done) {
             $db.find("users", {
