@@ -41,7 +41,7 @@
     "node-fetch": "^1.6.0",
     "nodemailer": "^2.4.2",
     "request": "^2.72.0",
-    "scrypt": "^6.0.3",
+    "js-scrypt": "latest",
     "sift": "^3.2.1",
     "unstream": "^2.0.0",
     "uuid": "^3.0.0",
@@ -49,6 +49,9 @@
     "winston-graylog2": "latest",
     "winston-logzio": "^1.0.1",
     "ws": "latest"
+  },
+  "optionalDependencies": {
+    "scrypt": "^6.0.3"
   },
   "devDependencies": {
     "mocha": "latest",
