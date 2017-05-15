@@ -555,23 +555,27 @@ describe("$db", function () {
     });
     describe("#populateAll", function () {
         it("should populate user prop correctly and execute callback", function (done) {
-            let item = { userId: "AAAAAAAA-0000-0000-0000-000000000004" };
+            let item = { userId: "AAAAAAAA-0000-0000-0000-000000000004", userIds: ["AAAAAAAA-0000-0000-0000-000000000004", "AAAAAAAA-0000-0000-0000-000000000003"] };
             $db.getUser("system", (err, user) => {
                 $db.populateAll("storeForPopulating", item, user, (err, res) => {
                     assert.equal(err, null);
                     assert.ok(res.user);
                     assert.equal(res.user.testProp, "44");
+                    assert.equal(res.userList[0].testProp, "44");
+                    assert.equal(res.userList[1].testProp, "43");
                     done();
                 });
             });
         });
         it("should populate user with map function correctly and execute callback", function (done) {
-            let item = { userId: "AAAAAAAA-0000-0000-0000-000000000004" };
+            let item = { userId: "AAAAAAAA-0000-0000-0000-000000000004", userIds: ["AAAAAAAA-0000-0000-0000-000000000004", "AAAAAAAA-0000-0000-0000-000000000003"] };
             $db.getUser("system", (err, user) => {
                 $db.populateAll("storeForPopulatingMap", item, user, (err, res) => {
                     assert.equal(err, null);
                     assert.ok(res.userTestProp);
                     assert.equal(res.userTestProp, "44");
+                    assert.equal(res.userList[0], "44");
+                    assert.equal(res.userList[1], "43");
                     done();
                 });
             });

@@ -330,6 +330,12 @@ module.exports = {
                 store: "users",
                 populateIn: "user",
             },
+            userIds: {
+                type: "refList",
+                display: "none",
+                store: "users",
+                populateIn: "userList",
+            },
         }),
     },
     storeForPopulatingMap: {
@@ -340,6 +346,15 @@ module.exports = {
                 store: "users",
                 populateIn: {
                     prop: "userTestProp",
+                    map: "return $item.testProp",
+                },
+            },
+            userIds: {
+                type: "refList",
+                display: "none",
+                store: "users",
+                populateIn: {
+                    prop: "userList",
                     map: "return $item.testProp",
                 },
             },
