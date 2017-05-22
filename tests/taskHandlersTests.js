@@ -23,71 +23,71 @@ var localStorage = require("../lib/localStorage");
 let sync = require("../lib/sync");
 var syncMock = require("./syncMock");
 userScript.setup({
-    "mutex": sync,
-    "sync": sync,
-    "localStorage": localStorage,
-    "$db": db,
+    mutex: sync,
+    sync: sync,
+    localStorage: localStorage,
+    $db: db,
 });
 
 configStore.setup(testConfig);
 
 let dbMock = {
-    "get": function (store, query, options = {}, cb) {
+    get: function (store, query, options = {}, cb) {
         cb = cb || options;
         setTimeout(function () {
-            cb(null, { "_id": (typeof query === "object" ? query._id : query) });
+            cb(null, { _id: (typeof query === "object" ? query._id : query) });
         });
     },
-    "set": function (store, item, options = {}, cb) {
+    set: function (store, item, options = {}, cb) {
         cb = cb || options;
         setTimeout(function () {
-            cb(null, Object.assign({ "_id": item.id }, item.item));
+            cb(null, Object.assign({ _id: item.id }, item.item));
         });
     },
-    "delete": function (store, id, cb) {
+    delete: function (store, id, cb) {
         setTimeout(function () {
             cb(null, null);
         });
     },
 };
 let dbGetMock = {
-    "get": function (store, id, options, cb) {
+    get: function (store, id, options, cb) {
         cb = cb || options;
         setTimeout(function () {
             if (!id || id === "UNKNOWN") {
                 cb(new Error(), null);
             }
             console.log("_________ID", id);
-            cb(null, { "_id": id, "disabled": true, "hidden": true, "test": 42 });
+            cb(null, { _id: id, disabled: true, hidden: true, test: 42 });
         });
     },
 };
 
 let storeName = "users",
     user = {
-        "_id": "00000000-0000-0000-0000-000000000000",
-        "roles": ["root"],
+        _id: "00000000-0000-0000-0000-000000000000",
+        roles: ["root"],
     };
 
 describe("taskHandler/authentication", function () {
     before(function () {
         authentication.test.setDb({
-            "get": function (store, query, options, cb) {
+            get: function (store, query, options, cb) {
                 cb = cb || options;
                 setTimeout(function () {
                     if (query.$or[0].login !== "1") {
                         return cb(new Error("UNKNOWN_ITEM"), null);
                     }
                     cb(null, {
-                        "_id": "42",
-                        "name": "Test user",
-                        "password": {
-                            "key": "MxRqmuKK+KK96rhbezMbqx87Dnn7RwNRJcU6outfanA=",
-                            "salt": "1",
+                        _id: "42",
+                        name: "Test user",
+                        password: {
+                            key: "MxRqmuKK+KK96rhbezMbqx87Dnn7RwNRJcU6outfanA=",
+                            salt: "1",
                         },
-                        "activationToken": "ololo",
-                        "passwordResetToken": "ololo",
-                        "isActive": true,
+                        activationToken: "ololo",
+                        passwordResetToken: "ololo",
+                        isActive: true,
                     });
                 });
             },
@@ -97,25 +97,25 @@ describe("taskHandler/authentication", function () {
         authentication.test.setDb(db);
     });
     it("should callback 'User not found' error if no user", function (done) {
-        authentication.run(storeName, user, { "login": "UNKNOWN", "password": "UNKNOWN" }, function (e, d) {
+        authentication.run(storeName, user, { login: "UNKNOWN", password: "UNKNOWN" }, function (e, d) {
             assert.equal(e.message, "User not found");
             done();
         });
     });
     it("should callback 'Password not match' error if password invalid", function (done) {
-        authentication.run(storeName, user, { "login": "1", "password": "2" }, function (e, d) {
+        authentication.run(storeName, user, { login: "1", password: "2" }, function (e, d) {
             assert.equal(e.message, "Password not match");
             done();
         });
     });
     it("should callback user if password valid", function (done) {
-        authentication.run(storeName, user, { "login": "1", "password": "1" }, function (e, d) {
+        authentication.run(storeName, user, { login: "1", password: "1" }, function (e, d) {
             assert.equal(d._id, "42");
             done();
         });
     });
     it("should cleanup user hashedPassword, salt, activationToken and passwordResetToken", function (done) {
-        authentication.run(storeName, user, { "login": "1", "password": "1" }, function (e, d) {
+        authentication.run(storeName, user, { login: "1", password: "1" }, function (e, d) {
             assert.ok(d.hashedPassword == null);
             assert.ok(d.salt == null);
             assert.ok(d.activationToken == null);
@@ -127,22 +127,22 @@ describe("taskHandler/authentication", function () {
 
 describe("taskHandler/signup", function () {
     before(function () {
-        return db.insert("users", { "email": "r@r.r", "login": "root", "password": "1" });
+        return db.insert("users", { email: "r@r.r", login: "root", password: "1" });
     });
     it("should callback 'user exists' error if user with the same login already exists", function (done) {
-        signup.run(storeName, user, { "email": "root", "password": "42" }, function (e, d) {
+        signup.run(storeName, user, { email: "root", password: "42" }, function (e, d) {
             assert.equal(e.message, "user exists");
             done();
         });
     });
     it("should callback 'user exists' error if user with the same email already exists", function (done) {
-        signup.run(storeName, user, { "email": "r@r.r", "password": "42" }, function (e, d) {
+        signup.run(storeName, user, { email: "r@r.r", password: "42" }, function (e, d) {
             assert.equal(e.message, "user exists");
             done();
         });
     });
     it("should callback with no error if this is a new user", function (done) {
-        signup.run(storeName, user, { "email": "q@q.q", "password": "q" }, function (e, d) {
+        signup.run(storeName, user, { email: "q@q.q", password: "q" }, function (e, d) {
             assert.equal(e, null);
             db.get("users", { email: "q@q.q" }, (err, user) => {
                 assert.equal(err, null);
@@ -161,56 +161,56 @@ describe("taskHandler/action", function () {
         action.test.setDb(db);
     });
     it("should callback error when no action description found", function (done) {
-        action.run(storeName, user, { "actionId": "UNKNOWN" }, (e, d) => {
+        action.run(storeName, user, { actionId: "UNKNOWN" }, (e, d) => {
             assert.equal(e.message, "Action not found");
             done();
         });
     });
     it("should callback error when item load fails", function (done) {
-        action.run(storeName, user, { "actionId": "return_item_test_property", "itemId": "UNKNOWN" }, (e, d) => {
+        action.run(storeName, user, { actionId: "return_item_test_property", itemId: "UNKNOWN" }, (e, d) => {
             assert.equal(e.message, "Item load error");
             done();
         });
     });
     it("should callback error when not storeAction and no itemId provided", function (done) {
-        action.run(storeName, user, { "actionId": "return_item_test_property" }, (e, d) => {
+        action.run(storeName, user, { actionId: "return_item_test_property" }, (e, d) => {
             assert.equal(e.message, "Invalid args: no itemId provided");
             done();
         });
     });
     it("should pass $item to hidden func and callback error if hidden", function (done) {
-        action.run(storeName, user, { "actionId": "hidden_if_item_hidden", "itemId": "0" }, (e, d) => {
+        action.run(storeName, user, { actionId: "hidden_if_item_hidden", itemId: "0" }, (e, d) => {
             assert.equal(e.message, "Action is hidden");
             done();
         });
     });
     it("should pass $item to disabled func and callback error if disabled", function (done) {
-        action.run(storeName, user, { "actionId": "disabled_if_item_disabled", "itemId": "0" }, (e, d) => {
+        action.run(storeName, user, { actionId: "disabled_if_item_disabled", itemId: "0" }, (e, d) => {
             assert.equal(e.message, "Action is disabled");
             done();
         });
     });
     it("should callback with result of script for valid action", function (done) {
-        action.run(storeName, user, { "actionId": "return_item_test_property", "itemId": "0" }, (e, d) => {
+        action.run(storeName, user, { actionId: "return_item_test_property", itemId: "0" }, (e, d) => {
             assert.equal(d, 42);
             done();
         });
     });
     it("should callback with result of script for valid storeAction", function (done) {
-        action.run(storeName, user, { "actionId": "test_store_action" }, (e, d) => {
+        action.run(storeName, user, { actionId: "test_store_action" }, (e, d) => {
             assert.equal(d, "store_action_result");
             done();
         });
     });
     it("should wait for resolve/reject if promise returned", function (done) {
-        action.run(storeName, user, { "actionId": "promise_test", "itemId": "0" }, (e, d) => {
+        action.run(storeName, user, { actionId: "promise_test", itemId: "0" }, (e, d) => {
             assert.equal(e, null);
             assert.equal(d, "42");
             done();
         });
     });
     it("should provide 'require' function and $db object in script", function (done) {
-        action.run(storeName, user, { "actionId": "availability_test", "itemId": "0" }, (e, d) => {
+        action.run(storeName, user, { actionId: "availability_test", itemId: "0" }, (e, d) => {
             assert.equal(e, null);
             assert.equal(d, "ok");
             done();
@@ -219,7 +219,7 @@ describe("taskHandler/action", function () {
     it("should limit concurrent running actions when concurentCallsLimit === 1", function (done) {
         let now = Date.now();
         sync.setup({
-            "call": (m, cb, id) => {
+            call: (m, cb, id) => {
                 switch (m) {
                     case "sync.lock":
                         syncMock.lock(id, cb);
@@ -230,10 +230,10 @@ describe("taskHandler/action", function () {
                 }
             },
         });
-        action.run(storeName, user, { "actionId": "concurrent_test", "itemId": "0" }, (e, d) => {
+        action.run(storeName, user, { actionId: "concurrent_test", itemId: "0" }, (e, d) => {
             assert.equal(e, null);
         });
-        action.run(storeName, user, { "actionId": "concurrent_test", "itemId": "0" }, (e, d) => {
+        action.run(storeName, user, { actionId: "concurrent_test", itemId: "0" }, (e, d) => {
             assert.equal(e, null);
             assert.ok((Date.now() - now) >= 1000);
             done();
@@ -243,7 +243,7 @@ describe("taskHandler/action", function () {
 
 describe("taskHandler/widgetData", function () {
     it("should return data from widget 'load' function", function (done) {
-        widgetData.run("storeWithWidget", user, { "widgetId": "testWidget" }, (e, d) => {
+        widgetData.run("storeWithWidget", user, { widgetId: "testWidget" }, (e, d) => {
             assert.equal(d, "WidgetData");
             done();
         });
@@ -252,13 +252,13 @@ describe("taskHandler/widgetData", function () {
 
 describe("taskHandler/scheduledScript", function () {
     it("should callback error when invalid taskIndex", function (done) {
-        scheduledScript.run("storeWithTask", { "_id": "root" }, { "taskIndex": "ll" }, (e, d) => {
+        scheduledScript.run("storeWithTask", { _id: "root" }, { taskIndex: "ll" }, (e, d) => {
             assert.equal(e.message, "Invalid args.");
             done();
         });
     });
     it("should callback error when no scheduledScript description found", function (done) {
-        scheduledScript.run("storeWithTask", { "_id": "root" }, { "taskIndex": 23 }, (e, d) => {
+        scheduledScript.run("storeWithTask", { _id: "root" }, { taskIndex: 23 }, (e, d) => {
             assert.equal(e.message, "Task not found");
             done();
         });
@@ -270,40 +270,40 @@ describe("taskHandler/scheduledScript", function () {
             console.warn = consoleWarn;
             done();
         };
-        scheduledScript.run("storeWithTask", { "_id": "root" }, { "taskIndex": 0 }, (e, d) => {
+        scheduledScript.run("storeWithTask", { _id: "root" }, { taskIndex: 0 }, (e, d) => {
         });
     });
 });
 
 describe("taskHandler/httpHook", function () {
     it("should callback error when invalid hookIndex", function (done) {
-        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": "6" }, (e, d) => {
+        httpHook.run("storeWithHttpHook", { _id: "root" }, { hookIndex: "6" }, (e, d) => {
             assert.equal(e.message, "Invalid args.");
             done();
         });
     });
     it("should callback error when no httpHook description found", function (done) {
-        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 23 }, (e, d) => {
+        httpHook.run("storeWithHttpHook", { _id: "root" }, { hookIndex: 23 }, (e, d) => {
             assert.equal(e.message, "Http Hook not found");
             done();
         });
     });
     it("should run httpHook script that resolve promise", function (done) {
-        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 0 }, (e, d) => {
+        httpHook.run("storeWithHttpHook", { _id: "root" }, { hookIndex: 0 }, (e, d) => {
             assert.equal(e, null);
             assert.equal(d, "42");
             done();
         });
     });
     it("should run httpHook script that promise rejected", function (done) {
-        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 1 }, (e, d) => {
+        httpHook.run("storeWithHttpHook", { _id: "root" }, { hookIndex: 1 }, (e, d) => {
             assert.notEqual(e, null);
             assert.equal(e, "42");
             done();
         });
     });
     it("should run httpHook script that use uri param", function (done) {
-        httpHook.run("storeWithHttpHook", { "_id": "root" }, { "hookIndex": 2, "request": { "params": { "id": 24 } } }, (e, d) => {
+        httpHook.run("storeWithHttpHook", { _id: "root" }, { hookIndex: 2, request: { params: { id: 24 } } }, (e, d) => {
             assert.equal(e, null);
             assert.equal(d, 24);
             done();
@@ -313,19 +313,19 @@ describe("taskHandler/httpHook", function () {
 
 describe("taskHandler/storeLifeCycle", function () {
     it("should callback error when user is not 'system'", function (done) {
-        storeLifeCycle.run("storeWithLifeCycle", { "_id": "root" }, {}, (e, d) => {
+        storeLifeCycle.run("storeWithLifeCycle", { _id: "root" }, {}, (e, d) => {
             assert.equal(e.message, "Access denied");
             done();
         });
     });
     it("should callback error when invalid args", function (done) {
-        storeLifeCycle.run("storeWithLifeCycle", { "_id": "system" }, {}, (e, d) => {
+        storeLifeCycle.run("storeWithLifeCycle", { _id: "system" }, {}, (e, d) => {
             assert.equal(e.message, "Invalid args");
             done();
         });
     });
     it("should callback error when no event description found", function (done) {
-        storeLifeCycle.run("storeWithLifeCycle", { "_id": "system" }, { "event": "UNKNOWN" }, (e, d) => {
+        storeLifeCycle.run("storeWithLifeCycle", { _id: "system" }, { event: "UNKNOWN" }, (e, d) => {
             assert.equal(e.message, "Handler not found");
             done();
         });
@@ -337,7 +337,7 @@ describe("taskHandler/storeLifeCycle", function () {
             console.warn = consoleWarn;
             done();
         };
-        storeLifeCycle.run("storeWithLifeCycle", { "_id": "system" }, { "event": "didStart" }, (e, d) => {
+        storeLifeCycle.run("storeWithLifeCycle", { _id: "system" }, { event: "didStart" }, (e, d) => {
         });
     });
 });
@@ -361,31 +361,31 @@ describe("taskHandlers/db", function () {
         });
         it("should modify query when store.display is 'single'", function (done) {
             dbGet.test.setDb({
-                "get": function (store, query) {
+                get: function (store, query) {
                     assert.deepEqual(query, {
-                        "_ownerId": user._id,
+                        _ownerId: user._id,
                     });
                     done();
                 },
             });
-            dbGet.run("displaySingleStore", user, { "_id": "displaySingleStore" });
+            dbGet.run("displaySingleStore", user, { _id: "displaySingleStore" });
         });
         it("should return baseItem when store.display is 'single'", function (done) {
             dbGet.test.setDb(db);
-            dbGet.run("displaySingleStore", user, { "_id": "displaySingleStore" }, (e, d) => {
+            dbGet.run("displaySingleStore", user, { _id: "displaySingleStore" }, (e, d) => {
                 assert.ok(e == null);
                 assert.equal(d.testProp, "42");
                 done();
             });
         });
         it("should return proper '_id' when store.display is 'single'", function (done) {
-            dbGet.run("displaySingleStore", user, { "_id": "displaySingleStore" }, (e, d) => {
+            dbGet.run("displaySingleStore", user, { _id: "displaySingleStore" }, (e, d) => {
                 assert.equal(d._id, "displaySingleStore");
                 done();
             });
         });
         it("should return object when valid args", function (done) {
-            dbGet.run(storeName, user, { "_id": "00000000-0000-0000-0000-000000000000" }, (e, d) => {
+            dbGet.run(storeName, user, { _id: "00000000-0000-0000-0000-000000000000" }, (e, d) => {
                 assert.equal(d._id, "00000000-0000-0000-0000-000000000000");
                 done();
             });
@@ -394,47 +394,47 @@ describe("taskHandlers/db", function () {
     describe("#dbSet", function () {
         it("should throw error when no id or item provided", function () {
             assert.throws(function () {
-                dbSet.run(storeName, user, { "item": {} }, (e, d) => {
+                dbSet.run(storeName, user, { item: {} }, (e, d) => {
                     assert.equal(e.message.indexOf("Invalid args"), 0);
                 });
             }, /Invalid args/);
             assert.throws(function () {
-                dbSet.run(storeName, user, { "_id": "00000000-0000-0000-0000-000000000000" }, (e, d) => {
+                dbSet.run(storeName, user, { _id: "00000000-0000-0000-0000-000000000000" }, (e, d) => {
                     assert.equal(e.message.indexOf("Invalid args"), 0);
                 });
             }, /Invalid args/);
         });
         it("should return object when valid args", function (done) {
-            dbSet.run(storeName, user, { "item": { "_id": "00000000-0000-0000-0000-000000000000", "item": { "test": true } } }, (e, d) => {
+            dbSet.run(storeName, user, { item: { _id: "00000000-0000-0000-0000-000000000000", item: { test: true } } }, (e, d) => {
                 assert.ok(d.test);
                 done();
             });
         });
         it("should find and replace '_id' when store.display is 'single'", function (done) {
             dbSet.test.setDb({
-                "get": function (store, query, cb) {
-                    assert.deepEqual(query, { "_ownerId": user._id });
-                    cb(null, { "_id": "1234" });
+                get: function (store, query, cb) {
+                    assert.deepEqual(query, { _ownerId: user._id });
+                    cb(null, { _id: "1234" });
                 },
-                "set": function (store, item, options = {}, cb = () => { }) {
+                set: function (store, item, options = {}, cb = () => { }) {
                     assert.equal(item._id, "1234");
                     done();
                 },
             });
-            dbSet.run("displaySingleStore", user, { "item": { "_id": "displaySingleStore", "test": true } });
+            dbSet.run("displaySingleStore", user, { item: { _id: "displaySingleStore", test: true } });
         });
         it("should create new '_id' when store.display is 'single'", function (done) {
             dbSet.test.setDb({
-                "newId": () => "42",
-                "get": function (store, query, cb) {
+                newId: () => "42",
+                get: function (store, query, cb) {
                     cb(new Error(dbErrors.itemNotFound), null);
                 },
-                "set": function (store, item, options = {}, cb = () => { }) {
+                set: function (store, item, options = {}, cb = () => { }) {
                     assert.equal(item._id, "42");
                     done();
                 },
             });
-            dbSet.run("displaySingleStore", user, { "item": { "_id": "displaySingleStore", "test": true } });
+            dbSet.run("displaySingleStore", user, { item: { _id: "displaySingleStore", test: true } });
         });
     });
     describe("#dbDelete", function () {
@@ -446,7 +446,7 @@ describe("taskHandlers/db", function () {
             }, /Invalid args/);
         });
         it("should not return error when valid args", function (done) {
-            dbDelete.run(storeName, user, { "_id": "00000000-0000-0000-0000-000000000000" }, (e, d) => {
+            dbDelete.run(storeName, user, { _id: "00000000-0000-0000-0000-000000000000" }, (e, d) => {
                 assert.equal(e, null);
                 done();
             });
