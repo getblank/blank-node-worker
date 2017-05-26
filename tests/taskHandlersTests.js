@@ -102,9 +102,9 @@ describe("taskHandler/authentication", function () {
             done();
         });
     });
-    it("should callback 'Password not match' error if password invalid", function (done) {
+    it("should callback 'Invalid password' error if password invalid", function (done) {
         authentication.run(storeName, user, { login: "1", password: "2" }, function (e, d) {
-            assert.equal(e.message, "Password not match");
+            assert.equal(e.message, "Invalid password");
             done();
         });
     });
