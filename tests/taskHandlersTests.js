@@ -55,7 +55,7 @@ let dbGetMock = {
         cb = cb || options;
         setTimeout(function () {
             if (!id || id === "UNKNOWN") {
-                cb(new Error(), null);
+                return cb(new Error(), null);
             }
             console.log("_________ID", id);
             cb(null, { _id: id, disabled: true, hidden: true, test: 42 });
@@ -63,59 +63,44 @@ let dbGetMock = {
     },
 };
 
-let storeName = "users",
-    user = {
-        _id: "00000000-0000-0000-0000-000000000000",
-        roles: ["root"],
-    };
+const storeName = "users";
+const user = {
+    _id: "00000000-0000-0000-0000-000000000000",
+    roles: ["root"],
+};
 
 describe("taskHandler/authentication", function () {
     before(function () {
-        authentication.test.setDb({
-            get: function (store, query, options, cb) {
-                cb = cb || options;
-                setTimeout(function () {
-                    if (query.$or[0].login !== "1") {
-                        return cb(new Error("UNKNOWN_ITEM"), null);
-                    }
-                    cb(null, {
-                        _id: "42",
-                        name: "Test user",
-                        password: {
-                            key: "MxRqmuKK+KK96rhbezMbqx87Dnn7RwNRJcU6outfanA=",
-                            salt: "1",
-                        },
-                        activationToken: "ololo",
-                        passwordResetToken: "ololo",
-                        isActive: true,
-                    });
-                });
-            },
-        });
+        const crypto = require("crypto");
+        const password = crypto.createHash("md5").update("42").digest("hex");
+        return db.set(storeName, { _id: "42", login: "42", isActive: true, password });
     });
     after(function () {
-        authentication.test.setDb(db);
+        db.delete(storeName, "42", { drop: true });
     });
     it("should callback 'User not found' error if no user", function (done) {
         authentication.run(storeName, user, { login: "UNKNOWN", password: "UNKNOWN" }, function (err, res) {
+            assert.ok(err != null);
             assert.equal(err.message, "User not found");
             done();
         });
     });
     it("should callback 'Invalid password' error if password invalid", function (done) {
-        authentication.run(storeName, user, { login: "1", password: "2" }, function (err, res) {
+        authentication.run(storeName, user, { login: "42", password: "43" }, function (err, res) {
+            assert.ok(err != null);
             assert.equal(err.message, "Invalid password");
             done();
         });
     });
     it("should callback user if password valid", function (done) {
-        authentication.run(storeName, user, { login: "1", password: "1" }, function (err, res) {
+        authentication.run(storeName, user, { login: "42", password: "42" }, function (err, res) {
             assert.equal(res._id, "42");
             done();
         });
     });
     it("should cleanup user hashedPassword, salt, activationToken and passwordResetToken", function (done) {
-        authentication.run(storeName, user, { login: "1", password: "1" }, function (err, res) {
+        authentication.run(storeName, user, { login: "42", password: "42" }, function (err, res) {
+            assert.ok(err == null);
             assert.ok(res.hashedPassword == null);
             assert.ok(res.salt == null);
             assert.ok(res.activationToken == null);
@@ -123,12 +108,15 @@ describe("taskHandler/authentication", function () {
             done();
         });
     });
-    it("should callback 'Invalid args. Must be login:string and password:string' if no login or no password provided", function (done) {
-        authentication.run(storeName, user, { login: "1" }, function (err) {
-            assert.equal(err.message, "Invalid args. Must be login:string and password:string");
-            authentication.run(storeName, user, { password: "1" }, function (err) {
-                assert.equal(err.message, "Invalid args. Must be login:string and password:string");
-                done();
+    it("should callback 'Invalid args. Must be login:string and (password:string or hashedPassword:string)' if no login or no password provided", function (done) {
+        authentication.run(storeName, user, { login: "42" }, function (err) {
+            assert.equal(err.message, "Invalid args. Must be login:string and (password:string or hashedPassword:string)");
+            authentication.run(storeName, user, { password: "42" }, function (err) {
+                assert.equal(err.message, "Invalid args. Must be login:string and (password:string or hashedPassword:string)");
+                authentication.run(storeName, user, { hashedPassword: "42" }, function (err) {
+                    assert.equal(err.message, "Invalid args. Must be login:string and (password:string or hashedPassword:string)");
+                    done();
+                });
             });
         });
     });

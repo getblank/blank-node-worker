@@ -17,6 +17,9 @@ module.exports = {
             login: {
                 type: "string",
             },
+            isActive: {
+                type: "bool",
+            },
             _activationToken: {
                 type: "string",
             },
