@@ -598,7 +598,7 @@ module.exports = {
         entries: {
             serverParam: true,
             auth: {
-                login: `
+                checkPassword: `
                     if (!$user.customPassword) {
                         return false;
                     }

@@ -122,6 +122,7 @@ describe("taskHandler/authentication", function () {
     });
     it("should use custom auth function if provided", function (done) {
         authentication.run(storeName, user, { login: "42", password: "24" }, function (err, res) {
+            assert.ok(err == null);
             assert.equal(res._id, "42");
             done();
         });
