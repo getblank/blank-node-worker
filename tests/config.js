@@ -20,6 +20,9 @@ module.exports = {
             isActive: {
                 type: "bool",
             },
+            customPassword: {
+                type: "string",
+            },
             _activationToken: {
                 type: "string",
             },
@@ -594,6 +597,15 @@ module.exports = {
         type: "map",
         entries: {
             serverParam: true,
+            auth: {
+                login: `
+                    if (!$user.customPassword) {
+                        return false;
+                    }
+
+                    return $user.customPassword === password;
+                `,
+            },
         },
     },
     _commonSettings: {

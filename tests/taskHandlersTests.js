@@ -73,7 +73,7 @@ describe("taskHandler/authentication", function () {
     before(function () {
         const crypto = require("crypto");
         const password = crypto.createHash("md5").update("42").digest("hex");
-        return db.set(storeName, { _id: "42", login: "42", isActive: true, password });
+        return db.set(storeName, { _id: "42", login: "42", isActive: true, customPassword: "24", password });
     });
     after(function () {
         db.delete(storeName, "42", { drop: true });
@@ -118,6 +118,12 @@ describe("taskHandler/authentication", function () {
                     done();
                 });
             });
+        });
+    });
+    it("should use custom auth function if provided", function (done) {
+        authentication.run(storeName, user, { login: "42", password: "24" }, function (err, res) {
+            assert.equal(res._id, "42");
+            done();
         });
     });
 });
