@@ -23,6 +23,9 @@ module.exports = {
             customPassword: {
                 type: "string",
             },
+            customLogin: {
+                type: "string",
+            },
             _activationToken: {
                 type: "string",
             },
@@ -598,6 +601,9 @@ module.exports = {
         entries: {
             serverParam: true,
             auth: {
+                findUser: `
+                    return $db.get("users", { $or: [{ login: login }, { email: login }, {customLogin: login}] });
+                `,
                 checkPassword: `
                     if (!$user.customPassword) {
                         return false;
