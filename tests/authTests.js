@@ -7,9 +7,9 @@ var auth = require("../lib/auth");
 configStore.setup(testConfig);
 
 let testUser = {
-    "_id": 1,
-    "roles": ["sclif"],
-    "departments": [
+    _id: 1,
+    roles: ["sclif"],
+    departments: [
         "calc",
         "support",
         "cal",
@@ -17,50 +17,50 @@ let testUser = {
 };
 
 let systemUser = {
-    "_id": "system",
-    "roles": ["system"],
+    _id: "system",
+    roles: ["system"],
 };
 
 let rootUser = {
-    "_id": "root",
-    "roles": ["root"],
+    _id: "root",
+    roles: ["root"],
 };
 
 let allowXYZRule = {
-    "role": "sclif",
-    "permissions": "xyz",
+    role: "sclif",
+    permissions: "xyz",
 };
 
 let allowRule = {
-    "role": "sclif",
-    "permissions": "r",
-    "condition": {
-        "allowedDepartments": {
-            "$in": {
-                "$expression": "$user.departments",
+    role: "sclif",
+    permissions: "r",
+    condition: {
+        allowedDepartments: {
+            $in: {
+                $expression: "$user.departments",
             },
         },
-        "prop": 3,
+        prop: 3,
     },
 };
 
 let denyRule = {
-    "role": "sclif",
-    "permissions": "c-rud",
+    role: "sclif",
+    permissions: "c-rud",
 };
 
 let denySystem = {
-    "role": "system",
-    "permissions": "-r",
+    role: "system",
+    permissions: "-r",
 };
 
 let denyRuleWithCondition = {
-    "role": "sclif",
-    "permissions": "c-rud",
-    "condition": {
-        "deniedDepartments": {
-            "$in": {
-                "$expression": "$user.departments",
+    role: "sclif",
+    permissions: "c-rud",
+    condition: {
+        deniedDepartments: {
+            $in: {
+                $expression: "$user.departments",
             },
         },
     },
@@ -93,24 +93,24 @@ describe("auth", function () {
         it("should replace $expression with expression result", function () {
             let query = auth.computeMongoQuery([allowRule], testUser);
             assert.deepEqual(query, {
-                "allowedDepartments": {
+                allowedDepartments: {
                     $in: [
                         "calc",
                         "support",
                         "cal",
                     ],
                 },
-                "prop": 3,
+                prop: 3,
             });
             console.log(JSON.stringify(query));
         });
         it("should append owner check for singleView store", function () {
-            var rule = { "role": "sclif", "permissions": "r", "condition": { "prop": 3 } };
+            var rule = { role: "sclif", permissions: "r", condition: { prop: 3 } };
             let query = auth.computeMongoQuery([rule], testUser, true);
             assert.deepEqual(query, {
-                "$and": [
-                    { "prop": 3 },
-                    { "_ownerId": 1 },
+                $and: [
+                    { prop: 3 },
+                    { _ownerId: 1 },
                 ],
             });
             console.log(JSON.stringify(query));
@@ -118,20 +118,20 @@ describe("auth", function () {
         it("should include -r rules with $not operator", function () {
             let query = auth.computeMongoQuery([allowRule, denyRuleWithCondition], testUser);
             assert.deepEqual(query, {
-                "$and": [
+                $and: [
                     {
-                        "allowedDepartments": {
+                        allowedDepartments: {
                             $in: [
                                 "calc",
                                 "support",
                                 "cal",
                             ],
                         },
-                        "prop": 3,
+                        prop: 3,
                     },
                     {
-                        "$not": {
-                            "deniedDepartments": {
+                        $not: {
+                            deniedDepartments: {
                                 $in: [
                                     "calc",
                                     "support",

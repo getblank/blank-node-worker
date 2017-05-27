@@ -97,30 +97,39 @@ describe("taskHandler/authentication", function () {
         authentication.test.setDb(db);
     });
     it("should callback 'User not found' error if no user", function (done) {
-        authentication.run(storeName, user, { login: "UNKNOWN", password: "UNKNOWN" }, function (e, d) {
-            assert.equal(e.message, "User not found");
+        authentication.run(storeName, user, { login: "UNKNOWN", password: "UNKNOWN" }, function (err, res) {
+            assert.equal(err.message, "User not found");
             done();
         });
     });
     it("should callback 'Invalid password' error if password invalid", function (done) {
-        authentication.run(storeName, user, { login: "1", password: "2" }, function (e, d) {
-            assert.equal(e.message, "Invalid password");
+        authentication.run(storeName, user, { login: "1", password: "2" }, function (err, res) {
+            assert.equal(err.message, "Invalid password");
             done();
         });
     });
     it("should callback user if password valid", function (done) {
-        authentication.run(storeName, user, { login: "1", password: "1" }, function (e, d) {
-            assert.equal(d._id, "42");
+        authentication.run(storeName, user, { login: "1", password: "1" }, function (err, res) {
+            assert.equal(res._id, "42");
             done();
         });
     });
     it("should cleanup user hashedPassword, salt, activationToken and passwordResetToken", function (done) {
-        authentication.run(storeName, user, { login: "1", password: "1" }, function (e, d) {
-            assert.ok(d.hashedPassword == null);
-            assert.ok(d.salt == null);
-            assert.ok(d.activationToken == null);
-            assert.ok(d.passwordResetToken == null);
+        authentication.run(storeName, user, { login: "1", password: "1" }, function (err, res) {
+            assert.ok(res.hashedPassword == null);
+            assert.ok(res.salt == null);
+            assert.ok(res.activationToken == null);
+            assert.ok(res.passwordResetToken == null);
             done();
+        });
+    });
+    it("should callback 'Invalid args. Must be login:string and password:string' if no login or no password provided", function (done) {
+        authentication.run(storeName, user, { login: "1" }, function (err) {
+            assert.equal(err.message, "Invalid args. Must be login:string and password:string");
+            authentication.run(storeName, user, { password: "1" }, function (err) {
+                assert.equal(err.message, "Invalid args. Must be login:string and password:string");
+                done();
+            });
         });
     });
 });
