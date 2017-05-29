@@ -602,7 +602,7 @@ module.exports = {
             serverParam: true,
             auth: {
                 findUser: `
-                    return $db.get("users", { $or: [{ login: login }, { email: login }, {customLogin: login}] });
+                    return $db.get("users", { $or: [{ login: login }, { email: login }, {customLogin: login}] }, { returnNull: true });
                 `,
                 checkPassword: `
                     if (!$user.customPassword) {
