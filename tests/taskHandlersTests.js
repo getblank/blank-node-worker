@@ -134,6 +134,36 @@ describe("taskHandler/authentication", function () {
             });
         });
     });
+    it("should run willSignIn hook", function (done) {
+        authentication.run(storeName, user, { login: "42", password: "42" }, function (err, res) {
+            assert.ok(err == null);
+            assert.equal(res._id, "42");
+            assert.equal(res.willSignInProp, "passed");
+            done();
+        });
+    });
+    it("should run willSignIn hook when custom checkPassword provided", function (done) {
+        authentication.run(storeName, user, { login: "42", password: "24" }, function (err, res) {
+            assert.ok(err == null);
+            assert.equal(res._id, "42");
+            assert.equal(res.willSignInProp, "passed");
+            done();
+        });
+    });
+    it("should run reject auth when willSignIn hook rejected", function (done) {
+        authentication.run(storeName, user, { login: "42", password: "24", reject: true }, function (err, res) {
+            assert.ok(err != null);
+            assert.equal(err.message, "rejected");
+            done();
+        });
+    });
+    it("should run reject auth when willSignIn hook rejected when custom checkPassword provided", function (done) {
+        authentication.run(storeName, user, { login: "42", password: "24", reject: true }, function (err, res) {
+            assert.ok(err != null);
+            assert.equal(err.message, "rejected");
+            done();
+        });
+    });
 });
 
 describe("taskHandler/signup", function () {
