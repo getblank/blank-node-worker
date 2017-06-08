@@ -102,7 +102,6 @@ describe("auth", function () {
                 },
                 prop: 3,
             });
-            console.log(JSON.stringify(query));
         });
         it("should append owner check for singleView store", function () {
             var rule = { role: "sclif", permissions: "r", condition: { prop: 3 } };
@@ -113,7 +112,6 @@ describe("auth", function () {
                     { _ownerId: 1 },
                 ],
             });
-            console.log(JSON.stringify(query));
         });
         it("should include -r rules with $not operator", function () {
             let query = auth.computeMongoQuery([allowRule, denyRuleWithCondition], testUser);
@@ -142,7 +140,6 @@ describe("auth", function () {
                     },
                 ],
             });
-            console.log(JSON.stringify(query));
         });
     });
 });

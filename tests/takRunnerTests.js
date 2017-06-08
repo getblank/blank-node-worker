@@ -11,16 +11,16 @@ var dbGet = require("../lib/taskHandlers/dbGet");
 var WampMock = require("./wampMock");
 
 configStore.setup(testConfig);
-console.debug = console.log;
+console.debug = () => { };
 
 let wampMock,
     sampleTask = {
-        "id": 0,
-        "store": "users",
-        "userId": "00000000-0000-0000-0000-000000000000",
-        "type": taskTypes.dbGet,
-        "args": {
-            "_id": "00000000-0000-0000-0000-000000000000",
+        id: 0,
+        store: "users",
+        userId: "00000000-0000-0000-0000-000000000000",
+        type: taskTypes.dbGet,
+        args: {
+            _id: "00000000-0000-0000-0000-000000000000",
         },
     };
 
@@ -38,16 +38,16 @@ describe("taskRunner", function () {
                 taskRunner.test.validateTask({});
             }, /Invalid task/);
             assert.throws(function () {
-                taskRunner.test.validateTask(getTask({ "type": "UNKNOWN" }));
+                taskRunner.test.validateTask(getTask({ type: "UNKNOWN" }));
             }, /Task type 'UNKNOWN' is not supported/);
         });
         it("should insert guest userId when it empty", function () {
-            let task = { "id": 0, "type": "dbGet", "store": "users" };
+            let task = { id: 0, type: "dbGet", store: "users" };
             taskRunner.test.validateTask(task);
             assert.equal(task.userId, "guest");
         });
         it("should insert _ store when it empty", function () {
-            let task = { "id": 0, "type": "dbGet", "userId": "guest" };
+            let task = { id: 0, type: "dbGet", userId: "guest" };
             taskRunner.test.validateTask(task);
             assert.equal(task.store, "_");
         });
@@ -69,12 +69,12 @@ describe("taskRunner", function () {
     describe("#runTask", function () {
         before(function () {
             dbGet.test.setDb({
-                "get": function (id, store, options, cb) {
+                get: function (id, store, options, cb) {
                     if (typeof cb !== "function") {
                         cb = options;
                     }
                     setTimeout(function () {
-                        cb(null, { "_id": id });
+                        cb(null, { _id: id });
                     });
                 },
             });
@@ -91,13 +91,13 @@ describe("taskRunner", function () {
             assert.equal(wampMock.getCallsCount(taskUris.error), 1);
         });
         it("should call error 'Store not found' when no store for task", function () {
-            taskRunner.test.runTask(getTask({ "store": "UNKNOWN" }));
+            taskRunner.test.runTask(getTask({ store: "UNKNOWN" }));
             assert.equal(wampMock.getCallsCount(taskUris.error), 1);
             let c = wampMock.calls[taskUris.error][0];
             assert.equal(c.args[1], "Store not found");
         });
         it("should call error 'User not found' when no store for task", function (done) {
-            let taskData = { "id": Math.random(), "userId": "UNKNOWN" };
+            let taskData = { id: Math.random(), userId: "UNKNOWN" };
             var h = function (t) {
                 if (taskData.id === t.id) {
                     assert.equal(wampMock.getCallsCount(taskUris.error), 1);
@@ -111,7 +111,7 @@ describe("taskRunner", function () {
             taskRunner.test.runTask(getTask(taskData));
         });
         it("should call error 'Unauthorized' when no access to store", function (done) {
-            let taskData = { "id": Math.random(), "store": "deniedStore1" };
+            let taskData = { id: Math.random(), store: "deniedStore1" };
             var h = function (t) {
                 if (taskData.id === t.id) {
                     assert.equal(wampMock.getCallsCount(taskUris.error), 1);
@@ -125,7 +125,7 @@ describe("taskRunner", function () {
             taskRunner.test.runTask(getTask(taskData));
         });
         it("should fire 'taskWillRun' and 'taskDidRun' events and call 'done' for valid task", function (done) {
-            let taskData = { "id": Math.random() }, willRunHandled = false;
+            let taskData = { id: Math.random() }, willRunHandled = false;
             var willRun = function (t) {
                 if (taskData.id === t.id) {
                     willRunHandled = true;
@@ -144,7 +144,7 @@ describe("taskRunner", function () {
             taskRunner.test.runTask(getTask(taskData));
         });
         it("should call error when error occured while running task", function (done) {
-            let taskData = { "id": Math.random(), "args": null };
+            let taskData = { id: Math.random(), args: null };
             var h = function (t) {
                 if (taskData.id === t.id) {
                     assert.equal(wampMock.getCallsCount(taskUris.error), 1);

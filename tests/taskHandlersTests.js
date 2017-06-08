@@ -57,7 +57,6 @@ let dbGetMock = {
             if (!id || id === "UNKNOWN") {
                 return cb(new Error(), null);
             }
-            console.log("_________ID", id);
             cb(null, { _id: id, disabled: true, hidden: true, test: 42 });
         });
     },
