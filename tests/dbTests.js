@@ -1,13 +1,13 @@
 "use strict";
 
-var assert = require("assert");
-var testConfig = require("./config");
-var configStore = require("../lib/configStore");
+const assert = require("assert");
+const testConfig = require("./config");
+const configStore = require("../lib/configStore");
 configStore.setup(testConfig);
-var db = require("../lib/db/rawDb");
-var $db = require("../lib/db/index");
-var sync = require("../lib/sync");
-var syncMock = require("./syncMock");
+const db = require("../lib/db/rawDb");
+const $db = require("../lib/db/index");
+const sync = require("../lib/sync");
+const syncMock = require("./syncMock");
 require("../lib/promiseSeries");
 sync.setup({
     call: (m, cb, id) => {
@@ -282,6 +282,20 @@ describe("$db", function () {
                 done();
             });
         });
+        it("should use store promised filters", function (done) {
+            $db.find("users", {
+                query: {
+                    promisedQuery: "test",
+                },
+            }, (e, res) => {
+                assert.equal(e, null);
+                assert.notEqual(res, null);
+                assert.equal(res.count, 3, "Documents count mismatched");
+                assert.notEqual(res.items, null);
+                assert.equal(res.items.length, 3);
+                done();
+            });
+        });
         it("should limit number of returned fields", function (done) {
             $db.find("users", {
                 query: {},
@@ -342,7 +356,6 @@ describe("$db", function () {
         it("should iterate over only items user has access to", function (done) {
             let id = 1;
             $db.forEach("forEachTestStore", {}, { user: { _id: "user", roles: ["anyUser"] } }, (item) => {
-                console.debug(item);
                 id++;
                 assert.equal(id, item._id);
             }, () => {

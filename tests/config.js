@@ -170,6 +170,9 @@ module.exports = {
                     },
                 },
             },
+            promisedQuery: {
+                query: "return Promise.resolve({name: {$regex: $value}})",
+            },
         },
         httpHooks: [],
         tasks: [],
