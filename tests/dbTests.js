@@ -161,6 +161,14 @@ describe("$db", function () {
             });
             assert.ok(mayBePromise instanceof Promise);
         });
+        it("should return only requested properties", function () {
+            return $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000", { props: ["name"] }).then((res) => {
+                assert.ok(res != null);
+                assert.equal(res._id, "AAAAAAAA-0000-0000-0000-000000000000");
+                assert.equal(res.name, "testName");
+                assert.equal(res.testProp, undefined);
+            });
+        });
     });
     describe("#count", function () {
         it("should return count of documents in store", function () {
