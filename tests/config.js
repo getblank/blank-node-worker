@@ -722,7 +722,10 @@ module.exports = {
                     action: "Sign in",
                     title: "Sign in",
                     error: "Login or password incorrect",
+                    userNotFound: "User not found",
+                    invalidPassword: "Invalid password",
                     restoreLinkSent: "Email with recent link sent. If you provide correct address, you will receive it within 10 minutes",
+                    invalidUserData: "Invalid user data, please contact system administrator",
                 },
                 signOut: {
                     action: "Sign out",
