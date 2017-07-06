@@ -605,9 +605,11 @@ module.exports = {
             serverParam: true,
             auth: {
                 findUser: `
+                    const { login } = $data;
                     return $db.get("users", { $or: [{ login: login }, { email: login }, {customLogin: login}] }, { returnNull: true });
                 `,
                 checkPassword: `
+                    const { password } = $data;
                     if (!$user.customPassword) {
                         return false;
                     }
