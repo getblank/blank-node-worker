@@ -46,10 +46,10 @@ describe("$db", function () {
                     return db._insertMany(
                         "users",
                         [
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000000", testProp: "40", name: "testName" },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000001", testProp: "41", name: "testName" },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000002", testProp: "42", name: "testName" },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000003", testProp: "43", name: "name" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000000", testProp: "40", name: "testName", login: "22" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000001", testProp: "41", name: "testName", login: "33" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000002", testProp: "42", name: "testName", login: "11" },
+                            { _id: "AAAAAAAA-0000-0000-0000-000000000003", testProp: "43", name: "name", login: "11" },
                             { _id: "AAAAAAAA-0000-0000-0000-000000000004", testProp: "44" },
                             { _id: "AAAAAAAA-0000-0000-0000-000000000042", testProp: "toDelete" },
                             { _id: "AAAAAAAA-0000-0000-0000-000000000043", testProp: "toDelete2" },
@@ -254,6 +254,37 @@ describe("$db", function () {
                 assert.notEqual(res, null);
                 assert.notEqual(res.items, null);
                 assert.equal(res.items[0].testProp, "44");
+                done();
+            });
+        });
+        it("should sort matched documents correctly with string orderBy contains two props", function (done) {
+            $db.find("users", {
+                query: {
+                    testProp: {
+                        $in: ["41", "40", "43", "42"],
+                    },
+                },
+                orderBy: "login, -testProp",
+            }, (err, res) => {
+                console.info(res);
+                assert.equal(err, null);
+                assert.notEqual(res, null);
+                assert.notEqual(res.items, null);
+                const expected = [
+                    { _id: "AAAAAAAA-0000-0000-0000-000000000002", testProp: "42", name: "testName", login: "11" },
+                    { _id: "AAAAAAAA-0000-0000-0000-000000000003", testProp: "43", name: "name", login: "11" },
+                    { _id: "AAAAAAAA-0000-0000-0000-000000000000", testProp: "40", name: "testName", login: "22" },
+                    { _id: "AAAAAAAA-0000-0000-0000-000000000001", testProp: "41", name: "testName", login: "33" },
+                ];
+                assert.equal(res.items.length, expected.length);
+                for (let i = 0; i < res.items; i++) {
+                    const item = res.items[i];
+                    const expectedItem = expected[i];
+                    assert.equal(item._id, expectedItem._id);
+                    assert.equal(item.testProp, expectedItem.testProp);
+                    assert.equal(item.login, expectedItem.login);
+                }
+                // assert.equal(res.items[0].testProp, "44");
                 done();
             });
         });
