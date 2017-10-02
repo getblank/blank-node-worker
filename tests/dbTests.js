@@ -452,7 +452,7 @@ describe("$db", function () {
                 assert.ok(err != null);
             });
         });
-        it("should remove properties in db when it's values equals null", function () {
+        it("should remove properties in db when it's values equals null", function () { // TODO: it should REALLY remove such props
             return $db.set("users", { _id: "22222", name: "22222", email: "login@domain.com" })
                 .then(res => {
                     assert.equal(res.email, "login@domain.com");
@@ -462,6 +462,16 @@ describe("$db", function () {
                     assert.equal(res.email, null);
                 });
         });
+
+        it("trim values for string props and no trim if noAutoTrim option set", function () {
+            return $db.set("users", { _id: "22222", name: "     22222        ", email: "  login@domain.com \n", noAutoTrimmedProp: "  space surround text  " })
+                .then(res => {
+                    assert.equal(res.email, "login@domain.com");
+                    assert.equal(res.name, "22222");
+                    assert.equal(res.noAutoTrimmedProp, "  space surround text  ");
+                });
+        });
+
         it("should log changes if logging options enabled in storeDesc", function () {
             const storeName = "storeWithLogging";
             let _id, updatedAt, updatedBy;

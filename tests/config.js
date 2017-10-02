@@ -98,6 +98,10 @@ module.exports = {
                 type: "int",
                 default: { $expression: "return 42" },
             },
+            noAutoTrimmedProp: {
+                type: "string",
+                noAutoTrim: true,
+            },
         }),
         actions: [
             {
