@@ -1,7 +1,7 @@
 "use strict";
 
-let assert = require("assert");
-let sync = require("../lib/sync");
+const assert = require("assert");
+const sync = require("../lib/sync");
 
 describe("SyncTest", function () {
     describe("#lock", function () {
@@ -12,7 +12,7 @@ describe("SyncTest", function () {
                 done();
             });
             sync.setup({
-                "call": (m, cb, id) => cb(),
+                call: (m, cb, id) => cb(),
             });
             _async = true;
         });
@@ -21,7 +21,7 @@ describe("SyncTest", function () {
                 unlock();
             });
             sync.setup({
-                "call": (m, cb, id) => {
+                call: (m, cb, id) => {
                     switch (m) {
                         case "sync.lock":
                             return cb();
@@ -33,9 +33,9 @@ describe("SyncTest", function () {
                 },
             });
         });
-        it("shuold throws an error when unlock called more then one time", function (done) {
+        it("should throws an error when unlock called more then one time", function (done) {
             sync.setup({
-                "call": (m, cb, id) => cb(),
+                call: (m, cb, id) => cb(),
             });
             sync.lock("2", (unlock) => {
                 unlock();
