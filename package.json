@@ -5,7 +5,7 @@
   "main": "lib/worker.js",
   "scripts": {
     "buildCore": "rm -rf ./lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core",
-    "start": "NODE_PATH='./local:./lib/blank-js-core' node --harmony_async_await ./lib/worker.js",
+    "start": "NODE_PATH='./local:./lib/blank-js-core' node ./lib/worker.js",
     "test": "NODE_PATH='./local:./lib/blank-js-core' NODE_ENV='test' mocha -t 5000 ./tests",
     "patch": "npm version patch && npm run push",
     "push": "git push origin master --follow-tags && npm publish"
