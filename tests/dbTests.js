@@ -266,7 +266,6 @@ describe("$db", function () {
                 },
                 orderBy: "login, -testProp",
             }, (err, res) => {
-                console.info(res);
                 assert.equal(err, null);
                 assert.notEqual(res, null);
                 assert.notEqual(res.items, null);
