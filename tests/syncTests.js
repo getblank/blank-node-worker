@@ -16,6 +16,7 @@ describe("SyncTest", function () {
             });
             _async = true;
         });
+
         it("should return unlock function", function (done) {
             sync.lock("1", (unlock) => {
                 unlock();
@@ -33,6 +34,7 @@ describe("SyncTest", function () {
                 },
             });
         });
+
         it("should throws an error when unlock called more then one time", function (done) {
             sync.setup({
                 call: (m, cb, id) => cb(),
