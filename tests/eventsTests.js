@@ -27,22 +27,22 @@ describe("#matchQuery", function () {
 
         {
             document: { name: "42", createdAt: new Date(2018, 1, 28, 12, 5, 0, 0) },
-            query: { name: "42", createdAt: new Date("2018-02-28T07:05:00.000Z") },
+            query: { name: "42", createdAt: new Date(2018, 1, 28, 12, 5, 0, 0) },
             result: true,
         },
         {
             document: { name: "42", createdAt: new Date(2018, 1, 28, 12, 5, 0, 0) },
-            query: { name: "42", createdAt: { $gte: new Date("2018-02-28T07:05:00.000Z") } },
+            query: { name: "42", createdAt: { $gte: new Date(2018, 1, 28, 12, 5, 0, 0) } },
             result: true,
         },
         {
             document: { name: "42", createdAt: new Date(2018, 1, 28, 12, 5, 0, 0) },
-            query: { name: "42", createdAt: { $gt: new Date("2018-02-28T07:05:00.000Z") } },
+            query: { name: "42", createdAt: { $gt: new Date(2018, 1, 28, 12, 5, 0, 0) } },
             result: false,
         },
         {
             document: { name: "42", createdAt: new Date(2018, 1, 28, 12, 5, 0, 0) },
-            query: { name: "42", createdAt: { $gt: new Date("2018-02-28T07:04:00.000Z") } },
+            query: { name: "42", createdAt: { $gt: new Date(2018, 1, 28, 12, 4, 0, 0) } },
             result: true,
         },
     ];
