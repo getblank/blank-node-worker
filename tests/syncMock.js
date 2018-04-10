@@ -1,28 +1,29 @@
-let queue = {}, locks = {};
+const queue = {};
+const locks = {};
 
-let checkWaiters = function () {
-    for (let lockId of Object.keys(queue)) {
-        let lockCallbacks = queue[lockId];
-        if (!locks[lockId] && lockCallbacks.length > 0) {
-            locks[lockId] = true;
-            let cb = lockCallbacks.shift();
-            cb();
-        }
+const checkWaiters = () => {
+    for (const lockId of Object.keys(queue)) {
+        const lockCallbacks = queue[lockId];
         if (lockCallbacks.length < 1) {
             delete queue[lockCallbacks];
+        }
+
+        if (!locks[lockId] && lockCallbacks.length > 0) {
+            locks[lockId] = true;
+            const cb = lockCallbacks.shift();
+
+            return cb();
         }
     }
 };
 
-module.exports.lock = function (id, cb) {
-    if (!queue[id]) {
-        queue[id] = [];
-    }
+const lock = (id, cb) => {
+    queue[id] = queue[id] || [];
     queue[id].push(cb);
     setTimeout(checkWaiters);
 };
 
-module.exports.unlock = function (id, cb) {
+const unlock = (id, cb) => {
     delete locks[id];
     checkWaiters();
     if (typeof cb === "function") {
@@ -30,4 +31,9 @@ module.exports.unlock = function (id, cb) {
             cb();
         });
     }
+};
+
+module.exports = {
+    lock,
+    unlock,
 };
