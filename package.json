@@ -1,66 +1,66 @@
 {
-  "name": "blank-node-worker",
-  "version": "0.3.40",
-  "description": "JavaScript task runner for Blank platform",
-  "main": "lib/worker.js",
-  "scripts": {
-    "buildCore": "rm -rf ./lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core",
-    "start": "NODE_PATH='./local:./lib/blank-js-core' node ./lib/worker.js",
-    "test": "NODE_PATH='./local:./lib/blank-js-core' NODE_ENV='test' mocha --exit -t 5000 ./tests",
-    "patch": "npm version patch && npm run push",
-    "push": "git push origin master --follow-tags && npm publish"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/getblank/blank-node-worker.git"
-  },
-  "keywords": [
-    "Blank"
-  ],
-  "author": {
-    "email": "info@getblank.net",
-    "name": "Evgeniy Kuvshinov & Evgeniy Ivakha"
-  },
-  "homepage": "http://getblank.net",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/getblank/blank-node-worker/issues"
-  },
-  "dependencies": {
-    "async": "^2.0.0-rc.6",
-    "excel-export": "^0.5.1",
-    "exceljs": "^0.2.9",
-    "fast-json-patch": "^1.1.4",
-    "fs-extra": "^4.0.0",
-    "handlebars": "^4.0.5",
-    "js-scrypt": "latest",
-    "jszip": "^3.0.0",
-    "lodash.clonedeep": "^4.5.0",
-    "minimist": "latest",
-    "moment": "^2.13.0",
-    "mongodb": "^2.2.11",
-    "node-fetch": "^1.6.0",
-    "nodemailer": "^2.4.2",
-    "request": "^2.72.0",
-    "sift": "^3.2.1",
-    "unstream": "^2.0.0",
-    "uuid": "^3.0.0",
-    "winston": "^2.2.0",
-    "winston-graylog2": "latest",
-    "winston-logzio": "^1.0.1",
-    "ws": "latest"
-  },
-  "optionalDependencies": {
-    "scrypt": "^6.0.3"
-  },
-  "devDependencies": {
-    "mocha": "latest",
-    "babel-cli": "^6.8.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0"
-  },
-  "babel": {
-    "plugins": [
-      "transform-es2015-modules-commonjs"
-    ]
-  }
+    "name": "blank-node-worker",
+    "version": "0.3.40",
+    "description": "JavaScript task runner for Blank platform",
+    "main": "lib/worker.js",
+    "scripts": {
+        "buildCore": "rm -rf ./lib/blank-js-core && ./node_modules/babel-cli/bin/babel.js ./blank-js-core -d lib/blank-js-core",
+        "start": "NODE_PATH='./local:./lib/blank-js-core' node ./lib/worker.js",
+        "test": "NODE_PATH='./local:./lib/blank-js-core' NODE_ENV='test' mocha --exit -t 5000 ./tests",
+        "patch": "npm version patch && npm run push",
+        "push": "git push origin master --follow-tags && npm publish"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/getblank/blank-node-worker.git"
+    },
+    "keywords": [
+        "Blank"
+    ],
+    "author": {
+        "email": "info@getblank.net",
+        "name": "Evgeniy Kuvshinov & Evgeniy Ivakha"
+    },
+    "homepage": "http://getblank.net",
+    "license": "GPL-3.0",
+    "bugs": {
+        "url": "https://github.com/getblank/blank-node-worker/issues"
+    },
+    "dependencies": {
+        "async": "^2.0.0-rc.6",
+        "excel-export": "^0.5.1",
+        "exceljs": "^0.2.9",
+        "fast-json-patch": "^1.1.4",
+        "fs-extra": "^4.0.0",
+        "handlebars": "^4.0.5",
+        "js-scrypt": "latest",
+        "jszip": "^3.0.0",
+        "lodash.clonedeep": "^4.5.0",
+        "minimist": "latest",
+        "moment": "^2.13.0",
+        "mongodb": "^3.1",
+        "node-fetch": "^1.6.0",
+        "nodemailer": "^2.4.2",
+        "request": "^2.72.0",
+        "sift": "^3.2.1",
+        "unstream": "^2.0.0",
+        "uuid": "^3.0.0",
+        "winston": "^2.2.0",
+        "winston-graylog2": "latest",
+        "winston-logzio": "^1.0.1",
+        "ws": "latest"
+    },
+    "optionalDependencies": {
+        "scrypt": "^6.0.3"
+    },
+    "devDependencies": {
+        "mocha": "latest",
+        "babel-cli": "^6.8.0",
+        "babel-plugin-transform-es2015-modules-commonjs": "^6.8.0"
+    },
+    "babel": {
+        "plugins": [
+            "transform-es2015-modules-commonjs"
+        ]
+    }
 }
