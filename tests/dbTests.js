@@ -48,18 +48,21 @@ describe("$db", function() {
                         [
                             {
                                 _id: "AAAAAAAA-0000-0000-0000-000000000000",
+                                _ownerId: "00000000-0000-0000-0000-000000000000",
                                 testProp: "40",
                                 name: "testName",
                                 login: "22",
                             },
                             {
                                 _id: "AAAAAAAA-0000-0000-0000-000000000001",
+                                _ownerId: "00000000-0000-0000-0000-000000000000",
                                 testProp: "41",
                                 name: "testName",
                                 login: "33",
                             },
                             {
                                 _id: "AAAAAAAA-0000-0000-0000-000000000002",
+                                _ownerId: "00000000-0000-0000-0000-000000000000",
                                 testProp: "42",
                                 name: "testName",
                                 login: "11",
@@ -909,8 +912,71 @@ describe("$db", function() {
         });
     });
 
+    describe("#transactions", () => {
+        it("should commit changes to DB", async () => {
+            let tx;
+            try {
+                tx = $db.begin();
+
+                await tx.set("users", { _id: "AAAAAAAA-0000-0000-0000-000000000000", txProp: "first value" });
+                await tx.set("users", { _id: "AAAAAAAA-0000-0000-0000-000000000001", txProp: "second value" });
+                const savedItem1 = await tx.get("users", "AAAAAAAA-0000-0000-0000-000000000000");
+                assert.equal(savedItem1.txProp, "first value");
+                const dbItem1 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000");
+                assert.equal(dbItem1.txProp, null);
+                const savedItem2 = await tx.get("users", "AAAAAAAA-0000-0000-0000-000000000001");
+                assert.equal(savedItem2.txProp, "second value");
+                const dbItem2 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000001");
+                assert.equal(dbItem2.txProp, null);
+
+                await tx.commit();
+                const commitedItem1 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000");
+                assert.equal(commitedItem1.txProp, "first value");
+                const commitedItem2 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000001");
+                assert.equal(commitedItem2.txProp, "second value");
+            } finally {
+                await tx.rollback();
+            }
+        });
+
+        it("should rollback changes to DB", async () => {
+            let tx;
+            try {
+                await $db.set("users", { _id: "AAAAAAAA-0000-0000-0000-000000000000", txProp: null });
+                await $db.set("users", { _id: "AAAAAAAA-0000-0000-0000-000000000001", txProp: null });
+
+                tx = $db.begin();
+
+                await tx.set("users", {
+                    _id: "AAAAAAAA-0000-0000-0000-000000000000",
+                    txProp: "first value to rollback",
+                });
+                await tx.set("users", {
+                    _id: "AAAAAAAA-0000-0000-0000-000000000001",
+                    txProp: "second value to rollback",
+                });
+                const savedItem1 = await tx.get("users", "AAAAAAAA-0000-0000-0000-000000000000");
+                assert.equal(savedItem1.txProp, "first value to rollback");
+                const dbItem1 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000");
+                assert.equal(dbItem1.txProp, null);
+                const savedItem2 = await tx.get("users", "AAAAAAAA-0000-0000-0000-000000000001");
+                assert.equal(savedItem2.txProp, "second value to rollback");
+                const dbItem2 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000001");
+                assert.equal(dbItem2.txProp, null);
+
+                await tx.rollback();
+                const canceledItem1 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000");
+                assert.equal(canceledItem1.txProp, null);
+                const canceledItem2 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000001");
+                assert.equal(canceledItem2.txProp, null);
+            } finally {
+                await tx.rollback();
+            }
+        });
+    });
+
     after(async () => {
-        await db._dropCollection("users");
+        // await db._dropCollection("users");
         await db._dropCollection("users_deleted");
         await db._dropCollection("forEachTestStore");
         await db._dropCollection("partialTestsNotificationStore");

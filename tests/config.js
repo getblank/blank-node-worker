@@ -102,6 +102,9 @@ module.exports = {
                 type: "string",
                 noAutoTrim: true,
             },
+            txProp: {
+                type: "string",
+            },
         }),
         actions: [
             {
