@@ -913,6 +913,10 @@ describe("$db", function() {
     });
 
     describe("#transactions", () => {
+        if (process.env.MONGO_PORT_27017_VERSION !== "4") {
+            return;
+        }
+
         it("should commit changes to DB", async () => {
             let tx;
             try {
@@ -969,6 +973,26 @@ describe("$db", function() {
                 assert.equal(canceledItem1.txProp, null);
                 const canceledItem2 = await $db.get("users", "AAAAAAAA-0000-0000-0000-000000000001");
                 assert.equal(canceledItem2.txProp, null);
+            } finally {
+                await tx.rollback();
+            }
+        });
+
+        it("should delete item after commit TX", async () => {
+            let tx;
+            try {
+                await $db.set("users", { _id: "tmp", txProp: "tmp" });
+
+                tx = $db.begin();
+                await tx.delete("users", "tmp");
+                let item = await $db.get("users", "tmp");
+                assert.equal(item.txProp, "tmp");
+                item = await tx.get("users", "tmp", { returnNull: true });
+                assert.equal(item, null);
+
+                await tx.commit();
+                item = await $db.get("users", "tmp", { returnNull: true });
+                assert.equal(item, null);
             } finally {
                 await tx.rollback();
             }
