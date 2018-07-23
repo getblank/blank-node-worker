@@ -9,11 +9,7 @@ configStore.setup(testConfig);
 let testUser = {
     _id: 1,
     roles: ["sclif"],
-    departments: [
-        "calc",
-        "support",
-        "cal",
-    ],
+    departments: ["calc", "support", "cal"],
 };
 
 let systemUser = {
@@ -66,75 +62,60 @@ let denyRuleWithCondition = {
     },
 };
 
-describe("auth", function () {
-    describe("#computeAccess", function () {
-        it("should grant permissions only from 'permissions' argument", function () {
+describe("auth", function() {
+    describe("#computeAccess", function() {
+        it("should grant permissions only from 'permissions' argument", function() {
             let access = auth.computeAccess([allowXYZRule], testUser, "y");
             assert.equal(access, "y");
         });
-        it("should not grant deny permission ('-') if it found at least one time", function () {
+        it("should not grant deny permission ('-') if it found at least one time", function() {
             let access = auth.computeAccess([allowRule, denyRule], testUser, "r");
             assert.equal(access, "");
         });
-        it("should process deny ('-') permissions only without conditions", function () {
+        it("should process deny ('-') permissions only without conditions", function() {
             let access = auth.computeAccess([allowRule, denyRuleWithCondition], testUser, "r");
             assert.equal(access, "r");
         });
-        it("should always grant permissions for 'system' role", function () {
+        it("should always grant permissions for 'system' role", function() {
             let access = auth.computeAccess([denySystem], systemUser, "r");
             assert.equal(access, "r");
         });
-        it("should grant permissions for 'root' role if it not provided in rules", function () {
+        it("should grant permissions for 'root' role if it not provided in rules", function() {
             let access = auth.computeAccess([denyRule], rootUser, "r");
             assert.equal(access, "r");
         });
     });
-    describe("#computeMongoQuery", function () {
-        it("should replace $expression with expression result", function () {
-            let query = auth.computeMongoQuery([allowRule], testUser);
+    describe("#computeMongoQuery", () => {
+        it("should replace $expression with expression result", async () => {
+            const query = await auth.computeMongoQuery([allowRule], testUser);
             assert.deepEqual(query, {
                 allowedDepartments: {
-                    $in: [
-                        "calc",
-                        "support",
-                        "cal",
-                    ],
+                    $in: ["calc", "support", "cal"],
                 },
                 prop: 3,
             });
         });
-        it("should append owner check for singleView store", function () {
-            var rule = { role: "sclif", permissions: "r", condition: { prop: 3 } };
-            let query = auth.computeMongoQuery([rule], testUser, true);
+        it("should append owner check for singleView store", async () => {
+            const rule = { role: "sclif", permissions: "r", condition: { prop: 3 } };
+            const query = await auth.computeMongoQuery([rule], testUser, true);
             assert.deepEqual(query, {
-                $and: [
-                    { prop: 3 },
-                    { _ownerId: 1 },
-                ],
+                $and: [{ prop: 3 }, { _ownerId: 1 }],
             });
         });
-        it("should include -r rules with $not operator", function () {
-            let query = auth.computeMongoQuery([allowRule, denyRuleWithCondition], testUser);
+        it("should include -r rules with $not operator", async () => {
+            const query = await auth.computeMongoQuery([allowRule, denyRuleWithCondition], testUser);
             assert.deepEqual(query, {
                 $and: [
                     {
                         allowedDepartments: {
-                            $in: [
-                                "calc",
-                                "support",
-                                "cal",
-                            ],
+                            $in: ["calc", "support", "cal"],
                         },
                         prop: 3,
                     },
                     {
                         $not: {
                             deniedDepartments: {
-                                $in: [
-                                    "calc",
-                                    "support",
-                                    "cal",
-                                ],
+                                $in: ["calc", "support", "cal"],
                             },
                         },
                     },
