@@ -207,104 +207,90 @@ describe("$db", function() {
                 })
                 .then(res => {
                     assert.equal(res, count);
+                })
+                .catch(err => {
+                    console.error(err);
+                    throw err;
                 });
         });
     });
-    describe("#find", function() {
-        it("should return matched documents", function(done) {
-            $db.find(
-                "users",
-                {
+    describe("#find", () => {
+        it("should return matched documents", () => {
+            return $db
+                .find("users", {
                     query: {
                         testProp: {
                             $in: ["40", "44"],
                         },
                     },
-                },
-                (e, res) => {
-                    assert.equal(e, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.equal(res.count, 2);
                     assert.notEqual(res.items, null);
                     assert.equal(res.items.length, 2);
-                    done();
-                }
-            );
+                });
         });
-        it("should count matched documents", function(done) {
-            $db.find(
-                "users",
-                {
+        it("should count matched documents", () => {
+            return $db
+                .find("users", {
                     query: {
                         testProp: {
                             $in: ["40", "44"],
                         },
                     },
                     take: 1,
-                },
-                (e, res) => {
-                    assert.equal(e, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.equal(res.count, 2);
                     assert.notEqual(res.items, null);
                     assert.equal(res.items.length, 1);
-                    done();
-                }
-            );
+                });
         });
-        it("should sort matched documents correctly with string orderBy", function(done) {
-            $db.find(
-                "users",
-                {
+        it("should sort matched documents correctly with string orderBy", () => {
+            return $db
+                .find("users", {
                     query: {
                         testProp: {
                             $in: ["40", "44"],
                         },
                     },
                     orderBy: "-testProp",
-                },
-                (e, res) => {
-                    assert.equal(e, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.notEqual(res.items, null);
                     assert.equal(res.items[0].testProp, "44");
-                    done();
-                }
-            );
+                });
         });
-        it("should sort matched documents correctly with object orderBy", function(done) {
-            $db.find(
-                "users",
-                {
+        it("should sort matched documents correctly with object orderBy", () => {
+            return $db
+                .find("users", {
                     query: {
                         testProp: {
                             $in: ["40", "44"],
                         },
                     },
                     orderBy: { testProp: -1 },
-                },
-                (e, res) => {
-                    assert.equal(e, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.notEqual(res.items, null);
                     assert.equal(res.items[0].testProp, "44");
-                    done();
-                }
-            );
+                });
         });
-        it("should sort matched documents correctly with string orderBy contains two props", function(done) {
-            $db.find(
-                "users",
-                {
+        it("should sort matched documents correctly with string orderBy contains two props", () => {
+            return $db
+                .find("users", {
                     query: {
                         testProp: {
                             $in: ["41", "40", "43", "42"],
                         },
                     },
                     orderBy: "login, -testProp",
-                },
-                (err, res) => {
-                    assert.equal(err, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.notEqual(res.items, null);
                     const expected = [
@@ -321,15 +307,11 @@ describe("$db", function() {
                         assert.equal(item.testProp, expectedItem.testProp);
                         assert.equal(item.login, expectedItem.login);
                     }
-                    // assert.equal(res.items[0].testProp, "44");
-                    done();
-                }
-            );
+                });
         });
-        it("should skip matched documents correctly", function(done) {
-            $db.find(
-                "users",
-                {
+        it("should skip matched documents correctly", () => {
+            return $db
+                .find("users", {
                     query: {
                         testProp: {
                             $in: ["40", "41", "42", "43", "44"],
@@ -337,64 +319,51 @@ describe("$db", function() {
                     },
                     orderBy: "-_id",
                     skip: 2,
-                },
-                (e, res) => {
-                    assert.equal(e, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.equal(res.count, 5);
                     assert.notEqual(res.items, null);
                     assert.equal(res.items.length, 3);
                     assert.equal(res.items[0].testProp, "42");
-                    done();
-                }
-            );
+                });
         });
-        it("should use store filters", function(done) {
-            $db.find(
-                "users",
-                {
+        it("should use store filters", () => {
+            return $db
+                .find("users", {
                     query: {
                         _default: "test",
                     },
-                },
-                (e, res) => {
-                    assert.equal(e, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.equal(res.count, 3, "Documents count mismatched");
                     assert.notEqual(res.items, null);
                     assert.equal(res.items.length, 3);
-                    done();
-                }
-            );
+                });
         });
-        it("should use store promised filters", function(done) {
-            $db.find(
-                "users",
-                {
+        it("should use store promised filters", () => {
+            return $db
+                .find("users", {
                     query: {
                         promisedQuery: "test",
                     },
-                },
-                (e, res) => {
-                    assert.equal(e, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.equal(res.count, 3, "Documents count mismatched");
                     assert.notEqual(res.items, null);
                     assert.equal(res.items.length, 3);
-                    done();
-                }
-            );
+                });
         });
-        it("should limit number of returned fields", function(done) {
-            $db.find(
-                "users",
-                {
+        it("should limit number of returned fields", () => {
+            return $db
+                .find("users", {
                     query: {},
                     orderBy: "-testProp",
                     props: ["name"],
-                },
-                (e, res) => {
-                    assert.equal(e, null);
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.notEqual(res.items, null);
                     res.items.forEach(item => {
@@ -403,16 +372,7 @@ describe("$db", function() {
                             assert.equal(item.name, "testName");
                         }
                     });
-                    done();
-                }
-            );
-        });
-        it("should return a Promise", function(done) {
-            let mayBePromise = $db.find("users", { query: { testProp: { $in: ["40", "44"] } } }).then(res => {
-                assert.ok(res != null);
-                done();
-            });
-            assert.ok(mayBePromise instanceof Promise);
+                });
         });
     });
     describe("#forEach", function() {
@@ -876,39 +836,38 @@ describe("$db", function() {
                 });
         });
     });
-    describe("#notify", function() {
-        beforeEach(function(done) {
-            db._dropCollection("partialTestsNotificationStore", done);
+    describe("#notify", () => {
+        beforeEach(() => {
+            return db._dropCollection("partialTestsNotificationStore");
         });
-        it("should create documents in 'partialTestsNotificationStore' for all receivers when notify called", function(done) {
-            let receivers = ["AAAAAAAA-0000-0000-0000-000000000000", "AAAAAAAA-0000-0000-0000-000000000001"];
-            $db.notify("partialTestsNotificationStore", receivers, "Hello", (e, res) => {
-                assert.equal(e, null);
-                $db.find("partialTestsNotificationStore", { query: {} }, (e, res) => {
-                    assert.equal(e, null);
+        it("should create documents in 'partialTestsNotificationStore' for all receivers when notify called", () => {
+            const receivers = ["AAAAAAAA-0000-0000-0000-000000000000", "AAAAAAAA-0000-0000-0000-000000000001"];
+            return $db
+                .notify("partialTestsNotificationStore", receivers, "Hello")
+                .then(res => {
+                    return $db.find("partialTestsNotificationStore", { query: {} });
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.equal(res.count, 2);
                     assert.equal(res.items[0].message, "Hello");
                     assert.equal(res.items[0].event, "notification");
                     assert.equal(res.items[0].level, "info");
-                    done();
                 });
-            });
         });
-        it("should create documents in 'partialTestsNotificationStore' for one receiver passed as string when notify called", function(done) {
-            let receivers = "AAAAAAAA-0000-0000-0000-000000000000";
-            $db.notify("partialTestsNotificationStore", receivers, "Hello, receiver", (e, res) => {
-                assert.equal(e, null);
-                $db.find("partialTestsNotificationStore", { query: {} }, (e, res) => {
-                    assert.equal(e, null);
+        it("should create documents in 'partialTestsNotificationStore' for one receiver passed as string when notify called", () => {
+            const receivers = "AAAAAAAA-0000-0000-0000-000000000000";
+            $db.notify("partialTestsNotificationStore", receivers, "Hello, receiver")
+                .then(res => {
+                    return $db.find("partialTestsNotificationStore", { query: {} });
+                })
+                .then(res => {
                     assert.notEqual(res, null);
                     assert.equal(res.count, 1);
                     assert.equal(res.items[0].message, "Hello, receiver");
                     assert.equal(res.items[0].event, "notification");
                     assert.equal(res.items[0].level, "info");
-                    done();
                 });
-            });
         });
     });
 
