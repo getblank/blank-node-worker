@@ -64,24 +64,24 @@ let denyRuleWithCondition = {
 
 describe("auth", function() {
     describe("#computeAccess", function() {
-        it("should grant permissions only from 'permissions' argument", function() {
-            let access = auth.computeAccess([allowXYZRule], testUser, "y");
+        it("should grant permissions only from 'permissions' argument", async () => {
+            const access = await auth.computeAccess([allowXYZRule], testUser, "y");
             assert.equal(access, "y");
         });
-        it("should not grant deny permission ('-') if it found at least one time", function() {
-            let access = auth.computeAccess([allowRule, denyRule], testUser, "r");
+        it("should not grant deny permission ('-') if it found at least one time", async () => {
+            const access = await auth.computeAccess([allowRule, denyRule], testUser, "r");
             assert.equal(access, "");
         });
-        it("should process deny ('-') permissions only without conditions", function() {
-            let access = auth.computeAccess([allowRule, denyRuleWithCondition], testUser, "r");
+        it("should process deny ('-') permissions only without conditions", async () => {
+            const access = await auth.computeAccess([allowRule, denyRuleWithCondition], testUser, "r");
             assert.equal(access, "r");
         });
-        it("should always grant permissions for 'system' role", function() {
-            let access = auth.computeAccess([denySystem], systemUser, "r");
+        it("should always grant permissions for 'system' role", async () => {
+            const access = await auth.computeAccess([denySystem], systemUser, "r");
             assert.equal(access, "r");
         });
-        it("should grant permissions for 'root' role if it not provided in rules", function() {
-            let access = auth.computeAccess([denyRule], rootUser, "r");
+        it("should grant permissions for 'root' role if it not provided in rules", async () => {
+            const access = await auth.computeAccess([denyRule], rootUser, "r");
             assert.equal(access, "r");
         });
     });

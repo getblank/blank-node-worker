@@ -142,9 +142,9 @@ describe("$db", function() {
             });
         });
         it("should callback error when not found", function(done) {
-            $db.get("users", "UNKNOWN_ID", (e, d) => {
-                assert.notEqual(e, null);
-                assert.equal(e.message, "Not found");
+            $db.get("users", "UNKNOWN_ID", (err, res) => {
+                assert.notEqual(err, null);
+                assert.equal(err.message, "Not found");
                 done();
             });
         });
@@ -857,7 +857,8 @@ describe("$db", function() {
         });
         it("should create documents in 'partialTestsNotificationStore' for one receiver passed as string when notify called", () => {
             const receivers = "AAAAAAAA-0000-0000-0000-000000000000";
-            $db.notify("partialTestsNotificationStore", receivers, "Hello, receiver")
+            return $db
+                .notify("partialTestsNotificationStore", receivers, "Hello, receiver")
                 .then(res => {
                     return $db.find("partialTestsNotificationStore", { query: {} });
                 })
