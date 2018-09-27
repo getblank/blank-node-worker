@@ -31,20 +31,33 @@ userScript.setup({
 
 configStore.setup(testConfig);
 
+const pTimeout = t =>
+    new Promise(resolve => {
+        setTimeout(resolve, t);
+    });
+
 let dbMock = {
-    get: function(store, query, options = {}, cb) {
+    async get(store, query, options = {}, cb) {
         cb = cb || options;
-        setTimeout(function() {
-            cb(null, { _id: typeof query === "object" ? query._id : query });
-        });
+        const res = { _id: typeof query === "object" ? query._id : query };
+        if (typeof cb == "function") {
+            setTimeout(() => {
+                cb(null, res);
+            });
+
+            return;
+        }
+
+        await pTimeout();
+        return res;
     },
-    set: function(store, item, options = {}, cb) {
+    set(store, item, options = {}, cb) {
         cb = cb || options;
         setTimeout(function() {
             cb(null, Object.assign({ _id: item.id }, item.item));
         });
     },
-    delete: function(store, id, cb) {
+    delete(store, id, cb) {
         setTimeout(function() {
             cb && cb(null, null);
         });
@@ -436,24 +449,20 @@ describe("taskHandlers/db", function() {
 
             dbGet.run("displaySingleStore", user, { _id: "displaySingleStore" });
         });
-        it("should return baseItem when store.display is 'single'", done => {
+        it("should return baseItem when store.display is 'single'", () => {
             dbGet.test.setDb(db);
-            dbGet.run("displaySingleStore", user, { _id: "displaySingleStore" }, (e, d) => {
-                assert.ok(e == null);
-                assert.equal(d.testProp, "42");
-                done();
+            return dbGet.run("displaySingleStore", user, { _id: "displaySingleStore" }).then(res => {
+                assert.equal(res.testProp, "42");
             });
         });
-        it("should return proper '_id' when store.display is 'single'", done => {
-            dbGet.run("displaySingleStore", user, { _id: "displaySingleStore" }, (e, d) => {
-                assert.equal(d._id, "displaySingleStore");
-                done();
+        it("should return proper '_id' when store.display is 'single'", () => {
+            return dbGet.run("displaySingleStore", user, { _id: "displaySingleStore" }).then(res => {
+                assert.equal(res._id, "displaySingleStore");
             });
         });
-        it("should return object when valid args", done => {
-            dbGet.run(storeName, user, { _id: "00000000-0000-0000-0000-000000000000" }, (e, d) => {
-                assert.equal(d._id, "00000000-0000-0000-0000-000000000000");
-                done();
+        it("should return object when valid args", () => {
+            return dbGet.run(storeName, user, { _id: "00000000-0000-0000-0000-000000000000" }).then(res => {
+                assert.equal(res._id, "00000000-0000-0000-0000-000000000000");
             });
         });
     });

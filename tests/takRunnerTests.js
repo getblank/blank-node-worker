@@ -69,13 +69,19 @@ describe("taskRunner", () => {
     describe("#runTask", () => {
         before(() => {
             dbGet.test.setDb({
-                get: function(id, store, options, cb) {
-                    if (typeof cb !== "function") {
+                async get(id, store, options, cb) {
+                    if (!cb) {
                         cb = options;
                     }
-                    setTimeout(() => {
-                        cb(null, { _id: id });
-                    });
+
+                    const res = { _id: id };
+                    if (typeof cb === "function") {
+                        setTimeout(() => {
+                            cb(null, res);
+                        });
+                    }
+
+                    return res;
                 },
             });
         });
