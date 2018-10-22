@@ -26,7 +26,7 @@ describe("configStore", () => {
             }
         });
         it("should not return _serverSettings store when user provided", () => {
-            let c = configStore.getConfig(testUser);
+            const c = configStore.getConfig(testUser);
             assert.ok(c._serverSettings == null);
         });
         it("should return only stores with read access", async () => {
@@ -116,7 +116,7 @@ describe("configStore", () => {
     });
     describe("#getPartialProps", () => {
         it("should return '_id' prop", () => {
-            let props = configStore.getPartialProps("partialTestsStore") || {};
+            const props = configStore.getPartialProps("partialTestsStore") || {};
             assert.ok(props._id != null);
         });
         it("should return '_state' if store type is 'process'", () => {
@@ -126,7 +126,7 @@ describe("configStore", () => {
             assert.ok(props._state != null);
         });
         it("should return props used in 'headerTemplate'", () => {
-            let props = configStore.getPartialProps("partialTestsProcessStoreWithHeaderTemplate") || {};
+            const props = configStore.getPartialProps("partialTestsProcessStoreWithHeaderTemplate") || {};
             assert.ok(props.hTemplateProp1 != null);
             assert.ok(props.hTemplateProp2 != null);
         });
@@ -137,11 +137,11 @@ describe("configStore", () => {
             assert.ok(props.hProp == null);
         });
         it("should return property in 'orderBy' store setting", () => {
-            let props = configStore.getPartialProps("partialTestsStore") || {};
+            const props = configStore.getPartialProps("partialTestsStore") || {};
             assert.ok(props.orderByProp != null);
         });
         it("should return props used in 'labels' with 'showInList' > 0", () => {
-            let props = configStore.getPartialProps("partialTestsStore") || {};
+            const props = configStore.getPartialProps("partialTestsStore") || {};
             //text
             assert.ok(props.labelTextProp != null);
             //icon
@@ -152,12 +152,12 @@ describe("configStore", () => {
             assert.ok(props.labelHiddenProp != null);
         });
         it("should return all props if store type is 'notification'", () => {
-            let props = configStore.getPartialProps("partialTestsNotificationStore") || {};
+            const props = configStore.getPartialProps("partialTestsNotificationStore") || {};
             assert.ok(props.prop1 != null);
             assert.ok(props.prop2 != null);
         });
         it("should return props used in 'tableColumns'", () => {
-            let props = configStore.getPartialProps("partialTestsStore") || {};
+            const props = configStore.getPartialProps("partialTestsStore") || {};
             assert.ok(props.tableColumnProp1 != null);
             assert.ok(props.tableColumnProp2 != null);
         });

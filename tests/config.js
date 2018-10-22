@@ -1,8 +1,6 @@
 module.exports = {
     users: {
-        access: [
-            { role: "root", permissions: "vcrudx" },
-        ],
+        access: [{ role: "root", permissions: "vcrudx" }],
         display: "list",
         navOrder: 0,
         label: "{{$i18n.storeLabel}}",
@@ -87,7 +85,6 @@ module.exports = {
                         formOrder: 0,
                         load: "return $baseItem.testProp + $item.nestedProp",
                     },
-
                 },
             },
             propWithDefault: {
@@ -133,7 +130,8 @@ module.exports = {
             },
             {
                 _id: "availability_test",
-                script: "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {return 'ok';} else {return 'fail';}",
+                script:
+                    "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {return 'ok';} else {return 'fail';}",
             },
             {
                 _id: "concurrent_test",
@@ -223,9 +221,7 @@ module.exports = {
         baseStore: "baseProxyStore",
     },
     deniedStore1: {
-        access: [
-            { role: "root", permissions: "-" },
-        ],
+        access: [{ role: "root", permissions: "-" }],
         display: "list",
         navOrder: 0,
         label: "{{$i18n.storeLabel}}",
@@ -247,14 +243,10 @@ module.exports = {
         },
     },
     deniedStore2: {
-        access: [
-            { role: "test", permissions: "cud" },
-        ],
+        access: [{ role: "test", permissions: "cud" }],
     },
     deniedStore3: {
-        access: [
-            { role: "noTest", permissions: "vcrudx" },
-        ],
+        access: [{ role: "noTest", permissions: "vcrudx" }],
     },
     partialTestsStore: {
         headerProperty: "hProp",
@@ -308,9 +300,7 @@ module.exports = {
         }),
     },
     allowedStore: {
-        access: [
-            { role: "test", permissions: "vcrudx" },
-        ],
+        access: [{ role: "test", permissions: "vcrudx" }],
         props: require("./defaultConfig").mergeProps({
             _id: {},
             name: {},
@@ -487,18 +477,21 @@ module.exports = {
         tasks: [
             {
                 schedule: "*/5  *   *   *   *  *",
-                script: "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
+                script:
+                    "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
             },
         ],
     },
     storeWithLifeCycle: {
         storeLifeCycle: {
-            didStart: "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
+            didStart:
+                "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
         },
     },
     storeWithObjectLifeCycle: {
         objectLifeCycle: {
-            willSave: "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
+            willSave:
+                "if (typeof require === 'function' && $db != null && typeof $db.get === 'function') {console.warn('42');}",
         },
     },
     storeWithVirtualProps: {
@@ -519,6 +512,11 @@ module.exports = {
                     },
                 },
             },
+            asyncVirtualProp: {
+                type: "virtual",
+                display: "text",
+                load: 'return $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000").then(res => res.name);',
+            },
         }),
     },
     storeWithLogging: {
@@ -534,7 +532,7 @@ module.exports = {
         props: Object.assign({}, require("./defaultConfig").props, {
             _id: {
                 type: "string",
-                load: "return $db.nextSequenceString(\"storeWithCustomStringId\", 1)",
+                load: 'return $db.nextSequenceString("storeWithCustomStringId", 1)',
             },
         }),
     },
@@ -550,7 +548,7 @@ module.exports = {
         props: Object.assign({}, require("./defaultConfig").props, {
             _id: {
                 type: "int",
-                load: "return $db.nextSequence(\"storeWithCustomIntId\")",
+                load: 'return $db.nextSequence("storeWithCustomIntId")',
             },
         }),
     },
@@ -636,10 +634,7 @@ module.exports = {
     },
     _commonSettings: {
         type: "map",
-        access: [
-            { role: "all", permissions: "vcrudx" },
-            { role: "guest", permissions: "vcrudx" },
-        ],
+        access: [{ role: "all", permissions: "vcrudx" }, { role: "guest", permissions: "vcrudx" }],
         entries: {
             title: "Default title",
             locales: ["kz", "en", "ru"],
@@ -649,9 +644,7 @@ module.exports = {
                 { name: "description", content: "Application description" },
                 { name: "author", content: "Application author" },
             ],
-            links: [
-                { rel: "canonical", href: "http://mysite.com/example" },
-            ],
+            links: [{ rel: "canonical", href: "http://mysite.com/example" }],
             lessVars: {
                 //"@baseColor": "#FF0044"
             },
@@ -733,7 +726,8 @@ module.exports = {
                     error: "Login or password incorrect",
                     userNotFound: "User not found",
                     invalidPassword: "Invalid password",
-                    restoreLinkSent: "Email with recent link sent. If you provide correct address, you will receive it within 10 minutes",
+                    restoreLinkSent:
+                        "Email with recent link sent. If you provide correct address, you will receive it within 10 minutes",
                     invalidUserData: "Invalid user data, please contact system administrator",
                 },
                 signOut: {

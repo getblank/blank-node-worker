@@ -43,51 +43,49 @@ describe("$db", function() {
                     return db._dropCollection("storeWithCustomIntId");
                 })
                 .then(() => {
-                    return db._insertMany(
-                        "users",
-                        [
-                            {
-                                _id: "AAAAAAAA-0000-0000-0000-000000000000",
-                                _ownerId: "00000000-0000-0000-0000-000000000000",
-                                testProp: "40",
-                                name: "testName",
-                                login: "22",
+                    return db._insertMany("users", [
+                        {
+                            _id: "AAAAAAAA-0000-0000-0000-000000000000",
+                            _ownerId: "00000000-0000-0000-0000-000000000000",
+                            testProp: "40",
+                            name: "testName",
+                            login: "22",
+                        },
+                        {
+                            _id: "AAAAAAAA-0000-0000-0000-000000000001",
+                            _ownerId: "00000000-0000-0000-0000-000000000000",
+                            testProp: "41",
+                            name: "testName",
+                            login: "33",
+                        },
+                        {
+                            _id: "AAAAAAAA-0000-0000-0000-000000000002",
+                            _ownerId: "00000000-0000-0000-0000-000000000000",
+                            testProp: "42",
+                            name: "testName",
+                            login: "11",
+                        },
+                        { _id: "AAAAAAAA-0000-0000-0000-000000000003", testProp: "43", name: "name", login: "11" },
+                        { _id: "AAAAAAAA-0000-0000-0000-000000000004", testProp: "44" },
+                        { _id: "AAAAAAAA-0000-0000-0000-000000000042", testProp: "toDelete" },
+                        { _id: "AAAAAAAA-0000-0000-0000-000000000043", testProp: "toDelete2" },
+                        { _id: "AAAAAAAA-0000-0000-0000-000000000044", testProp: "toDelete3" },
+                        { _id: "AAAAAAAA-0000-0000-0000-000000000046", testProp: "toDelete4" },
+                        {
+                            _id: "AAAAAAAA-0000-0000-0000-000000000045",
+                            testProp: "toLoadVirtual",
+                            objectOfVirtuals: {
+                                nestedProp: "NESTED_PROP",
                             },
-                            {
-                                _id: "AAAAAAAA-0000-0000-0000-000000000001",
-                                _ownerId: "00000000-0000-0000-0000-000000000000",
-                                testProp: "41",
-                                name: "testName",
-                                login: "33",
-                            },
-                            {
-                                _id: "AAAAAAAA-0000-0000-0000-000000000002",
-                                _ownerId: "00000000-0000-0000-0000-000000000000",
-                                testProp: "42",
-                                name: "testName",
-                                login: "11",
-                            },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000003", testProp: "43", name: "name", login: "11" },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000004", testProp: "44" },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000042", testProp: "toDelete" },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000043", testProp: "toDelete2" },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000044", testProp: "toDelete3" },
-                            { _id: "AAAAAAAA-0000-0000-0000-000000000046", testProp: "toDelete4" },
-                            {
-                                _id: "AAAAAAAA-0000-0000-0000-000000000045",
-                                testProp: "toLoadVirtual",
-                                objectOfVirtuals: {
-                                    nestedProp: "NESTED_PROP",
-                                },
-                                objectListOfVirtuals: [
-                                    { nestedProp: "NESTED_LIST_PROP1" },
-                                    { nestedProp: "NESTED_LIST_PROP2" },
-                                ],
-                            },
-                        ],
-                        done
-                    );
-                });
+                            objectListOfVirtuals: [
+                                { nestedProp: "NESTED_LIST_PROP1" },
+                                { nestedProp: "NESTED_LIST_PROP2" },
+                            ],
+                        },
+                    ]);
+                })
+                .then(() => $db.set("storeWithVirtualProps", { _id: "1" }))
+                .then(() => done());
         });
     });
     describe("#_copyReadableItemProps", function() {
@@ -171,6 +169,11 @@ describe("$db", function() {
                 // assert.equal(res.objectListOfVirtuals[1].nestedVirtualProp, "toLoadVirtualNESTED_LIST_PROP2");
                 done();
             });
+        });
+        it("should load async virtual props", async () => {
+            const item = await $db.get("storeWithVirtualProps", "1");
+            assert.equal(item.asyncVirtualProp, "testName", "asyncVirtualProp should be filled");
+            assert.equal(item.v1, "v1", "sync prop v1 should also be filled");
         });
         it("should return a Promise", function(done) {
             let mayBePromise = $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000").then(res => {
