@@ -30,7 +30,7 @@
         "async": "^2.0.0-rc.6",
         "excel-export": "^0.5.1",
         "exceljs": "^0.2.9",
-        "fast-json-patch": "^1.1.4",
+        "fast-json-patch": "^1.2.2",
         "fs-extra": "^4.0.0",
         "handlebars": "^4.0.5",
         "js-scrypt": "latest",
