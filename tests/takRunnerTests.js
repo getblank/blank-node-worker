@@ -9,6 +9,7 @@ const testConfig = require("./config");
 const configStore = require("../lib/configStore");
 const dbGet = require("../lib/taskHandlers/dbGet");
 const WampMock = require("./wampMock");
+const cloneDeep = require("lodash.clonedeep");
 
 configStore.setup(testConfig);
 console.debug = () => {};
@@ -25,7 +26,7 @@ const sampleTask = {
 };
 
 function getTask(options) {
-    return Object.assign(JSON.parse(JSON.stringify(sampleTask)), options);
+    return Object.assign(cloneDeep(sampleTask), options);
 }
 
 describe("taskRunner", () => {
