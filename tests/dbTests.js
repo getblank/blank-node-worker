@@ -4,7 +4,7 @@ const assert = require("assert");
 const testConfig = require("./config");
 const configStore = require("../lib/configStore");
 configStore.setup(testConfig);
-const db = require("../lib/db/rawDb");
+const db = require("../lib/db/mongoDB");
 const $db = require("../lib/db/index");
 const sync = require("../lib/sync");
 const syncMock = require("./syncMock");
