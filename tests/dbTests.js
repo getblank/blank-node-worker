@@ -132,55 +132,47 @@ describe("$db", () => {
         });
     });
     describe("#get", () => {
-        it("should callback with error when store not found", done => {
-            $db.get("UNKNOWN_STORE", "00000000-0000-0000-0000-000000000000", (e, d) => {
-                assert.notEqual(e, null);
-                assert.equal(e.message, "Store not found");
-                done();
+        it("should throw error when store not found", () => {
+            return $db
+                .get("UNKNOWN_STORE", "UNKNOWN_ID")
+                .then(() => {
+                    throw new Error("should not resolve");
+                })
+                .catch(err => {
+                    assert.notEqual(err, null);
+                    assert.equal(err.message, "Store not found");
+                });
+        });
+        it("should throw error when not found", () => {
+            return $db
+                .get("users", "UNKNOWN_ID")
+                .then(res => {
+                    throw new Error("should not resolve");
+                })
+                .catch(err => {
+                    assert.notEqual(err, null);
+                    assert.equal(err.message, "Not found");
+                });
+        });
+        it("should return null when not found and options.returnNull is true", () => {
+            $db.get("users", "UNKNOWN_ID", { returnNull: true }).then(res => {
+                assert.equal(res, null);
             });
         });
-        it("should callback error when not found", done => {
-            $db.get("users", "UNKNOWN_ID", (err, res) => {
-                assert.notEqual(err, null);
-                assert.equal(err.message, "Not found");
-                done();
+        it("should return item if it exists", () => {
+            $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000").then(res => {
+                assert.equal(res.testProp, 40);
             });
         });
-        it("should callback without error when not found and options.returnNull is true", done => {
-            $db.get("users", "UNKNOWN_ID", { returnNull: true }, (e, d) => {
-                assert.equal(e, null);
-                assert.equal(d, null);
-                done();
-            });
-        });
-        it("should return item if it exists", done => {
-            $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000", (e, d) => {
-                assert.equal(e, null);
-                assert.equal(d.testProp, 40);
-                done();
-            });
-        });
-        it("should load virtual props", done => {
-            $db.get("users", "AAAAAAAA-0000-0000-0000-000000000045", { loadVirtualProps: true }, (err, res) => {
-                assert.equal(err, null);
+        it("should load virtual props", () => {
+            $db.get("users", "AAAAAAAA-0000-0000-0000-000000000045", { noLoadVirtualProps: false }).then(res => {
                 assert.equal(res.virtualProp, "toLoadVirtual_virtual");
-                // assert.equal(res.objectOfVirtuals.nestedVirtualProp, "NESTED_PROPtoLoadVirtual");
-                // assert.equal(res.objectListOfVirtuals[0].nestedVirtualProp, "toLoadVirtualNESTED_LIST_PROP1");
-                // assert.equal(res.objectListOfVirtuals[1].nestedVirtualProp, "toLoadVirtualNESTED_LIST_PROP2");
-                done();
             });
         });
         it("should load async virtual props", async () => {
             const item = await $db.get("storeWithVirtualProps", "1");
             assert.equal(item.asyncVirtualProp, "testName", "asyncVirtualProp should be filled");
             assert.equal(item.v1, "v1", "sync prop v1 should also be filled");
-        });
-        it("should return a Promise", done => {
-            let mayBePromise = $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000").then(res => {
-                assert.ok(res != null);
-                done();
-            });
-            assert.ok(mayBePromise instanceof Promise);
         });
         it("should return only requested properties", () => {
             return $db.get("users", "AAAAAAAA-0000-0000-0000-000000000000", { props: ["name"] }).then(res => {
@@ -691,37 +683,30 @@ describe("$db", () => {
         });
     });
     describe("#populateAll", () => {
-        it("should populate user prop correctly and execute callback", done => {
-            let item = {
+        it("should populate user prop correctly and execute callback", async () => {
+            const item = {
                 userId: "AAAAAAAA-0000-0000-0000-000000000004",
                 userIds: ["AAAAAAAA-0000-0000-0000-000000000004", "AAAAAAAA-0000-0000-0000-000000000003"],
             };
-            $db.getUser("system", (err, user) => {
-                $db.populateAll("storeForPopulating", item, user, (err, res) => {
-                    assert.equal(err, null);
-                    assert.ok(res.user);
-                    assert.equal(res.user.testProp, "44");
-                    assert.equal(res.userList[0].testProp, "44");
-                    assert.equal(res.userList[1].testProp, "43");
-                    done();
-                });
-            });
+            const user = await $db.getUser("system");
+            const res = await $db.populateAll("storeForPopulating", item, user);
+            assert.ok(res.user);
+            assert.equal(res.user.testProp, "44");
+            assert.equal(res.userList[0].testProp, "44");
+            assert.equal(res.userList[1].testProp, "43");
         });
-        it("should populate user with map function correctly and execute callback", done => {
-            let item = {
+        it("should populate user with map function correctly and execute callback", async () => {
+            const item = {
                 userId: "AAAAAAAA-0000-0000-0000-000000000004",
                 userIds: ["AAAAAAAA-0000-0000-0000-000000000004", "AAAAAAAA-0000-0000-0000-000000000003"],
             };
-            $db.getUser("system", (err, user) => {
-                $db.populateAll("storeForPopulatingMap", item, user, (err, res) => {
-                    assert.equal(err, null);
-                    assert.ok(res.userTestProp);
-                    assert.equal(res.userTestProp, "44");
-                    assert.equal(res.userList[0], "44");
-                    assert.equal(res.userList[1], "43");
-                    done();
-                });
-            });
+
+            const user = await $db.getUser("system");
+            const res = await $db.populateAll("storeForPopulatingMap", item, user);
+            assert.ok(res.userTestProp);
+            assert.equal(res.userTestProp, "44");
+            assert.equal(res.userList[0], "44");
+            assert.equal(res.userList[1], "43");
         });
     });
     describe("#delete", () => {

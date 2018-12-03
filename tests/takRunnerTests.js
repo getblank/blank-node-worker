@@ -25,9 +25,9 @@ const sampleTask = {
     },
 };
 
-function getTask(options) {
+const getTask = options => {
     return Object.assign(cloneDeep(sampleTask), options);
-}
+};
 
 describe("taskRunner", () => {
     describe("#validateTask", () => {
@@ -54,17 +54,13 @@ describe("taskRunner", () => {
         });
     });
     describe("#getUser", () => {
-        it("should return user for 'root' user id", done => {
-            taskRunner.test.getUser("root", (err, user) => {
-                assert.deepEqual(user.roles, ["root"]);
-                done();
-            });
+        it("should return user for 'root' user id", async () => {
+            const user = await taskRunner.test.getUser("root");
+            assert.deepEqual(user.roles, ["root"]);
         });
-        it("should return user for 'guest' user id", done => {
-            taskRunner.test.getUser("guest", (err, user) => {
-                assert.deepEqual(user.roles, ["guest"]);
-                done();
-            });
+        it("should return user for 'guest' user id", async () => {
+            const user = await taskRunner.test.getUser("guest");
+            assert.deepEqual(user.roles, ["guest"]);
         });
     });
     describe("#runTask", () => {
@@ -104,21 +100,22 @@ describe("taskRunner", () => {
             assert.equal(c.args[1], "Store not found");
         });
         it("should call error 'User not found' when no store for task", done => {
-            let taskData = { id: Math.random(), userId: "UNKNOWN" };
-            var h = function(t) {
+            const taskData = { id: Math.random(), userId: "UNKNOWN" };
+            const h = t => {
                 if (taskData.id === t.id) {
                     assert.equal(wampMock.getCallsCount(taskUris.error), 1);
-                    let c = wampMock.calls[taskUris.error][0];
+                    const c = wampMock.calls[taskUris.error][0];
                     assert.equal(c.args[1], "User not found");
                     taskRunner.removeListener("taskUserNotFoundError", h);
                     done();
                 }
             };
+
             taskRunner.on("taskUserNotFoundError", h);
             taskRunner.test.runTask(getTask(taskData));
         });
         it("should call error 'Unauthorized' when no access to store", done => {
-            const taskData = { id: Math.random(), store: "deniedStore1" };
+            const taskData = { id: Math.random(), store: "deniedStore1", userId: "root" };
             const h = t => {
                 if (taskData.id === t.id) {
                     assert.equal(wampMock.getCallsCount(taskUris.error), 1);
@@ -132,14 +129,14 @@ describe("taskRunner", () => {
             taskRunner.test.runTask(getTask(taskData));
         });
         it("should fire 'taskWillRun' and 'taskDidRun' events and call 'done' for valid task", done => {
-            let taskData = { id: Math.random() },
-                willRunHandled = false;
-            var willRun = function(t) {
+            const taskData = { id: Math.random(), userId: "root" };
+            let willRunHandled = false;
+            const willRun = t => {
                 if (taskData.id === t.id) {
                     willRunHandled = true;
                 }
             };
-            var didRun = function(t) {
+            const didRun = t => {
                 if (taskData.id === t.id) {
                     assert.equal(willRunHandled, true);
                     assert.equal(wampMock.getCallsCount(taskUris.done), 1);
@@ -152,14 +149,15 @@ describe("taskRunner", () => {
             taskRunner.test.runTask(getTask(taskData));
         });
         it("should call error when error occured while running task", done => {
-            let taskData = { id: Math.random(), args: null };
-            var h = function(t) {
+            const taskData = { id: Math.random(), args: null, userId: "root" };
+            const h = t => {
                 if (taskData.id === t.id) {
                     assert.equal(wampMock.getCallsCount(taskUris.error), 1);
                     taskRunner.removeListener("taskDidRun", h);
                     done();
                 }
             };
+
             taskRunner.on("taskDidRun", h);
             taskRunner.test.runTask(getTask(taskData));
         });
