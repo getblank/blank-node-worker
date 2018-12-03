@@ -64,7 +64,7 @@ let dbMock = {
     },
     delete(store, id, cb) {
         setTimeout(() => {
-            cb && cb(null, null);
+            typeof cb === "function" && cb(null, null);
         });
     },
 };

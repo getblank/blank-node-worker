@@ -622,12 +622,11 @@ module.exports = {
                     return $user.customPassword === password;
                 `,
                 willSignIn: `
-                    return $db.nextSequence("someSequence").then(res => {
-                        $user.willSignInProp = "passed";
-                        if ($data.reject) {
-                            throw new Error("rejected");
-                        }
-                    });
+                    const res = await $db.nextSequence("someSequence");
+                    $user.willSignInProp = "passed";
+                    if ($data.reject) {
+                        throw new Error("rejected");
+                    }
                 `,
             },
         },

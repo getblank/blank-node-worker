@@ -773,32 +773,32 @@ describe("$db", () => {
         before(done => {
             db._dropCollection("_sequences", done);
         });
-        it("should return next sequence number when first $db.nextSequence called", done => {
-            $db.nextSequence("users", function(err, sequence) {
-                assert.equal(err, null);
-                assert.strictEqual(sequence, 1);
-                $db.nextSequence("users", function(err, sequence) {
-                    assert.equal(err, null);
+        it("should return next sequence number when first $db.nextSequence called", () => {
+            return $db
+                .nextSequence("users")
+                .then(sequence => {
+                    assert.strictEqual(sequence, 1);
+                    return $db.nextSequence("users");
+                })
+                .then(sequence => {
                     assert.strictEqual(sequence, 2);
-                    done();
                 });
-            });
         });
     });
     describe("#nextSequenceString", () => {
         before(done => {
             db._dropCollection("_sequences", done);
         });
-        it("should return next sequence number when first $db.nextSequence called", done => {
-            $db.nextSequenceString("users", function(err, sequence) {
-                assert.equal(err, null);
-                assert.strictEqual(sequence, "000001");
-                $db.nextSequenceString("users", 3, function(err, sequence) {
-                    assert.equal(err, null);
+        it("should return next sequence number when first $db.nextSequence called", () => {
+            return $db
+                .nextSequenceString("users")
+                .then(sequence => {
+                    assert.strictEqual(sequence, "000001");
+                    return $db.nextSequenceString("users", 3);
+                })
+                .then(sequence => {
                     assert.strictEqual(sequence, "002");
-                    done();
                 });
-            });
         });
     });
     describe("#customId", () => {
