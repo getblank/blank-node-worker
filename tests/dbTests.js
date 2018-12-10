@@ -24,7 +24,7 @@ sync.setup({
 
 describe("$db", () => {
     before(done => {
-        $db.setup("mongodb://127.0.0.1:27017/blankTest");
+        $db.setupMongo("mongodb://127.0.0.1:27017/blankTest");
         db.on("connected", () => {
             db._dropCollection("users")
                 .then(() => {
