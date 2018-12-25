@@ -271,7 +271,7 @@ describe("taskHandler/action", () => {
                 throw new Error("should not resolve");
             })
             .catch(err => {
-                assert.equal(err.message, "Action not found");
+                assert.equal(err.message, `Action "UNKNOWN" getting error: Error: Action not found`);
             });
     });
     it("should callback error when item load fails", () => {
