@@ -572,56 +572,33 @@ describe("$db", () => {
         });
     });
     describe("#insert", () => {
-        it("should return item with generated '_id'", done => {
-            $db.insert("users", { name: "test" }, function(err, item) {
-                assert.equal(err, null, "returned error");
-                assert.ok(item._id, "no '_id' in item");
-                done();
-            });
+        it("should return item with generated '_id'", async () => {
+            const item = await $db.insert("users", { name: "test" });
+            assert.ok(item._id, "no '_id' in item");
         });
-        it("should return created item from db", done => {
-            $db.insert("users", { name: "test" }, function(err, item) {
-                assert.equal(err, null);
-                assert.ok(item._id, "no '_id' in item");
-                $db.get("users", item._id, (err, $item) => {
-                    assert.equal(err, null, "returned error");
-                    assert.equal($item.name, "test");
-                    done();
-                });
-            });
+        it("should return created item from db", async () => {
+            const item = await $db.insert("users", { name: "test" });
+            assert.ok(item._id, "no '_id' in item");
+            const $item = await $db.get("users", item._id);
+            assert.equal($item.name, "test");
         });
-        it("should add correct _ownerId, createdBy and createdAt", done => {
-            $db.insert("users", { name: "test" }, function(err, item) {
-                assert.equal(err, null, "returned error");
-                assert.equal(item._ownerId, "system");
-                assert.ok(item.createdBy);
-                assert.ok(item.createdAt);
-                done();
-            });
+        it("should add correct _ownerId, createdBy and createdAt", async () => {
+            const item = await $db.insert("users", { name: "test" });
+            assert.equal(item._ownerId, "system");
+            assert.ok(item.createdBy);
+            assert.ok(item.createdAt);
         });
-        it("should return modified item when willCreate called", done => {
-            $db.insert("users", { name: "test", testProp: "notError" }, function(err, item) {
-                assert.equal(err, null);
-                assert.equal(item.testProp, "42");
-                done();
-            });
+        it("should return modified item when willCreate called", async () => {
+            const item = await $db.insert("users", { name: "test", testProp: "notError" });
+            assert.equal(item.testProp, "42");
         });
-        it("should return error when willCreate returns error", done => {
-            $db.insert("users", { name: "test", testProp: "Error" }, function(err, item) {
-                assert.notEqual(err, null);
+        it("should return error when willCreate returns error", async () => {
+            try {
+                await $db.insert("users", { name: "test", testProp: "Error" });
+                throw new Error("should not resolve");
+            } catch (err) {
                 assert.equal(err.message, "Error");
-                done();
-            });
-        });
-        it("should return a Promise", done => {
-            const mayBePromise = $db.insert("anyStore", { name: "test" }).then(
-                res => {},
-                err => {
-                    assert.ok(err != null);
-                    done();
-                }
-            );
-            assert.ok(mayBePromise instanceof Promise);
+            }
         });
         it("should fill default prop's values if they is not exists", () => {
             return $db.insert("users", { name: "testWithDefault" }).then(res => {
