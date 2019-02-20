@@ -664,6 +664,7 @@ describe("$db", () => {
             const item = {
                 userId: "AAAAAAAA-0000-0000-0000-000000000004",
                 userIds: ["AAAAAAAA-0000-0000-0000-000000000004", "AAAAAAAA-0000-0000-0000-000000000003"],
+                refObject: { store: "users", _id: "AAAAAAAA-0000-0000-0000-000000000003" },
             };
             const user = await $db.getUser("system");
             const res = await $db.populateAll("storeForPopulating", item, user);
@@ -671,6 +672,7 @@ describe("$db", () => {
             assert.equal(res.user.testProp, "44");
             assert.equal(res.userList[0].testProp, "44");
             assert.equal(res.userList[1].testProp, "43");
+            assert.equal(res.refo.testProp, "43");
         });
         it("should populate user with map function correctly and execute callback", async () => {
             const item = {

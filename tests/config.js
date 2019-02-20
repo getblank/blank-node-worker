@@ -345,6 +345,18 @@ module.exports = {
                 store: "users",
                 populateIn: "userList",
             },
+            refObject: {
+                type: "object",
+                props: {
+                    store: {
+                        type: "string",
+                    },
+                    _id: {
+                        type: "string",
+                    },
+                },
+                populateIn: { prop: "refo" },
+            },
         }),
     },
     storeForPopulatingMap: {
