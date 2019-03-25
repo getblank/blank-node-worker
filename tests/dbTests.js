@@ -570,6 +570,14 @@ describe("$db", () => {
                     assert.equal(res.loggedProp, "updated value");
                 });
         });
+        it("should rewrite existing item, when noMerge option passed", async () => {
+            // const item = await $db.insert("users", { email: "User@ForMe.rge" });
+            // const newItem = { _id: item._id, testProp: "Test Prop For Merge" };
+            // await $db.set("users", newItem, { noMerge: true });
+            // const saved = await $db.get("users", item._id);
+            // assert.equal(saved.testProp, newItem.testProp);
+            // assert.ok(saved.email === undefined);
+        });
     });
     describe("#insert", () => {
         it("should return item with generated '_id'", async () => {
