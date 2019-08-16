@@ -107,7 +107,7 @@ module.exports = {
             {
                 _id: "return_item_test_property",
                 label: "",
-                script: "return $item.test;",
+                script: "return $item.testProp;",
                 hidden: "false",
             },
             {
@@ -120,13 +120,13 @@ module.exports = {
                 _id: "hidden_if_item_hidden",
                 label: "",
                 script: "console.log('hidden');",
-                hidden: "return $item.hidden;",
+                hidden: "return $item._id === '0'",
             },
             {
                 _id: "disabled_if_item_disabled",
                 label: "",
                 script: "console.log('disabled');",
-                disabled: "return $item.disabled;",
+                disabled: "return $item._id === '0'",
             },
             {
                 _id: "availability_test",
@@ -844,6 +844,56 @@ module.exports = {
                     PASSWORD_NOT_MATCHED: "Invalid password",
                     EMAIL_NOT_FOUND: "E-mail address not found",
                 },
+            },
+        },
+    },
+    syslog: {
+        props: {
+            _id: {
+                type: "int",
+            },
+            createdAt: {
+                label: "DateTime",
+            },
+            store: {
+                type: "string",
+                label: "Store",
+                display: "text",
+            },
+            userId: {
+                type: "ref",
+                store: "users",
+                display: "none",
+                readOnly: true,
+            },
+            itemId: {
+                type: "string",
+                label: "Item Id",
+                display: "none",
+            },
+            actionSource: {
+                display: "select",
+                options: [
+                    { value: "JS", label: "JavaScript API" },
+                    { value: "WAMP", label: "WAMP API" },
+                    { value: "HTTP", label: "HTTP API" },
+                    { value: "System", label: "System" },
+                ],
+            },
+            action: {
+                type: "string",
+                label: "Action",
+                display: "text",
+            },
+            actionData: {
+                type: "any",
+                label: "Action data",
+                display: "text",
+            },
+            result: {
+                type: "any",
+                display: "text",
+                label: "Result",
             },
         },
     },

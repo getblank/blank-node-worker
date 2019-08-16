@@ -69,28 +69,6 @@ let dbMock = {
     },
 };
 
-let dbGetMock = {
-    async get(store, id, options, cb) {
-        cb = cb || options;
-        const res = { _id: id, disabled: true, hidden: true, test: 42 };
-        if (typeof cb === "function") {
-            setTimeout(() => {
-                if (!id || id === "UNKNOWN") {
-                    return cb(new Error(), null);
-                }
-
-                cb(null, res);
-            });
-        }
-
-        if (!id || id === "UNKNOWN") {
-            throw new Error();
-        }
-
-        return res;
-    },
-};
-
 const storeName = "users";
 const user = {
     _id: "00000000-0000-0000-0000-000000000000",
@@ -259,10 +237,10 @@ describe("taskHandler/signup", () => {
 
 describe("taskHandler/action", () => {
     beforeEach(() => {
-        action.test.setDb(dbGetMock);
+        db.set("users", { _id: "0", disabled: true, hidden: true, testProp: 42 });
     });
     after(() => {
-        action.test.setDb(db);
+        db.delete("users", "0");
     });
     it("should callback error when no action description found", () => {
         return action
