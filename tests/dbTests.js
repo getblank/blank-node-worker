@@ -538,7 +538,12 @@ describe("$db", () => {
                 .insert(storeName, originalItem)
                 .then(res => {
                     _id = res._id;
-                    const updatedItem = { _id, loggedProp: "updated value" };
+                    const updatedItem = {
+                        _id,
+                        loggedProp: "updated value",
+                        obj: { str: "val" },
+                        ol: [{ str: "strVal" }],
+                    };
 
                     return $db.set(storeName, updatedItem);
                 })
@@ -554,7 +559,12 @@ describe("$db", () => {
                     assert.equal(res.ver, 2);
                     assert.equal(res.prevVer, 1);
 
-                    return $db.set(storeName, { _id, loggedProp: "last value" });
+                    return $db.set(storeName, {
+                        _id,
+                        loggedProp: "last value",
+                        obj: { str: "last val" },
+                        ol: [{ str: "last strVal" }],
+                    });
                 })
                 .then(res => {
                     assert.equal(res.loggedProp, "last value");
@@ -568,6 +578,8 @@ describe("$db", () => {
                 })
                 .then(res => {
                     assert.equal(res.loggedProp, "updated value");
+                    assert.equal(res.obj.str, "val");
+                    assert.equal(res.ol[0].str, "strVal");
                 });
         });
         it("should rewrite existing item, when noMerge option passed", async () => {
@@ -708,7 +720,7 @@ describe("$db", () => {
                     assert.ok(res._deleted);
                 });
         });
-        it("should return deleted item by _id and item should be marked as deleted", () => {
+        xit("should return deleted item by _id and item should be marked as deleted", () => {
             return $db
                 .delete("users", "AAAAAAAA-0000-0000-0000-000000000043")
                 .then(() => $db.get("users", "AAAAAAAA-0000-0000-0000-000000000043", { deleted: true }))

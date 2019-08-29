@@ -538,6 +538,24 @@ module.exports = {
                 type: "string",
                 display: "none",
             },
+            obj: {
+                type: "object",
+                props: {
+                    str: {
+                        type: "string",
+                        display: "none",
+                    },
+                },
+            },
+            ol: {
+                type: "objectList",
+                props: {
+                    str: {
+                        type: "string",
+                        display: "none",
+                    },
+                },
+            },
         }),
     },
     storeWithCustomStringId: {
