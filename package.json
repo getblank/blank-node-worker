@@ -1,6 +1,6 @@
 {
     "name": "blank-node-worker",
-    "version": "0.3.63-10",
+    "version": "0.3.63-11",
     "description": "JavaScript task runner for Blank platform",
     "main": "lib/worker.js",
     "scripts": {
