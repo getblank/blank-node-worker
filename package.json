@@ -30,7 +30,7 @@
     "dependencies": {
         "excel-export": "^0.5.1",
         "exceljs": "^1.6.3",
-        "fast-json-patch": "^2.2.1",
+        "fast-json-patch": "^3.1.1",
         "fs-extra": "^4.0.0",
         "handlebars": "^4.0.5",
         "js-scrypt": "latest",
